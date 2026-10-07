@@ -17,8 +17,8 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: uv sync --python ${{ matrix.python-version }}
-      - run: uv run ruff check src tests scripts
-      - run: uv run ruff format --check src tests scripts
+      - run: uv run ruff check src tests scripts examples
+      - run: uv run ruff format --check src tests scripts examples
       - run: uv run pyright
       - run: uv run pytest -q
       - name: JSON Schema is up to date

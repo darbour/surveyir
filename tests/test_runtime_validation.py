@@ -27,33 +27,11 @@ from pathlib import Path
 import pytest
 
 from surveyir import load_qsf
-from surveyir.model import TextEntryQuestion, iter_comparisons, walk
-from surveyir.runtime import RandomAnswerer, Simulator
+from surveyir.runtime import ScreenerAwareAnswerer, Simulator
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = json.loads((ROOT / "tests" / "fixtures" / "validation" / "twin.json").read_text())
 STUDIES = sorted(DATA)
-
-
-class ScreenerAware(RandomAnswerer):
-    """Random answers, except text answers contain every string the survey's own
-    logic tests that question's text for, so screeners such as "end the survey
-    unless the answer contains X" let simulated respondents through (validation only)."""
-
-    def __init__(self, survey, seed: int) -> None:
-        super().__init__(seed)
-        self.strings: dict[str, list[str]] = {}
-        conditions = [n.condition for n in walk(survey.flow) if getattr(n, "condition", None)]
-        conditions += [q.display_logic for q in survey.questions.values() if q.display_logic]
-        for cond in conditions:
-            for c in iter_comparisons(cond):
-                if c.left.selector == "ChoiceTextEntryValue" and c.right and c.left.question_id:
-                    self.strings.setdefault(c.left.question_id, []).append(c.right)
-
-    def __call__(self, view, state):
-        if isinstance(view.question, TextEntryQuestion) and view.question.mode != "form":
-            return " ".join(self.strings.get(view.question.id, ["text"]))
-        return super().__call__(view, state)
 
 
 @pytest.fixture(scope="module")
@@ -61,7 +39,7 @@ def simulations() -> dict:
     out = {}
     for study in STUDIES:
         survey = load_qsf(ROOT / "tests" / "fixtures" / "qualtrics" / f"{study}.qsf")
-        out[study] = Simulator(survey, seed=7).run(2000, ScreenerAware(survey, seed=9))
+        out[study] = Simulator(survey, seed=7).run(2000, ScreenerAwareAnswerer(survey, seed=9))
     return out
 
 

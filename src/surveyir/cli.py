@@ -149,12 +149,12 @@ def cmd_simulate(args: argparse.Namespace) -> int:
     import csv
 
     from .columns import ColumnOptions, response_columns
-    from .runtime import RandomAnswerer, Simulator
+    from .runtime import ScreenerAwareAnswerer, Simulator
 
     survey = load(args.input, format=args.source_format)
     options = ColumnOptions(include_metadata=True)
     sim = Simulator(survey, seed=args.seed)
-    answerer = RandomAnswerer(seed=args.seed)
+    answerer = ScreenerAwareAnswerer(survey, seed=args.seed)
     names = [c.name for c in response_columns(survey, options=options)]
 
     def write(out) -> None:  # positional, so repeated export tags keep both columns

@@ -3,7 +3,7 @@
 ```bash
 uv sync
 uv run pytest            # unit tests + invariants over every fixture survey
-uv run ruff check src tests && uv run ruff format src tests
+uv run ruff check src tests scripts examples && uv run ruff format src tests scripts examples
 uv run pyright
 ```
 

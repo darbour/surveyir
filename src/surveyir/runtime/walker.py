@@ -184,6 +184,37 @@ class RandomAnswerer:
         return None
 
 
+class ScreenerAwareAnswerer(RandomAnswerer):
+    """Random answers, except free-text answers contain every string the survey's
+    own logic tests that question's text for.
+
+    Surveys often screen respondents on typed text ("end the survey unless the
+    answer contains 'yes'"). Random text fails those screeners, so every simulated
+    respondent would exit early. This answerer gets through them, which makes it
+    the right default for exercising a design.
+    """
+
+    def __init__(self, survey: Survey, seed: int | None = None, skip_rate: float = 0.0) -> None:
+        super().__init__(seed, skip_rate)
+        from ..model import iter_comparisons, walk
+
+        self.strings: dict[str, list[str]] = {}
+        conditions = [getattr(n, "condition", None) for n in walk(survey.flow)]
+        conditions += [q.display_logic for q in survey.questions.values()]
+        for cond in conditions:
+            if cond is None:
+                continue
+            for c in iter_comparisons(cond):
+                if c.left.selector == "ChoiceTextEntryValue" and c.right and c.left.question_id:
+                    self.strings.setdefault(c.left.question_id, []).append(c.right)
+
+    def __call__(self, view: QuestionView, state: RespondentState) -> Any:
+        q = view.question
+        if isinstance(q, TextEntryQuestion) and q.mode != "form" and q.id in self.strings:
+            return " ".join(self.strings[q.id])
+        return super().__call__(view, state)
+
+
 # --------------------------------------------------------------------------- run record
 
 

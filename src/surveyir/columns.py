@@ -566,6 +566,6 @@ def infer_options(header: Sequence[tuple[str, dict[str, Any]]]) -> ColumnOptions
     return ColumnOptions(
         split_multi_value=split,
         display_order=do_layout if do_layout != ("split" if split else "single") else "auto",
-        include_metadata=any(o.get("ImportId") == "_recordId" for o in objs),
+        include_metadata=any(o.get("ImportId") in {imp for _, imp, _ in METADATA} for o in objs),
         time_zone=str(date_tz),
     )

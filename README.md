@@ -39,11 +39,23 @@ analysis pipeline, a survey renderer) can then work from that one structure.
 
 ## Install
 
+Not on PyPI yet. Install from a checkout:
+
 ```bash
-pip install surveyir        # or: uv add surveyir
+git clone <repository-url> surveyir && cd surveyir
+uv sync                     # or: pip install -e .
 ```
 
 Requires Python 3.10+. The only runtime dependency is `pydantic>=2`.
+
+## Documentation
+
+Start with the [quickstart](docs/quickstart.md), then the guides:
+[loading](docs/guide/loading.md), [exporting](docs/guide/exporting.md),
+[data columns](docs/guide/data-columns.md), [experiments](docs/guide/experiments.md),
+[simulating respondents](docs/guide/simulation.md) and the
+[command line](docs/cli.md). Every example in the docs is run by the test suite,
+and runnable scripts are in [`examples/`](examples).
 
 ## Quick start
 
