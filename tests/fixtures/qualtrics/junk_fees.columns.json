@@ -1,0 +1,981 @@
+[
+{
+"column": "StartDate",
+"import_id": {
+"ImportId": "startDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "EndDate",
+"import_id": {
+"ImportId": "endDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "Progress",
+"import_id": {
+"ImportId": "progress"
+}
+},
+{
+"column": "Duration (in seconds)",
+"import_id": {
+"ImportId": "duration"
+}
+},
+{
+"column": "Finished",
+"import_id": {
+"ImportId": "finished"
+}
+},
+{
+"column": "RecordedDate",
+"import_id": {
+"ImportId": "recordedDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "Intro.Timer_First Click",
+"import_id": {
+"ImportId": "QID70_FIRST_CLICK"
+}
+},
+{
+"column": "Intro.Timer_Last Click",
+"import_id": {
+"ImportId": "QID70_LAST_CLICK"
+}
+},
+{
+"column": "Intro.Timer_Page Submit",
+"import_id": {
+"ImportId": "QID70_PAGE_SUBMIT"
+}
+},
+{
+"column": "Intro.Timer_Click Count",
+"import_id": {
+"ImportId": "QID70_CLICK_COUNT"
+}
+},
+{
+"column": "Hotel.MCQ",
+"import_id": {
+"ImportId": "QID10"
+}
+},
+{
+"column": "Hotel.MCQ_DO_1",
+"import_id": {
+"ImportId": "QID10_DO",
+"choiceId": "1"
+}
+},
+{
+"column": "Hotel.MCQ_DO_2",
+"import_id": {
+"ImportId": "QID10_DO",
+"choiceId": "2"
+}
+},
+{
+"column": "Hotel.MCQ_DO_3",
+"import_id": {
+"ImportId": "QID10_DO",
+"choiceId": "3"
+}
+},
+{
+"column": "Hotel.MCQ_DO_4",
+"import_id": {
+"ImportId": "QID10_DO",
+"choiceId": "4"
+}
+},
+{
+"column": "Hotel.Surprised1",
+"import_id": {
+"ImportId": "QID71"
+}
+},
+{
+"column": "Hotel.Surprised2",
+"import_id": {
+"ImportId": "QID73"
+}
+},
+{
+"column": "Hotel.Heard",
+"import_id": {
+"ImportId": "QID75"
+}
+},
+{
+"column": "Hotel.Aware",
+"import_id": {
+"ImportId": "QID76"
+}
+},
+{
+"column": "Hotel.Encouter",
+"import_id": {
+"ImportId": "QID72"
+}
+},
+{
+"column": "Hotel.OftenEncouter",
+"import_id": {
+"ImportId": "QID74"
+}
+},
+{
+"column": "Hotel.Clear.Disclose",
+"import_id": {
+"ImportId": "QID78"
+}
+},
+{
+"column": "Hotel.Fair",
+"import_id": {
+"ImportId": "QID83"
+}
+},
+{
+"column": "Car.MCQ",
+"import_id": {
+"ImportId": "QID87"
+}
+},
+{
+"column": "Car.MCQ_DO_1",
+"import_id": {
+"ImportId": "QID87_DO",
+"choiceId": "1"
+}
+},
+{
+"column": "Car.MCQ_DO_2",
+"import_id": {
+"ImportId": "QID87_DO",
+"choiceId": "2"
+}
+},
+{
+"column": "Car.MCQ_DO_3",
+"import_id": {
+"ImportId": "QID87_DO",
+"choiceId": "3"
+}
+},
+{
+"column": "Car.MCQ_DO_4",
+"import_id": {
+"ImportId": "QID87_DO",
+"choiceId": "4"
+}
+},
+{
+"column": "Car.Surprised1",
+"import_id": {
+"ImportId": "QID90"
+}
+},
+{
+"column": "Car.Surprised2",
+"import_id": {
+"ImportId": "QID91"
+}
+},
+{
+"column": "Car.Heard",
+"import_id": {
+"ImportId": "QID92"
+}
+},
+{
+"column": "Car.Aware",
+"import_id": {
+"ImportId": "QID93"
+}
+},
+{
+"column": "Car.Encouter",
+"import_id": {
+"ImportId": "QID94"
+}
+},
+{
+"column": "Car.OftenEncouter",
+"import_id": {
+"ImportId": "QID95"
+}
+},
+{
+"column": "Car.Clear.Disclosed",
+"import_id": {
+"ImportId": "QID96"
+}
+},
+{
+"column": "Car.Fair",
+"import_id": {
+"ImportId": "QID100"
+}
+},
+{
+"column": "Ticket.MCQ",
+"import_id": {
+"ImportId": "QID117"
+}
+},
+{
+"column": "Ticket.MCQ_DO_1",
+"import_id": {
+"ImportId": "QID117_DO",
+"choiceId": "1"
+}
+},
+{
+"column": "Ticket.MCQ_DO_2",
+"import_id": {
+"ImportId": "QID117_DO",
+"choiceId": "2"
+}
+},
+{
+"column": "Ticket.MCQ_DO_3",
+"import_id": {
+"ImportId": "QID117_DO",
+"choiceId": "3"
+}
+},
+{
+"column": "Ticket.MCQ_DO_4",
+"import_id": {
+"ImportId": "QID117_DO",
+"choiceId": "4"
+}
+},
+{
+"column": "Ticket.Surprised1",
+"import_id": {
+"ImportId": "QID120"
+}
+},
+{
+"column": "Ticket.Surprised2",
+"import_id": {
+"ImportId": "QID121"
+}
+},
+{
+"column": "Ticket.Heard",
+"import_id": {
+"ImportId": "QID122"
+}
+},
+{
+"column": "Ticket.Aware",
+"import_id": {
+"ImportId": "QID123"
+}
+},
+{
+"column": "Ticket.Encouter",
+"import_id": {
+"ImportId": "QID124"
+}
+},
+{
+"column": "Ticket.OftenEncouter",
+"import_id": {
+"ImportId": "QID125"
+}
+},
+{
+"column": "Ticke.Clear.Disclose",
+"import_id": {
+"ImportId": "QID126"
+}
+},
+{
+"column": "Ticket.Fair",
+"import_id": {
+"ImportId": "QID130"
+}
+},
+{
+"column": "Food.MCQ",
+"import_id": {
+"ImportId": "QID132"
+}
+},
+{
+"column": "Food.MCQ_DO_1",
+"import_id": {
+"ImportId": "QID132_DO",
+"choiceId": "1"
+}
+},
+{
+"column": "Food.MCQ_DO_2",
+"import_id": {
+"ImportId": "QID132_DO",
+"choiceId": "2"
+}
+},
+{
+"column": "Food.MCQ_DO_3",
+"import_id": {
+"ImportId": "QID132_DO",
+"choiceId": "3"
+}
+},
+{
+"column": "Food.MCQ_DO_4",
+"import_id": {
+"ImportId": "QID132_DO",
+"choiceId": "4"
+}
+},
+{
+"column": "Food.Surprised1",
+"import_id": {
+"ImportId": "QID135"
+}
+},
+{
+"column": "Food.Surprised2",
+"import_id": {
+"ImportId": "QID136"
+}
+},
+{
+"column": "Food.Heard",
+"import_id": {
+"ImportId": "QID137"
+}
+},
+{
+"column": "Food.Aware",
+"import_id": {
+"ImportId": "QID138"
+}
+},
+{
+"column": "Food.Encouter",
+"import_id": {
+"ImportId": "QID139"
+}
+},
+{
+"column": "Food.OftenEncouter",
+"import_id": {
+"ImportId": "QID140"
+}
+},
+{
+"column": "Food.Clear.Disclose",
+"import_id": {
+"ImportId": "QID141"
+}
+},
+{
+"column": "Food.Fair",
+"import_id": {
+"ImportId": "QID145"
+}
+},
+{
+"column": "Apart.MCQ",
+"import_id": {
+"ImportId": "QID147"
+}
+},
+{
+"column": "Apart.MCQ_DO_1",
+"import_id": {
+"ImportId": "QID147_DO",
+"choiceId": "1"
+}
+},
+{
+"column": "Apart.MCQ_DO_2",
+"import_id": {
+"ImportId": "QID147_DO",
+"choiceId": "2"
+}
+},
+{
+"column": "Apart.MCQ_DO_3",
+"import_id": {
+"ImportId": "QID147_DO",
+"choiceId": "3"
+}
+},
+{
+"column": "Apart.MCQ_DO_4",
+"import_id": {
+"ImportId": "QID147_DO",
+"choiceId": "4"
+}
+},
+{
+"column": "Apart.Surprised1",
+"import_id": {
+"ImportId": "QID150"
+}
+},
+{
+"column": "Apart.Surprised2",
+"import_id": {
+"ImportId": "QID151"
+}
+},
+{
+"column": "Apart.Heard",
+"import_id": {
+"ImportId": "QID152"
+}
+},
+{
+"column": "Apart.Aware",
+"import_id": {
+"ImportId": "QID153"
+}
+},
+{
+"column": "Apart.Encounter",
+"import_id": {
+"ImportId": "QID154"
+}
+},
+{
+"column": "Apart.OftenEncouter",
+"import_id": {
+"ImportId": "QID155"
+}
+},
+{
+"column": "Apart.Suprise1",
+"import_id": {
+"ImportId": "QID156"
+}
+},
+{
+"column": "Apart.Fair",
+"import_id": {
+"ImportId": "QID160"
+}
+},
+{
+"column": "Health.MCQ",
+"import_id": {
+"ImportId": "QID214"
+}
+},
+{
+"column": "Health.MCQ_DO_1",
+"import_id": {
+"ImportId": "QID214_DO",
+"choiceId": "1"
+}
+},
+{
+"column": "Health.MCQ_DO_2",
+"import_id": {
+"ImportId": "QID214_DO",
+"choiceId": "2"
+}
+},
+{
+"column": "Health.MCQ_DO_3",
+"import_id": {
+"ImportId": "QID214_DO",
+"choiceId": "3"
+}
+},
+{
+"column": "Health.MCQ_DO_4",
+"import_id": {
+"ImportId": "QID214_DO",
+"choiceId": "4"
+}
+},
+{
+"column": "Health.Surprised1",
+"import_id": {
+"ImportId": "QID217"
+}
+},
+{
+"column": "Health.Surprised2 ",
+"import_id": {
+"ImportId": "QID218"
+}
+},
+{
+"column": "Health.Heard ",
+"import_id": {
+"ImportId": "QID219"
+}
+},
+{
+"column": "Health.Aware",
+"import_id": {
+"ImportId": "QID220"
+}
+},
+{
+"column": "Health.Encounter ",
+"import_id": {
+"ImportId": "QID221"
+}
+},
+{
+"column": "Health.Often.Encoun ",
+"import_id": {
+"ImportId": "QID222"
+}
+},
+{
+"column": "Health.Clear.Disclo ",
+"import_id": {
+"ImportId": "QID223"
+}
+},
+{
+"column": "Health.Fair ",
+"import_id": {
+"ImportId": "QID227"
+}
+},
+{
+"column": "CC.MCQ\u00a0",
+"import_id": {
+"ImportId": "QID194"
+}
+},
+{
+"column": "CC.MCQ\u00a0_DO_1",
+"import_id": {
+"ImportId": "QID194_DO",
+"choiceId": "1"
+}
+},
+{
+"column": "CC.MCQ\u00a0_DO_2",
+"import_id": {
+"ImportId": "QID194_DO",
+"choiceId": "2"
+}
+},
+{
+"column": "CC.MCQ\u00a0_DO_3",
+"import_id": {
+"ImportId": "QID194_DO",
+"choiceId": "3"
+}
+},
+{
+"column": "CC.MCQ\u00a0_DO_4",
+"import_id": {
+"ImportId": "QID194_DO",
+"choiceId": "4"
+}
+},
+{
+"column": "CC.Surprised1\u00a0",
+"import_id": {
+"ImportId": "QID197"
+}
+},
+{
+"column": "CC.Surprised2 ",
+"import_id": {
+"ImportId": "QID198"
+}
+},
+{
+"column": "CC.Heard\u00a0",
+"import_id": {
+"ImportId": "QID199"
+}
+},
+{
+"column": "CC.Aware\u00a0",
+"import_id": {
+"ImportId": "QID200"
+}
+},
+{
+"column": "CC.Encounter\u00a0",
+"import_id": {
+"ImportId": "QID201"
+}
+},
+{
+"column": "CC.OftenEncounter",
+"import_id": {
+"ImportId": "QID202"
+}
+},
+{
+"column": "CC.Clear.Disclose\u00a0",
+"import_id": {
+"ImportId": "QID203"
+}
+},
+{
+"column": "CC.Fair",
+"import_id": {
+"ImportId": "QID207"
+}
+},
+{
+"column": "Hidden.Cost",
+"import_id": {
+"ImportId": "QID85"
+}
+},
+{
+"column": "Gov.Resp",
+"import_id": {
+"ImportId": "QID168"
+}
+},
+{
+"column": "Firms.Rights",
+"import_id": {
+"ImportId": "QID181"
+}
+},
+{
+"column": "Total.Part",
+"import_id": {
+"ImportId": "QID161"
+}
+},
+{
+"column": "Regulation",
+"import_id": {
+"ImportId": "QID169"
+}
+},
+{
+"column": "Support.Reg",
+"import_id": {
+"ImportId": "QID175"
+}
+},
+{
+"column": "Impact.Reg",
+"import_id": {
+"ImportId": "QID182"
+}
+},
+{
+"column": "SES",
+"import_id": {
+"ImportId": "QID236"
+}
+},
+{
+"column": "Price.Sensitivity",
+"import_id": {
+"ImportId": "QID235"
+}
+},
+{
+"column": "Hotel",
+"import_id": {
+"ImportId": "Hotel"
+}
+},
+{
+"column": "correct.answer",
+"import_id": {
+"ImportId": "correct.answer"
+}
+},
+{
+"column": "wrong.answer1",
+"import_id": {
+"ImportId": "wrong.answer1"
+}
+},
+{
+"column": "wrong.answer2",
+"import_id": {
+"ImportId": "wrong.answer2"
+}
+},
+{
+"column": "wrong.answer3",
+"import_id": {
+"ImportId": "wrong.answer3"
+}
+},
+{
+"column": "Rental.Car",
+"import_id": {
+"ImportId": "Rental.Car"
+}
+},
+{
+"column": "Tickets",
+"import_id": {
+"ImportId": "Tickets"
+}
+},
+{
+"column": "Food",
+"import_id": {
+"ImportId": "Food"
+}
+},
+{
+"column": "apartment",
+"import_id": {
+"ImportId": "apartment"
+}
+},
+{
+"column": "HealthCare",
+"import_id": {
+"ImportId": "HealthCare"
+}
+},
+{
+"column": "CreditCard",
+"import_id": {
+"ImportId": "CreditCard"
+}
+},
+{
+"column": "FL_143_DO_FL_4",
+"import_id": {
+"ImportId": "FL_143_DO",
+"choiceId": "FL_4"
+}
+},
+{
+"column": "FL_143_DO_FL_37",
+"import_id": {
+"ImportId": "FL_143_DO",
+"choiceId": "FL_37"
+}
+},
+{
+"column": "FL_143_DO_FL_89",
+"import_id": {
+"ImportId": "FL_143_DO",
+"choiceId": "FL_89"
+}
+},
+{
+"column": "FL_143_DO_FL_106",
+"import_id": {
+"ImportId": "FL_143_DO",
+"choiceId": "FL_106"
+}
+},
+{
+"column": "FL_143_DO_FL_120",
+"import_id": {
+"ImportId": "FL_143_DO",
+"choiceId": "FL_120"
+}
+},
+{
+"column": "FL_143_DO_FL_182",
+"import_id": {
+"ImportId": "FL_143_DO",
+"choiceId": "FL_182"
+}
+},
+{
+"column": "FL_5_DO_FL_3",
+"import_id": {
+"ImportId": "FL_5_DO",
+"choiceId": "FL_3"
+}
+},
+{
+"column": "FL_5_DO_FL_7",
+"import_id": {
+"ImportId": "FL_5_DO",
+"choiceId": "FL_7"
+}
+},
+{
+"column": "FL_5_DO_FL_32",
+"import_id": {
+"ImportId": "FL_5_DO",
+"choiceId": "FL_32"
+}
+},
+{
+"column": "FL_38_DO_FL_54",
+"import_id": {
+"ImportId": "FL_38_DO",
+"choiceId": "FL_54"
+}
+},
+{
+"column": "FL_38_DO_FL_61",
+"import_id": {
+"ImportId": "FL_38_DO",
+"choiceId": "FL_61"
+}
+},
+{
+"column": "FL_38_DO_FL_62",
+"import_id": {
+"ImportId": "FL_38_DO",
+"choiceId": "FL_62"
+}
+},
+{
+"column": "FL_38_DO_FL_181",
+"import_id": {
+"ImportId": "FL_38_DO",
+"choiceId": "FL_181"
+}
+},
+{
+"column": "FL_90_DO_FL_91",
+"import_id": {
+"ImportId": "FL_90_DO",
+"choiceId": "FL_91"
+}
+},
+{
+"column": "FL_90_DO_FL_103",
+"import_id": {
+"ImportId": "FL_90_DO",
+"choiceId": "FL_103"
+}
+},
+{
+"column": "FL_90_DO_FL_104",
+"import_id": {
+"ImportId": "FL_90_DO",
+"choiceId": "FL_104"
+}
+},
+{
+"column": "FL_107_DO_FL_108",
+"import_id": {
+"ImportId": "FL_107_DO",
+"choiceId": "FL_108"
+}
+},
+{
+"column": "FL_107_DO_FL_117",
+"import_id": {
+"ImportId": "FL_107_DO",
+"choiceId": "FL_117"
+}
+},
+{
+"column": "FL_107_DO_FL_118",
+"import_id": {
+"ImportId": "FL_107_DO",
+"choiceId": "FL_118"
+}
+},
+{
+"column": "FL_121_DO_FL_122",
+"import_id": {
+"ImportId": "FL_121_DO",
+"choiceId": "FL_122"
+}
+},
+{
+"column": "FL_121_DO_FL_131",
+"import_id": {
+"ImportId": "FL_121_DO",
+"choiceId": "FL_131"
+}
+},
+{
+"column": "FL_121_DO_FL_133",
+"import_id": {
+"ImportId": "FL_121_DO",
+"choiceId": "FL_133"
+}
+},
+{
+"column": "FL_182_DO_FL_162",
+"import_id": {
+"ImportId": "FL_182_DO",
+"choiceId": "FL_162"
+}
+},
+{
+"column": "FL_182_DO_FL_152",
+"import_id": {
+"ImportId": "FL_182_DO",
+"choiceId": "FL_152"
+}
+},
+{
+"column": "FL_182_DO_FL_183",
+"import_id": {
+"ImportId": "FL_182_DO",
+"choiceId": "FL_183"
+}
+},
+{
+"column": "FL_163_DO_FL_164",
+"import_id": {
+"ImportId": "FL_163_DO",
+"choiceId": "FL_164"
+}
+},
+{
+"column": "FL_153_DO_FL_154",
+"import_id": {
+"ImportId": "FL_153_DO",
+"choiceId": "FL_154"
+}
+},
+{
+"column": "FL_153_DO_FL_155",
+"import_id": {
+"ImportId": "FL_153_DO",
+"choiceId": "FL_155"
+}
+},
+{
+"column": "FL_184_DO_FL_185",
+"import_id": {
+"ImportId": "FL_184_DO",
+"choiceId": "FL_185"
+}
+},
+{
+"column": "FL_184_DO_FL_186",
+"import_id": {
+"ImportId": "FL_184_DO",
+"choiceId": "FL_186"
+}
+},
+{
+"column": "",
+"import_id": {
+"raw": ""
+}
+},
+{
+"column": "TWIN_ID",
+"import_id": {
+"raw": "TWIN_ID"
+}
+}
+]

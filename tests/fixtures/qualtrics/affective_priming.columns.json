@@ -1,0 +1,590 @@
+[
+{
+"column": "StartDate",
+"import_id": {
+"ImportId": "startDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "EndDate",
+"import_id": {
+"ImportId": "endDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "Progress",
+"import_id": {
+"ImportId": "progress"
+}
+},
+{
+"column": "Duration (in seconds)",
+"import_id": {
+"ImportId": "duration"
+}
+},
+{
+"column": "Finished",
+"import_id": {
+"ImportId": "finished"
+}
+},
+{
+"column": "RecordedDate",
+"import_id": {
+"ImportId": "recordedDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "Q62",
+"import_id": {
+"ImportId": "QID62"
+}
+},
+{
+"column": "Q57",
+"import_id": {
+"ImportId": "QID57_TEXT"
+}
+},
+{
+"column": "g_writing",
+"import_id": {
+"ImportId": "QID58_TEXT"
+}
+},
+{
+"column": "Q59_First Click",
+"import_id": {
+"ImportId": "QID59_FIRST_CLICK"
+}
+},
+{
+"column": "Q59_Last Click",
+"import_id": {
+"ImportId": "QID59_LAST_CLICK"
+}
+},
+{
+"column": "Q59_Page Submit",
+"import_id": {
+"ImportId": "QID59_PAGE_SUBMIT"
+}
+},
+{
+"column": "Q59_Click Count",
+"import_id": {
+"ImportId": "QID59_CLICK_COUNT"
+}
+},
+{
+"column": "g_manip_check_1",
+"import_id": {
+"ImportId": "QID43_1"
+}
+},
+{
+"column": "g_manip_check_2",
+"import_id": {
+"ImportId": "QID43_2"
+}
+},
+{
+"column": "g_manip_check_3",
+"import_id": {
+"ImportId": "QID43_3"
+}
+},
+{
+"column": "g_manip_check_DO_1",
+"import_id": {
+"ImportId": "QID43_DO",
+"choiceId": "1"
+}
+},
+{
+"column": "g_manip_check_DO_2",
+"import_id": {
+"ImportId": "QID43_DO",
+"choiceId": "2"
+}
+},
+{
+"column": "g_manip_check_DO_3",
+"import_id": {
+"ImportId": "QID43_DO",
+"choiceId": "3"
+}
+},
+{
+"column": "elevation_1",
+"import_id": {
+"ImportId": "QID49_1"
+}
+},
+{
+"column": "elevation_2",
+"import_id": {
+"ImportId": "QID49_2"
+}
+},
+{
+"column": "elevation_3",
+"import_id": {
+"ImportId": "QID49_3"
+}
+},
+{
+"column": "elevation_4",
+"import_id": {
+"ImportId": "QID49_4"
+}
+},
+{
+"column": "elevation_5",
+"import_id": {
+"ImportId": "QID49_5"
+}
+},
+{
+"column": "elevation_6",
+"import_id": {
+"ImportId": "QID49_6"
+}
+},
+{
+"column": "elevation_DO_1",
+"import_id": {
+"ImportId": "QID49_DO",
+"choiceId": "1"
+}
+},
+{
+"column": "elevation_DO_2",
+"import_id": {
+"ImportId": "QID49_DO",
+"choiceId": "2"
+}
+},
+{
+"column": "elevation_DO_3",
+"import_id": {
+"ImportId": "QID49_DO",
+"choiceId": "3"
+}
+},
+{
+"column": "elevation_DO_4",
+"import_id": {
+"ImportId": "QID49_DO",
+"choiceId": "4"
+}
+},
+{
+"column": "elevation_DO_5",
+"import_id": {
+"ImportId": "QID49_DO",
+"choiceId": "5"
+}
+},
+{
+"column": "elevation_DO_6",
+"import_id": {
+"ImportId": "QID49_DO",
+"choiceId": "6"
+}
+},
+{
+"column": "DV1_1",
+"import_id": {
+"ImportId": "QID45_1"
+}
+},
+{
+"column": "DV1_2",
+"import_id": {
+"ImportId": "QID45_2"
+}
+},
+{
+"column": "DV1_DO_1",
+"import_id": {
+"ImportId": "QID45_DO",
+"choiceId": "1"
+}
+},
+{
+"column": "DV1_DO_2",
+"import_id": {
+"ImportId": "QID45_DO",
+"choiceId": "2"
+}
+},
+{
+"column": "c_writing",
+"import_id": {
+"ImportId": "QID36_TEXT"
+}
+},
+{
+"column": "Q61_First Click",
+"import_id": {
+"ImportId": "QID61_FIRST_CLICK"
+}
+},
+{
+"column": "Q61_Last Click",
+"import_id": {
+"ImportId": "QID61_LAST_CLICK"
+}
+},
+{
+"column": "Q61_Page Submit",
+"import_id": {
+"ImportId": "QID61_PAGE_SUBMIT"
+}
+},
+{
+"column": "Q61_Click Count",
+"import_id": {
+"ImportId": "QID61_CLICK_COUNT"
+}
+},
+{
+"column": "c_manip_check_1",
+"import_id": {
+"ImportId": "QID60_1"
+}
+},
+{
+"column": "c_manip_check_2",
+"import_id": {
+"ImportId": "QID60_2"
+}
+},
+{
+"column": "c_manip_check_3",
+"import_id": {
+"ImportId": "QID60_3"
+}
+},
+{
+"column": "c_manip_check_DO_1",
+"import_id": {
+"ImportId": "QID60_DO",
+"choiceId": "1"
+}
+},
+{
+"column": "c_manip_check_DO_2",
+"import_id": {
+"ImportId": "QID60_DO",
+"choiceId": "2"
+}
+},
+{
+"column": "c_manip_check_DO_3",
+"import_id": {
+"ImportId": "QID60_DO",
+"choiceId": "3"
+}
+},
+{
+"column": "fatigue_1",
+"import_id": {
+"ImportId": "QID56_1"
+}
+},
+{
+"column": "fatigue_2",
+"import_id": {
+"ImportId": "QID56_2"
+}
+},
+{
+"column": "fatigue_3",
+"import_id": {
+"ImportId": "QID56_3"
+}
+},
+{
+"column": "fatigue_4",
+"import_id": {
+"ImportId": "QID56_4"
+}
+},
+{
+"column": "fatigue_5",
+"import_id": {
+"ImportId": "QID56_5"
+}
+},
+{
+"column": "fatigue_6",
+"import_id": {
+"ImportId": "QID56_6"
+}
+},
+{
+"column": "fatigue_7",
+"import_id": {
+"ImportId": "QID56_7"
+}
+},
+{
+"column": "fatigue_8",
+"import_id": {
+"ImportId": "QID56_8"
+}
+},
+{
+"column": "fatigue_9",
+"import_id": {
+"ImportId": "QID56_9"
+}
+},
+{
+"column": "fatigue_DO_1",
+"import_id": {
+"ImportId": "QID56_DO",
+"choiceId": "1"
+}
+},
+{
+"column": "fatigue_DO_2",
+"import_id": {
+"ImportId": "QID56_DO",
+"choiceId": "2"
+}
+},
+{
+"column": "fatigue_DO_3",
+"import_id": {
+"ImportId": "QID56_DO",
+"choiceId": "3"
+}
+},
+{
+"column": "fatigue_DO_4",
+"import_id": {
+"ImportId": "QID56_DO",
+"choiceId": "4"
+}
+},
+{
+"column": "fatigue_DO_5",
+"import_id": {
+"ImportId": "QID56_DO",
+"choiceId": "5"
+}
+},
+{
+"column": "fatigue_DO_6",
+"import_id": {
+"ImportId": "QID56_DO",
+"choiceId": "6"
+}
+},
+{
+"column": "fatigue_DO_7",
+"import_id": {
+"ImportId": "QID56_DO",
+"choiceId": "7"
+}
+},
+{
+"column": "fatigue_DO_8",
+"import_id": {
+"ImportId": "QID56_DO",
+"choiceId": "8"
+}
+},
+{
+"column": "fatigue_DO_9",
+"import_id": {
+"ImportId": "QID56_DO",
+"choiceId": "9"
+}
+},
+{
+"column": "desire_predict_1",
+"import_id": {
+"ImportId": "QID39_1"
+}
+},
+{
+"column": "desire_predict_2",
+"import_id": {
+"ImportId": "QID39_2"
+}
+},
+{
+"column": "desire_predict_3",
+"import_id": {
+"ImportId": "QID39_3"
+}
+},
+{
+"column": "desire_predict_4",
+"import_id": {
+"ImportId": "QID39_4"
+}
+},
+{
+"column": "desire_predict_5",
+"import_id": {
+"ImportId": "QID39_5"
+}
+},
+{
+"column": "desire_predict_6",
+"import_id": {
+"ImportId": "QID39_6"
+}
+},
+{
+"column": "desire_predict_7",
+"import_id": {
+"ImportId": "QID39_7"
+}
+},
+{
+"column": "desire_predict_8",
+"import_id": {
+"ImportId": "QID39_8"
+}
+},
+{
+"column": "desire_predict_DO_1",
+"import_id": {
+"ImportId": "QID39_DO",
+"choiceId": "1"
+}
+},
+{
+"column": "desire_predict_DO_2",
+"import_id": {
+"ImportId": "QID39_DO",
+"choiceId": "2"
+}
+},
+{
+"column": "desire_predict_DO_3",
+"import_id": {
+"ImportId": "QID39_DO",
+"choiceId": "3"
+}
+},
+{
+"column": "desire_predict_DO_4",
+"import_id": {
+"ImportId": "QID39_DO",
+"choiceId": "4"
+}
+},
+{
+"column": "desire_predict_DO_5",
+"import_id": {
+"ImportId": "QID39_DO",
+"choiceId": "5"
+}
+},
+{
+"column": "desire_predict_DO_6",
+"import_id": {
+"ImportId": "QID39_DO",
+"choiceId": "6"
+}
+},
+{
+"column": "desire_predict_DO_7",
+"import_id": {
+"ImportId": "QID39_DO",
+"choiceId": "7"
+}
+},
+{
+"column": "desire_predict_DO_8",
+"import_id": {
+"ImportId": "QID39_DO",
+"choiceId": "8"
+}
+},
+{
+"column": "emotion",
+"import_id": {
+"ImportId": "emotion"
+}
+},
+{
+"column": "cond",
+"import_id": {
+"ImportId": "cond"
+}
+},
+{
+"column": "FL_6_DO_FL_56",
+"import_id": {
+"ImportId": "FL_6_DO",
+"choiceId": "FL_56"
+}
+},
+{
+"column": "FL_6_DO_FL_52",
+"import_id": {
+"ImportId": "FL_6_DO",
+"choiceId": "FL_52"
+}
+},
+{
+"column": "FL_6_DO_FL_53",
+"import_id": {
+"ImportId": "FL_6_DO",
+"choiceId": "FL_53"
+}
+},
+{
+"column": "FL_6_DO_FL_57",
+"import_id": {
+"ImportId": "FL_6_DO",
+"choiceId": "FL_57"
+}
+},
+{
+"column": "FL_37_DO_DV1Elevation",
+"import_id": {
+"ImportId": "FL_37_DO",
+"choiceId": "DV1Elevation"
+}
+},
+{
+"column": "FL_37_DO_DV2Empathicconcern",
+"import_id": {
+"ImportId": "FL_37_DO",
+"choiceId": "DV2Empathicconcern"
+}
+},
+{
+"column": "FL_42_DO_DV1fatigue",
+"import_id": {
+"ImportId": "FL_42_DO",
+"choiceId": "DV1fatigue"
+}
+},
+{
+"column": "FL_42_DO_DV2Predictability",
+"import_id": {
+"ImportId": "FL_42_DO",
+"choiceId": "DV2Predictability"
+}
+},
+{
+"column": "TWIN_ID",
+"import_id": {
+"raw": "TWIN_ID"
+}
+}
+]

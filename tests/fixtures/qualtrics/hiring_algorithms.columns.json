@@ -1,0 +1,553 @@
+[
+{
+"column": "StartDate",
+"import_id": {
+"ImportId": "startDate",
+"timeZone": "America/Denver"
+}
+},
+{
+"column": "EndDate",
+"import_id": {
+"ImportId": "endDate",
+"timeZone": "America/Denver"
+}
+},
+{
+"column": "Progress",
+"import_id": {
+"ImportId": "progress"
+}
+},
+{
+"column": "Duration (in seconds)",
+"import_id": {
+"ImportId": "duration"
+}
+},
+{
+"column": "Finished",
+"import_id": {
+"ImportId": "finished"
+}
+},
+{
+"column": "RecordedDate",
+"import_id": {
+"ImportId": "recordedDate",
+"timeZone": "America/Denver"
+}
+},
+{
+"column": "Q31",
+"import_id": {
+"ImportId": "QID31"
+}
+},
+{
+"column": "Q6",
+"import_id": {
+"ImportId": "QID6"
+}
+},
+{
+"column": "Q8",
+"import_id": {
+"ImportId": "QID8"
+}
+},
+{
+"column": "Q9",
+"import_id": {
+"ImportId": "QID9"
+}
+},
+{
+"column": "Q10",
+"import_id": {
+"ImportId": "QID10"
+}
+},
+{
+"column": "Q13",
+"import_id": {
+"ImportId": "QID13"
+}
+},
+{
+"column": "Q14",
+"import_id": {
+"ImportId": "QID14"
+}
+},
+{
+"column": "Q15",
+"import_id": {
+"ImportId": "QID15"
+}
+},
+{
+"column": "Q16",
+"import_id": {
+"ImportId": "QID16"
+}
+},
+{
+"column": "Q1",
+"import_id": {
+"ImportId": "QID1"
+}
+},
+{
+"column": "Q2",
+"import_id": {
+"ImportId": "QID2"
+}
+},
+{
+"column": "Q3",
+"import_id": {
+"ImportId": "QID3"
+}
+},
+{
+"column": "Q4",
+"import_id": {
+"ImportId": "QID4"
+}
+},
+{
+"column": "Q5",
+"import_id": {
+"ImportId": "QID5"
+}
+},
+{
+"column": "Q17",
+"import_id": {
+"ImportId": "QID17"
+}
+},
+{
+"column": "Q18",
+"import_id": {
+"ImportId": "QID18"
+}
+},
+{
+"column": "Q19",
+"import_id": {
+"ImportId": "QID19"
+}
+},
+{
+"column": "Q20",
+"import_id": {
+"ImportId": "QID20"
+}
+},
+{
+"column": "Q27_1",
+"import_id": {
+"ImportId": "QID27_1"
+}
+},
+{
+"column": "Q27_2",
+"import_id": {
+"ImportId": "QID27_2"
+}
+},
+{
+"column": "Q27_3",
+"import_id": {
+"ImportId": "QID27_3"
+}
+},
+{
+"column": "Q27_4",
+"import_id": {
+"ImportId": "QID27_4"
+}
+},
+{
+"column": "Q27_5",
+"import_id": {
+"ImportId": "QID27_5"
+}
+},
+{
+"column": "Q27_6",
+"import_id": {
+"ImportId": "QID27_6"
+}
+},
+{
+"column": "Q27_7",
+"import_id": {
+"ImportId": "QID27_7"
+}
+},
+{
+"column": "Q27_8",
+"import_id": {
+"ImportId": "QID27_8"
+}
+},
+{
+"column": "Q28_1",
+"import_id": {
+"ImportId": "QID28_1"
+}
+},
+{
+"column": "Q28_2",
+"import_id": {
+"ImportId": "QID28_2"
+}
+},
+{
+"column": "Q28_3",
+"import_id": {
+"ImportId": "QID28_3"
+}
+},
+{
+"column": "Q28_4",
+"import_id": {
+"ImportId": "QID28_4"
+}
+},
+{
+"column": "Q28_5",
+"import_id": {
+"ImportId": "QID28_5"
+}
+},
+{
+"column": "Q28_6",
+"import_id": {
+"ImportId": "QID28_6"
+}
+},
+{
+"column": "Q28_7",
+"import_id": {
+"ImportId": "QID28_7"
+}
+},
+{
+"column": "Q28_8",
+"import_id": {
+"ImportId": "QID28_8"
+}
+},
+{
+"column": "Q29_1",
+"import_id": {
+"ImportId": "QID29_1"
+}
+},
+{
+"column": "Q29_2",
+"import_id": {
+"ImportId": "QID29_2"
+}
+},
+{
+"column": "Q29_3",
+"import_id": {
+"ImportId": "QID29_3"
+}
+},
+{
+"column": "Q29_4",
+"import_id": {
+"ImportId": "QID29_4"
+}
+},
+{
+"column": "Q29_5",
+"import_id": {
+"ImportId": "QID29_5"
+}
+},
+{
+"column": "Q29_6",
+"import_id": {
+"ImportId": "QID29_6"
+}
+},
+{
+"column": "Q29_7",
+"import_id": {
+"ImportId": "QID29_7"
+}
+},
+{
+"column": "Q29_8",
+"import_id": {
+"ImportId": "QID29_8"
+}
+},
+{
+"column": "Q30_1",
+"import_id": {
+"ImportId": "QID30_1"
+}
+},
+{
+"column": "Q30_2",
+"import_id": {
+"ImportId": "QID30_2"
+}
+},
+{
+"column": "Q30_3",
+"import_id": {
+"ImportId": "QID30_3"
+}
+},
+{
+"column": "Q30_4",
+"import_id": {
+"ImportId": "QID30_4"
+}
+},
+{
+"column": "Q30_5",
+"import_id": {
+"ImportId": "QID30_5"
+}
+},
+{
+"column": "Q30_6",
+"import_id": {
+"ImportId": "QID30_6"
+}
+},
+{
+"column": "Q30_7",
+"import_id": {
+"ImportId": "QID30_7"
+}
+},
+{
+"column": "Q30_8",
+"import_id": {
+"ImportId": "QID30_8"
+}
+},
+{
+"column": "Q22_1",
+"import_id": {
+"ImportId": "QID22_1"
+}
+},
+{
+"column": "Q22_2",
+"import_id": {
+"ImportId": "QID22_2"
+}
+},
+{
+"column": "Q22_3",
+"import_id": {
+"ImportId": "QID22_3"
+}
+},
+{
+"column": "Q22_4",
+"import_id": {
+"ImportId": "QID22_4"
+}
+},
+{
+"column": "Q22_5",
+"import_id": {
+"ImportId": "QID22_5"
+}
+},
+{
+"column": "Q22_6",
+"import_id": {
+"ImportId": "QID22_6"
+}
+},
+{
+"column": "Q22_7",
+"import_id": {
+"ImportId": "QID22_7"
+}
+},
+{
+"column": "Q22_8",
+"import_id": {
+"ImportId": "QID22_8"
+}
+},
+{
+"column": "Q24_1",
+"import_id": {
+"ImportId": "QID24_1"
+}
+},
+{
+"column": "Q24_2",
+"import_id": {
+"ImportId": "QID24_2"
+}
+},
+{
+"column": "Q24_3",
+"import_id": {
+"ImportId": "QID24_3"
+}
+},
+{
+"column": "Q24_4",
+"import_id": {
+"ImportId": "QID24_4"
+}
+},
+{
+"column": "Q24_5",
+"import_id": {
+"ImportId": "QID24_5"
+}
+},
+{
+"column": "Q24_6",
+"import_id": {
+"ImportId": "QID24_6"
+}
+},
+{
+"column": "Q24_7",
+"import_id": {
+"ImportId": "QID24_7"
+}
+},
+{
+"column": "Q24_8",
+"import_id": {
+"ImportId": "QID24_8"
+}
+},
+{
+"column": "Q25_1",
+"import_id": {
+"ImportId": "QID25_1"
+}
+},
+{
+"column": "Q25_2",
+"import_id": {
+"ImportId": "QID25_2"
+}
+},
+{
+"column": "Q25_3",
+"import_id": {
+"ImportId": "QID25_3"
+}
+},
+{
+"column": "Q25_4",
+"import_id": {
+"ImportId": "QID25_4"
+}
+},
+{
+"column": "Q25_5",
+"import_id": {
+"ImportId": "QID25_5"
+}
+},
+{
+"column": "Q25_6",
+"import_id": {
+"ImportId": "QID25_6"
+}
+},
+{
+"column": "Q25_7",
+"import_id": {
+"ImportId": "QID25_7"
+}
+},
+{
+"column": "Q25_8",
+"import_id": {
+"ImportId": "QID25_8"
+}
+},
+{
+"column": "Q26_1",
+"import_id": {
+"ImportId": "QID26_1"
+}
+},
+{
+"column": "Q26_2",
+"import_id": {
+"ImportId": "QID26_2"
+}
+},
+{
+"column": "Q26_3",
+"import_id": {
+"ImportId": "QID26_3"
+}
+},
+{
+"column": "Q26_4",
+"import_id": {
+"ImportId": "QID26_4"
+}
+},
+{
+"column": "Q26_5",
+"import_id": {
+"ImportId": "QID26_5"
+}
+},
+{
+"column": "Q26_6",
+"import_id": {
+"ImportId": "QID26_6"
+}
+},
+{
+"column": "Q26_7",
+"import_id": {
+"ImportId": "QID26_7"
+}
+},
+{
+"column": "Q26_8",
+"import_id": {
+"ImportId": "QID26_8"
+}
+},
+{
+"column": "FL_7_DO_AlgorithmicHiring",
+"import_id": {
+"ImportId": "FL_7_DO",
+"choiceId": "AlgorithmicHiring"
+}
+},
+{
+"column": "FL_7_DO_HiringTeam",
+"import_id": {
+"ImportId": "FL_7_DO",
+"choiceId": "HiringTeam"
+}
+},
+{
+"column": "TWIN_ID",
+"import_id": {
+"raw": ""
+}
+}
+]

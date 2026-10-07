@@ -1,0 +1,835 @@
+[
+{
+"column": "StartDate",
+"import_id": {
+"ImportId": "startDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "EndDate",
+"import_id": {
+"ImportId": "endDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "Progress",
+"import_id": {
+"ImportId": "progress"
+}
+},
+{
+"column": "Duration (in seconds)",
+"import_id": {
+"ImportId": "duration"
+}
+},
+{
+"column": "Finished",
+"import_id": {
+"ImportId": "finished"
+}
+},
+{
+"column": "RecordedDate",
+"import_id": {
+"ImportId": "recordedDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "Informed Consent",
+"import_id": {
+"ImportId": "QID8"
+}
+},
+{
+"column": "Q20_1",
+"import_id": {
+"ImportId": "QID21_1"
+}
+},
+{
+"column": "Q20_2",
+"import_id": {
+"ImportId": "QID21_117"
+}
+},
+{
+"column": "Q20_3",
+"import_id": {
+"ImportId": "QID21_118"
+}
+},
+{
+"column": "Q20_4",
+"import_id": {
+"ImportId": "QID21_119"
+}
+},
+{
+"column": "Q20_5",
+"import_id": {
+"ImportId": "QID21_120"
+}
+},
+{
+"column": "Q20_6",
+"import_id": {
+"ImportId": "QID21_121"
+}
+},
+{
+"column": "Q20_7",
+"import_id": {
+"ImportId": "QID21_122"
+}
+},
+{
+"column": "Q20_8",
+"import_id": {
+"ImportId": "QID21_123"
+}
+},
+{
+"column": "Q20_9",
+"import_id": {
+"ImportId": "QID21_135"
+}
+},
+{
+"column": "Q20_10",
+"import_id": {
+"ImportId": "QID21_124"
+}
+},
+{
+"column": "Q20_11",
+"import_id": {
+"ImportId": "QID21_125"
+}
+},
+{
+"column": "Q20_12",
+"import_id": {
+"ImportId": "QID21_126"
+}
+},
+{
+"column": "Q20_13",
+"import_id": {
+"ImportId": "QID21_127"
+}
+},
+{
+"column": "Q20_14",
+"import_id": {
+"ImportId": "QID21_128"
+}
+},
+{
+"column": "Q20_15",
+"import_id": {
+"ImportId": "QID21_129"
+}
+},
+{
+"column": "Q20_16",
+"import_id": {
+"ImportId": "QID21_130"
+}
+},
+{
+"column": "Q20_17",
+"import_id": {
+"ImportId": "QID21_131"
+}
+},
+{
+"column": "Q20_18",
+"import_id": {
+"ImportId": "QID21_132"
+}
+},
+{
+"column": "Q20_19",
+"import_id": {
+"ImportId": "QID21_133"
+}
+},
+{
+"column": "Q20_20",
+"import_id": {
+"ImportId": "QID21_134"
+}
+},
+{
+"column": "Q20_DO_1",
+"import_id": {
+"ImportId": "QID21_DO",
+"choiceId": "1"
+}
+},
+{
+"column": "Q20_DO_2",
+"import_id": {
+"ImportId": "QID21_DO",
+"choiceId": "2"
+}
+},
+{
+"column": "Q20_DO_3",
+"import_id": {
+"ImportId": "QID21_DO",
+"choiceId": "3"
+}
+},
+{
+"column": "Q20_DO_4",
+"import_id": {
+"ImportId": "QID21_DO",
+"choiceId": "4"
+}
+},
+{
+"column": "Q20_DO_5",
+"import_id": {
+"ImportId": "QID21_DO",
+"choiceId": "5"
+}
+},
+{
+"column": "Q20_DO_6",
+"import_id": {
+"ImportId": "QID21_DO",
+"choiceId": "6"
+}
+},
+{
+"column": "Q20_DO_7",
+"import_id": {
+"ImportId": "QID21_DO",
+"choiceId": "7"
+}
+},
+{
+"column": "Q20_DO_8",
+"import_id": {
+"ImportId": "QID21_DO",
+"choiceId": "8"
+}
+},
+{
+"column": "Q20_DO_9",
+"import_id": {
+"ImportId": "QID21_DO",
+"choiceId": "9"
+}
+},
+{
+"column": "Q20_DO_10",
+"import_id": {
+"ImportId": "QID21_DO",
+"choiceId": "10"
+}
+},
+{
+"column": "Q20_DO_11",
+"import_id": {
+"ImportId": "QID21_DO",
+"choiceId": "11"
+}
+},
+{
+"column": "Q20_DO_12",
+"import_id": {
+"ImportId": "QID21_DO",
+"choiceId": "12"
+}
+},
+{
+"column": "Q20_DO_13",
+"import_id": {
+"ImportId": "QID21_DO",
+"choiceId": "13"
+}
+},
+{
+"column": "Q20_DO_14",
+"import_id": {
+"ImportId": "QID21_DO",
+"choiceId": "14"
+}
+},
+{
+"column": "Q20_DO_15",
+"import_id": {
+"ImportId": "QID21_DO",
+"choiceId": "15"
+}
+},
+{
+"column": "Q20_DO_16",
+"import_id": {
+"ImportId": "QID21_DO",
+"choiceId": "16"
+}
+},
+{
+"column": "Q20_DO_17",
+"import_id": {
+"ImportId": "QID21_DO",
+"choiceId": "17"
+}
+},
+{
+"column": "Q20_DO_18",
+"import_id": {
+"ImportId": "QID21_DO",
+"choiceId": "18"
+}
+},
+{
+"column": "Q20_DO_19",
+"import_id": {
+"ImportId": "QID21_DO",
+"choiceId": "19"
+}
+},
+{
+"column": "Q20_DO_20",
+"import_id": {
+"ImportId": "QID21_DO",
+"choiceId": "20"
+}
+},
+{
+"column": "Q1_1",
+"import_id": {
+"ImportId": "QID1_1"
+}
+},
+{
+"column": "Q1_2",
+"import_id": {
+"ImportId": "QID1_99"
+}
+},
+{
+"column": "Q1_3",
+"import_id": {
+"ImportId": "QID1_100"
+}
+},
+{
+"column": "Q1_4",
+"import_id": {
+"ImportId": "QID1_101"
+}
+},
+{
+"column": "Q1_5",
+"import_id": {
+"ImportId": "QID1_102"
+}
+},
+{
+"column": "Q1_6",
+"import_id": {
+"ImportId": "QID1_103"
+}
+},
+{
+"column": "Q1_7",
+"import_id": {
+"ImportId": "QID1_104"
+}
+},
+{
+"column": "Q1_8",
+"import_id": {
+"ImportId": "QID1_105"
+}
+},
+{
+"column": "Q1_9",
+"import_id": {
+"ImportId": "QID1_106"
+}
+},
+{
+"column": "Q1_10",
+"import_id": {
+"ImportId": "QID1_107"
+}
+},
+{
+"column": "Q1_11",
+"import_id": {
+"ImportId": "QID1_108"
+}
+},
+{
+"column": "Q1_12",
+"import_id": {
+"ImportId": "QID1_109"
+}
+},
+{
+"column": "Q1_13",
+"import_id": {
+"ImportId": "QID1_110"
+}
+},
+{
+"column": "Q1_14",
+"import_id": {
+"ImportId": "QID1_111"
+}
+},
+{
+"column": "Q1_15",
+"import_id": {
+"ImportId": "QID1_112"
+}
+},
+{
+"column": "Q1_16",
+"import_id": {
+"ImportId": "QID1_113"
+}
+},
+{
+"column": "Q1_17",
+"import_id": {
+"ImportId": "QID1_114"
+}
+},
+{
+"column": "Q1_18",
+"import_id": {
+"ImportId": "QID1_115"
+}
+},
+{
+"column": "Q1_19",
+"import_id": {
+"ImportId": "QID1_116"
+}
+},
+{
+"column": "Q1_DO_1",
+"import_id": {
+"ImportId": "QID1_DO",
+"choiceId": "1"
+}
+},
+{
+"column": "Q1_DO_2",
+"import_id": {
+"ImportId": "QID1_DO",
+"choiceId": "2"
+}
+},
+{
+"column": "Q1_DO_3",
+"import_id": {
+"ImportId": "QID1_DO",
+"choiceId": "3"
+}
+},
+{
+"column": "Q1_DO_4",
+"import_id": {
+"ImportId": "QID1_DO",
+"choiceId": "4"
+}
+},
+{
+"column": "Q1_DO_5",
+"import_id": {
+"ImportId": "QID1_DO",
+"choiceId": "5"
+}
+},
+{
+"column": "Q1_DO_6",
+"import_id": {
+"ImportId": "QID1_DO",
+"choiceId": "6"
+}
+},
+{
+"column": "Q1_DO_7",
+"import_id": {
+"ImportId": "QID1_DO",
+"choiceId": "7"
+}
+},
+{
+"column": "Q1_DO_8",
+"import_id": {
+"ImportId": "QID1_DO",
+"choiceId": "8"
+}
+},
+{
+"column": "Q1_DO_9",
+"import_id": {
+"ImportId": "QID1_DO",
+"choiceId": "9"
+}
+},
+{
+"column": "Q1_DO_10",
+"import_id": {
+"ImportId": "QID1_DO",
+"choiceId": "10"
+}
+},
+{
+"column": "Q1_DO_11",
+"import_id": {
+"ImportId": "QID1_DO",
+"choiceId": "11"
+}
+},
+{
+"column": "Q1_DO_12",
+"import_id": {
+"ImportId": "QID1_DO",
+"choiceId": "12"
+}
+},
+{
+"column": "Q1_DO_13",
+"import_id": {
+"ImportId": "QID1_DO",
+"choiceId": "13"
+}
+},
+{
+"column": "Q1_DO_14",
+"import_id": {
+"ImportId": "QID1_DO",
+"choiceId": "14"
+}
+},
+{
+"column": "Q1_DO_15",
+"import_id": {
+"ImportId": "QID1_DO",
+"choiceId": "15"
+}
+},
+{
+"column": "Q1_DO_16",
+"import_id": {
+"ImportId": "QID1_DO",
+"choiceId": "16"
+}
+},
+{
+"column": "Q1_DO_17",
+"import_id": {
+"ImportId": "QID1_DO",
+"choiceId": "17"
+}
+},
+{
+"column": "Q1_DO_18",
+"import_id": {
+"ImportId": "QID1_DO",
+"choiceId": "18"
+}
+},
+{
+"column": "Q1_DO_19",
+"import_id": {
+"ImportId": "QID1_DO",
+"choiceId": "19"
+}
+},
+{
+"column": "Q32",
+"import_id": {
+"ImportId": "QID34_TEXT"
+}
+},
+{
+"column": "Q22_1",
+"import_id": {
+"ImportId": "QID23_1"
+}
+},
+{
+"column": "Q22_2",
+"import_id": {
+"ImportId": "QID23_143"
+}
+},
+{
+"column": "Q22_3",
+"import_id": {
+"ImportId": "QID23_144"
+}
+},
+{
+"column": "Q22_4",
+"import_id": {
+"ImportId": "QID23_145"
+}
+},
+{
+"column": "Q22_5",
+"import_id": {
+"ImportId": "QID23_146"
+}
+},
+{
+"column": "Q22_6",
+"import_id": {
+"ImportId": "QID23_147"
+}
+},
+{
+"column": "Q22_7",
+"import_id": {
+"ImportId": "QID23_148"
+}
+},
+{
+"column": "Q22_DO_1",
+"import_id": {
+"ImportId": "QID23_DO",
+"choiceId": "1"
+}
+},
+{
+"column": "Q22_DO_2",
+"import_id": {
+"ImportId": "QID23_DO",
+"choiceId": "2"
+}
+},
+{
+"column": "Q22_DO_3",
+"import_id": {
+"ImportId": "QID23_DO",
+"choiceId": "3"
+}
+},
+{
+"column": "Q22_DO_4",
+"import_id": {
+"ImportId": "QID23_DO",
+"choiceId": "4"
+}
+},
+{
+"column": "Q22_DO_5",
+"import_id": {
+"ImportId": "QID23_DO",
+"choiceId": "5"
+}
+},
+{
+"column": "Q22_DO_6",
+"import_id": {
+"ImportId": "QID23_DO",
+"choiceId": "6"
+}
+},
+{
+"column": "Q22_DO_7",
+"import_id": {
+"ImportId": "QID23_DO",
+"choiceId": "7"
+}
+},
+{
+"column": "Q21_1",
+"import_id": {
+"ImportId": "QID22_1"
+}
+},
+{
+"column": "Q21_2",
+"import_id": {
+"ImportId": "QID22_135"
+}
+},
+{
+"column": "Q21_3",
+"import_id": {
+"ImportId": "QID22_136"
+}
+},
+{
+"column": "Q21_4",
+"import_id": {
+"ImportId": "QID22_137"
+}
+},
+{
+"column": "Q21_5",
+"import_id": {
+"ImportId": "QID22_138"
+}
+},
+{
+"column": "Q21_6",
+"import_id": {
+"ImportId": "QID22_143"
+}
+},
+{
+"column": "Q21_7",
+"import_id": {
+"ImportId": "QID22_140"
+}
+},
+{
+"column": "Q21_8",
+"import_id": {
+"ImportId": "QID22_141"
+}
+},
+{
+"column": "Q21_9",
+"import_id": {
+"ImportId": "QID22_142"
+}
+},
+{
+"column": "Q21_10",
+"import_id": {
+"ImportId": "QID22_144"
+}
+},
+{
+"column": "Q21_DO_1",
+"import_id": {
+"ImportId": "QID22_DO",
+"choiceId": "1"
+}
+},
+{
+"column": "Q21_DO_2",
+"import_id": {
+"ImportId": "QID22_DO",
+"choiceId": "2"
+}
+},
+{
+"column": "Q21_DO_3",
+"import_id": {
+"ImportId": "QID22_DO",
+"choiceId": "3"
+}
+},
+{
+"column": "Q21_DO_4",
+"import_id": {
+"ImportId": "QID22_DO",
+"choiceId": "4"
+}
+},
+{
+"column": "Q21_DO_5",
+"import_id": {
+"ImportId": "QID22_DO",
+"choiceId": "5"
+}
+},
+{
+"column": "Q21_DO_6",
+"import_id": {
+"ImportId": "QID22_DO",
+"choiceId": "6"
+}
+},
+{
+"column": "Q21_DO_7",
+"import_id": {
+"ImportId": "QID22_DO",
+"choiceId": "7"
+}
+},
+{
+"column": "Q21_DO_8",
+"import_id": {
+"ImportId": "QID22_DO",
+"choiceId": "8"
+}
+},
+{
+"column": "Q21_DO_9",
+"import_id": {
+"ImportId": "QID22_DO",
+"choiceId": "9"
+}
+},
+{
+"column": "Q21_DO_10",
+"import_id": {
+"ImportId": "QID22_DO",
+"choiceId": "10"
+}
+},
+{
+"column": "Q24",
+"import_id": {
+"ImportId": "QID25"
+}
+},
+{
+"column": "Q33",
+"import_id": {
+"ImportId": "QID35"
+}
+},
+{
+"column": "Q34",
+"import_id": {
+"ImportId": "QID36_TEXT"
+}
+},
+{
+"column": "Q29",
+"import_id": {
+"ImportId": "QID31"
+}
+},
+{
+"column": "Q28",
+"import_id": {
+"ImportId": "QID30"
+}
+},
+{
+"column": "Q28_27_TEXT",
+"import_id": {
+"ImportId": "QID30_27_TEXT"
+}
+},
+{
+"column": "SC0",
+"import_id": {
+"ImportId": "SC_9B899jEEz66h0rA"
+}
+},
+{
+"column": "TWIN_ID",
+"import_id": {
+"raw": "TWIN_ID"
+}
+},
+{
+"column": "",
+"import_id": {
+"raw": ""
+}
+}
+]

@@ -1,0 +1,6757 @@
+{
+  "$defs": {
+    "And": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "and",
+          "default": "and",
+          "title": "Type",
+          "type": "string"
+        },
+        "terms": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "and": "#/$defs/And",
+                "comparison": "#/$defs/Comparison",
+                "or": "#/$defs/Or"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/Comparison"
+              },
+              {
+                "$ref": "#/$defs/And"
+              },
+              {
+                "$ref": "#/$defs/Or"
+              }
+            ]
+          },
+          "title": "Terms",
+          "type": "array"
+        }
+      },
+      "required": [
+        "terms"
+      ],
+      "title": "And",
+      "type": "object"
+    },
+    "AuthenticatorNode": {
+      "additionalProperties": false,
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Source flow id, e.g. 'FL_12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "type": {
+          "const": "authenticator",
+          "default": "authenticator",
+          "title": "Type",
+          "type": "string"
+        },
+        "children": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "authenticator": "#/$defs/AuthenticatorNode",
+                "block": "#/$defs/BlockNode",
+                "branch": "#/$defs/BranchNode",
+                "embedded_data": "#/$defs/EmbeddedDataNode",
+                "end_survey": "#/$defs/EndSurveyNode",
+                "group": "#/$defs/GroupNode",
+                "library_block": "#/$defs/LibraryBlockNode",
+                "quota": "#/$defs/QuotaNode",
+                "randomizer": "#/$defs/RandomizerNode",
+                "table_of_contents": "#/$defs/TableOfContentsNode",
+                "unsupported": "#/$defs/UnsupportedNode",
+                "web_service": "#/$defs/WebServiceNode"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/BlockNode"
+              },
+              {
+                "$ref": "#/$defs/EmbeddedDataNode"
+              },
+              {
+                "$ref": "#/$defs/BranchNode"
+              },
+              {
+                "$ref": "#/$defs/RandomizerNode"
+              },
+              {
+                "$ref": "#/$defs/GroupNode"
+              },
+              {
+                "$ref": "#/$defs/EndSurveyNode"
+              },
+              {
+                "$ref": "#/$defs/WebServiceNode"
+              },
+              {
+                "$ref": "#/$defs/AuthenticatorNode"
+              },
+              {
+                "$ref": "#/$defs/TableOfContentsNode"
+              },
+              {
+                "$ref": "#/$defs/LibraryBlockNode"
+              },
+              {
+                "$ref": "#/$defs/QuotaNode"
+              },
+              {
+                "$ref": "#/$defs/UnsupportedNode"
+              }
+            ]
+          },
+          "title": "Children",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "AuthenticatorNode",
+      "type": "object"
+    },
+    "Block": {
+      "additionalProperties": false,
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "elements": {
+          "description": "Questions and page breaks, in presentation order.",
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "page_break": "#/$defs/PageBreak",
+                "question": "#/$defs/QuestionRef"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/QuestionRef"
+              },
+              {
+                "$ref": "#/$defs/PageBreak"
+              }
+            ]
+          },
+          "title": "Elements",
+          "type": "array"
+        },
+        "randomization": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Randomization"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Question-order randomization within the block."
+        },
+        "loop": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LoopAndMerge"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_default": {
+          "default": false,
+          "description": "The platform's default block (Qualtrics 'Default').",
+          "title": "Is Default",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "Block",
+      "type": "object"
+    },
+    "BlockNode": {
+      "additionalProperties": false,
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Source flow id, e.g. 'FL_12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "type": {
+          "const": "block",
+          "default": "block",
+          "title": "Type",
+          "type": "string"
+        },
+        "block_id": {
+          "title": "Block Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "block_id"
+      ],
+      "title": "BlockNode",
+      "type": "object"
+    },
+    "BranchNode": {
+      "additionalProperties": false,
+      "description": "Children run only if ``condition`` holds.",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Source flow id, e.g. 'FL_12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "type": {
+          "const": "branch",
+          "default": "branch",
+          "title": "Type",
+          "type": "string"
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "None only if the source branch had no readable logic (see diagnostics).",
+          "title": "Condition"
+        },
+        "children": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "authenticator": "#/$defs/AuthenticatorNode",
+                "block": "#/$defs/BlockNode",
+                "branch": "#/$defs/BranchNode",
+                "embedded_data": "#/$defs/EmbeddedDataNode",
+                "end_survey": "#/$defs/EndSurveyNode",
+                "group": "#/$defs/GroupNode",
+                "library_block": "#/$defs/LibraryBlockNode",
+                "quota": "#/$defs/QuotaNode",
+                "randomizer": "#/$defs/RandomizerNode",
+                "table_of_contents": "#/$defs/TableOfContentsNode",
+                "unsupported": "#/$defs/UnsupportedNode",
+                "web_service": "#/$defs/WebServiceNode"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/BlockNode"
+              },
+              {
+                "$ref": "#/$defs/EmbeddedDataNode"
+              },
+              {
+                "$ref": "#/$defs/BranchNode"
+              },
+              {
+                "$ref": "#/$defs/RandomizerNode"
+              },
+              {
+                "$ref": "#/$defs/GroupNode"
+              },
+              {
+                "$ref": "#/$defs/EndSurveyNode"
+              },
+              {
+                "$ref": "#/$defs/WebServiceNode"
+              },
+              {
+                "$ref": "#/$defs/AuthenticatorNode"
+              },
+              {
+                "$ref": "#/$defs/TableOfContentsNode"
+              },
+              {
+                "$ref": "#/$defs/LibraryBlockNode"
+              },
+              {
+                "$ref": "#/$defs/QuotaNode"
+              },
+              {
+                "$ref": "#/$defs/UnsupportedNode"
+              }
+            ]
+          },
+          "title": "Children",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "condition",
+        "children"
+      ],
+      "title": "BranchNode",
+      "type": "object"
+    },
+    "CaptchaQuestion": {
+      "additionalProperties": false,
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Stable source id, e.g. 'QID12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "export_tag": {
+          "description": "Data export name, e.g. 'Q12' or 'age'.",
+          "title": "Export Tag",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short label shown in editors.",
+          "title": "Description"
+        },
+        "display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Logic"
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Validation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "translations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Translation"
+          },
+          "title": "Translations",
+          "type": "object"
+        },
+        "media": {
+          "items": {
+            "$ref": "#/$defs/Media"
+          },
+          "title": "Media",
+          "type": "array"
+        },
+        "scoring": {
+          "items": {
+            "$ref": "#/$defs/Score"
+          },
+          "title": "Scoring",
+          "type": "array"
+        },
+        "default_value": {
+          "default": null,
+          "description": "Pre-filled response, source format.",
+          "title": "Default Value"
+        },
+        "javascript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Custom question JavaScript.",
+          "title": "Javascript"
+        },
+        "kind": {
+          "const": "captcha",
+          "default": "captcha",
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "export_tag",
+        "origin",
+        "text"
+      ],
+      "title": "CaptchaQuestion",
+      "type": "object"
+    },
+    "CarryForward": {
+      "additionalProperties": false,
+      "description": "Choices filled in at run time from an earlier question or a reference list.",
+      "properties": {
+        "source": {
+          "default": "question",
+          "enum": [
+            "question",
+            "reference_list",
+            "other"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "question_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Source question (question source).",
+          "title": "Question Id"
+        },
+        "list_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Reference list id (reference_list).",
+          "title": "List Id"
+        },
+        "mode": {
+          "description": "Which choices are carried, as named by the source: 'SelectedChoices', 'UnselectedChoices', 'DisplayedChoices', 'AllChoices', 'SelectedChoicesTextEntry', 'EnteredChoicesTextEntry', 'UnselectedChoicesForAnswer', 'ActiveSelections', ...",
+          "title": "Mode",
+          "type": "string"
+        },
+        "answer_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Scale point, for per-answer modes such as 'UnselectedChoicesForAnswer/1'.",
+          "title": "Answer Id"
+        },
+        "options": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Locator query options, e.g. {'displayLogic': '0'}.",
+          "title": "Options",
+          "type": "object"
+        },
+        "raw": {
+          "title": "Raw",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode",
+        "raw"
+      ],
+      "title": "CarryForward",
+      "type": "object"
+    },
+    "Choice": {
+      "additionalProperties": false,
+      "description": "A selectable option (or a row/item, depending on the question kind).",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Stable source id, always a string.",
+          "title": "Id",
+          "type": "string"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "recode": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Value written to the data file when chosen.",
+          "title": "Recode"
+        },
+        "variable_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Label used for this choice in exported data.",
+          "title": "Variable Name"
+        },
+        "export_tag": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Per-choice export column tag override.",
+          "title": "Export Tag"
+        },
+        "text_entry": {
+          "default": false,
+          "description": "Choice has an attached free-text box.",
+          "title": "Text Entry",
+          "type": "boolean"
+        },
+        "text_entry_required": {
+          "default": false,
+          "description": "The attached text box must be filled when chosen.",
+          "title": "Text Entry Required",
+          "type": "boolean"
+        },
+        "text_entry_validation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Content check on the attached text box, e.g. 'ValidNumber'.",
+          "title": "Text Entry Validation"
+        },
+        "exclusive": {
+          "default": false,
+          "description": "Selecting it deselects all others.",
+          "title": "Exclusive",
+          "type": "boolean"
+        },
+        "display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Logic"
+        },
+        "image": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Media"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "text"
+      ],
+      "title": "Choice",
+      "type": "object"
+    },
+    "ChoiceGroup": {
+      "additionalProperties": false,
+      "description": "A labeled group of choices shown together (Qualtrics 'choice groups').",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "choice_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Choice Ids",
+          "type": "array"
+        },
+        "selection": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Source selection rule, e.g. 'SAWithinQuestion'.",
+          "title": "Selection"
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ],
+      "title": "ChoiceGroup",
+      "type": "object"
+    },
+    "ChoiceQuestion": {
+      "additionalProperties": false,
+      "description": "Pick one or many options (radio buttons, checkboxes, dropdowns, NPS).",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Stable source id, e.g. 'QID12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "export_tag": {
+          "description": "Data export name, e.g. 'Q12' or 'age'.",
+          "title": "Export Tag",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short label shown in editors.",
+          "title": "Description"
+        },
+        "display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Logic"
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Validation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "translations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Translation"
+          },
+          "title": "Translations",
+          "type": "object"
+        },
+        "media": {
+          "items": {
+            "$ref": "#/$defs/Media"
+          },
+          "title": "Media",
+          "type": "array"
+        },
+        "scoring": {
+          "items": {
+            "$ref": "#/$defs/Score"
+          },
+          "title": "Scoring",
+          "type": "array"
+        },
+        "default_value": {
+          "default": null,
+          "description": "Pre-filled response, source format.",
+          "title": "Default Value"
+        },
+        "javascript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Custom question JavaScript.",
+          "title": "Javascript"
+        },
+        "kind": {
+          "const": "choice",
+          "default": "choice",
+          "title": "Kind",
+          "type": "string"
+        },
+        "multiple": {
+          "description": "True if more than one choice may be selected.",
+          "title": "Multiple",
+          "type": "boolean"
+        },
+        "layout": {
+          "default": "vertical",
+          "enum": [
+            "vertical",
+            "horizontal",
+            "columns",
+            "dropdown",
+            "select_box",
+            "nps",
+            "other"
+          ],
+          "title": "Layout",
+          "type": "string"
+        },
+        "columns": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Columns"
+        },
+        "choices": {
+          "description": "In default presentation order.",
+          "items": {
+            "$ref": "#/$defs/Choice"
+          },
+          "title": "Choices",
+          "type": "array"
+        },
+        "groups": {
+          "items": {
+            "$ref": "#/$defs/ChoiceGroup"
+          },
+          "title": "Groups",
+          "type": "array"
+        },
+        "randomization": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Randomization"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "carry_forward": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CarryForward"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "export_tag",
+        "origin",
+        "text",
+        "multiple",
+        "choices"
+      ],
+      "title": "ChoiceQuestion",
+      "type": "object"
+    },
+    "Comparison": {
+      "additionalProperties": false,
+      "description": "A single test, e.g. 'Q5 choice 2 is selected' or 'Condition == 3'.",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "type": {
+          "const": "comparison",
+          "default": "comparison",
+          "title": "Type",
+          "type": "string"
+        },
+        "left": {
+          "$ref": "#/$defs/Operand"
+        },
+        "operator": {
+          "enum": [
+            "selected",
+            "not_selected",
+            "displayed",
+            "not_displayed",
+            "equal",
+            "not_equal",
+            "greater_than",
+            "greater_than_or_equal",
+            "less_than",
+            "less_than_or_equal",
+            "empty",
+            "not_empty",
+            "contains",
+            "does_not_contain",
+            "matches_regex",
+            "is",
+            "is_not",
+            "quota_met",
+            "quota_not_met",
+            "other"
+          ],
+          "title": "Operator",
+          "type": "string"
+        },
+        "source_operator": {
+          "description": "Operator name as written in the source file.",
+          "title": "Source Operator",
+          "type": "string"
+        },
+        "right": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Comparison value, if any.",
+          "title": "Right"
+        },
+        "ignore_case": {
+          "default": false,
+          "title": "Ignore Case",
+          "type": "boolean"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Human-readable description from the source, as plain text.",
+          "title": "Description"
+        }
+      },
+      "required": [
+        "left",
+        "operator",
+        "source_operator"
+      ],
+      "title": "Comparison",
+      "type": "object"
+    },
+    "ConjointDesign": {
+      "additionalProperties": false,
+      "description": "A conjoint experiment found in the survey.\n\n``self_explicated_legacy`` is Qualtrics' old built-in conjoint element (``CJ``);\n``diy_js`` is the common do-it-yourself design in which question JavaScript\nrandomizes attribute levels into embedded data (Strezhnev's Conjoint Survey\nDesign Tool and the cjoint/projoint R packages use ``F-``/``K-`` field names).\nQualtrics' Conjoint XM projects keep their design outside the .qsf.",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "kind": {
+          "enum": [
+            "self_explicated_legacy",
+            "diy_js"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id"
+        },
+        "features": {
+          "items": {
+            "$ref": "#/$defs/ConjointFeature"
+          },
+          "title": "Features",
+          "type": "array"
+        },
+        "tasks": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Choice tasks per respondent.",
+          "title": "Tasks"
+        },
+        "profiles": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Profiles shown per task.",
+          "title": "Profiles"
+        },
+        "field_prefix": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Embedded-data prefix, e.g. 'F' for fields like F-1-2-3.",
+          "title": "Field Prefix"
+        },
+        "question_ids": {
+          "description": "Questions that define or display the design.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Question Ids",
+          "type": "array"
+        },
+        "confidence": {
+          "default": "medium",
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "title": "Confidence",
+          "type": "string"
+        },
+        "source": {
+          "description": "Where in the file the design was found.",
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "source"
+      ],
+      "title": "ConjointDesign",
+      "type": "object"
+    },
+    "ConjointFeature": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "levels": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Levels",
+          "type": "array"
+        },
+        "allow_elimination": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Allow Elimination"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "ConjointFeature",
+      "type": "object"
+    },
+    "ConstantSumQuestion": {
+      "additionalProperties": false,
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Stable source id, e.g. 'QID12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "export_tag": {
+          "description": "Data export name, e.g. 'Q12' or 'age'.",
+          "title": "Export Tag",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short label shown in editors.",
+          "title": "Description"
+        },
+        "display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Logic"
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Validation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "translations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Translation"
+          },
+          "title": "Translations",
+          "type": "object"
+        },
+        "media": {
+          "items": {
+            "$ref": "#/$defs/Media"
+          },
+          "title": "Media",
+          "type": "array"
+        },
+        "scoring": {
+          "items": {
+            "$ref": "#/$defs/Score"
+          },
+          "title": "Scoring",
+          "type": "array"
+        },
+        "default_value": {
+          "default": null,
+          "description": "Pre-filled response, source format.",
+          "title": "Default Value"
+        },
+        "javascript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Custom question JavaScript.",
+          "title": "Javascript"
+        },
+        "kind": {
+          "const": "constant_sum",
+          "default": "constant_sum",
+          "title": "Kind",
+          "type": "string"
+        },
+        "mode": {
+          "default": "text_boxes",
+          "enum": [
+            "text_boxes",
+            "bars",
+            "sliders",
+            "other"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/Choice"
+          },
+          "title": "Items",
+          "type": "array"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min"
+        },
+        "max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max"
+        },
+        "decimals": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Decimals"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Symbol shown with values, e.g. '%'.",
+          "title": "Unit"
+        },
+        "unit_position": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "'Before' or 'After'.",
+          "title": "Unit Position"
+        },
+        "randomization": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Randomization"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "export_tag",
+        "origin",
+        "text",
+        "items"
+      ],
+      "title": "ConstantSumQuestion",
+      "type": "object"
+    },
+    "DescriptiveQuestion": {
+      "additionalProperties": false,
+      "description": "Text or graphics shown to the respondent; collects no response.",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Stable source id, e.g. 'QID12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "export_tag": {
+          "description": "Data export name, e.g. 'Q12' or 'age'.",
+          "title": "Export Tag",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short label shown in editors.",
+          "title": "Description"
+        },
+        "display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Logic"
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Validation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "translations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Translation"
+          },
+          "title": "Translations",
+          "type": "object"
+        },
+        "media": {
+          "items": {
+            "$ref": "#/$defs/Media"
+          },
+          "title": "Media",
+          "type": "array"
+        },
+        "scoring": {
+          "items": {
+            "$ref": "#/$defs/Score"
+          },
+          "title": "Scoring",
+          "type": "array"
+        },
+        "default_value": {
+          "default": null,
+          "description": "Pre-filled response, source format.",
+          "title": "Default Value"
+        },
+        "javascript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Custom question JavaScript.",
+          "title": "Javascript"
+        },
+        "kind": {
+          "const": "descriptive",
+          "default": "descriptive",
+          "title": "Kind",
+          "type": "string"
+        },
+        "mode": {
+          "default": "text",
+          "enum": [
+            "text",
+            "graphic",
+            "other"
+          ],
+          "title": "Mode",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "export_tag",
+        "origin",
+        "text"
+      ],
+      "title": "DescriptiveQuestion",
+      "type": "object"
+    },
+    "Diagnostic": {
+      "additionalProperties": false,
+      "description": "Something a loader could not represent faithfully.",
+      "properties": {
+        "level": {
+          "enum": [
+            "info",
+            "warning",
+            "error"
+          ],
+          "title": "Level",
+          "type": "string"
+        },
+        "code": {
+          "description": "Stable machine-readable code, e.g. 'unsupported-question'.",
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "location": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Source id/path, e.g. 'QID12'.",
+          "title": "Location"
+        }
+      },
+      "required": [
+        "level",
+        "code",
+        "message"
+      ],
+      "title": "Diagnostic",
+      "type": "object"
+    },
+    "DrillDownQuestion": {
+      "additionalProperties": false,
+      "description": "Cascading dropdowns: each level's options depend on the previous selection.",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Stable source id, e.g. 'QID12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "export_tag": {
+          "description": "Data export name, e.g. 'Q12' or 'age'.",
+          "title": "Export Tag",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short label shown in editors.",
+          "title": "Description"
+        },
+        "display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Logic"
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Validation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "translations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Translation"
+          },
+          "title": "Translations",
+          "type": "object"
+        },
+        "media": {
+          "items": {
+            "$ref": "#/$defs/Media"
+          },
+          "title": "Media",
+          "type": "array"
+        },
+        "scoring": {
+          "items": {
+            "$ref": "#/$defs/Score"
+          },
+          "title": "Scoring",
+          "type": "array"
+        },
+        "default_value": {
+          "default": null,
+          "description": "Pre-filled response, source format.",
+          "title": "Default Value"
+        },
+        "javascript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Custom question JavaScript.",
+          "title": "Javascript"
+        },
+        "kind": {
+          "const": "drill_down",
+          "default": "drill_down",
+          "title": "Kind",
+          "type": "string"
+        },
+        "levels": {
+          "description": "One entry per dropdown level.",
+          "items": {
+            "$ref": "#/$defs/Choice"
+          },
+          "title": "Levels",
+          "type": "array"
+        },
+        "options": {
+          "description": "All selectable options across levels.",
+          "items": {
+            "$ref": "#/$defs/ScalePoint"
+          },
+          "title": "Options",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "export_tag",
+        "origin",
+        "text",
+        "levels",
+        "options"
+      ],
+      "title": "DrillDownQuestion",
+      "type": "object"
+    },
+    "EmbeddedDataNode": {
+      "additionalProperties": false,
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Source flow id, e.g. 'FL_12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "type": {
+          "const": "embedded_data",
+          "default": "embedded_data",
+          "title": "Type",
+          "type": "string"
+        },
+        "fields": {
+          "items": {
+            "$ref": "#/$defs/EmbeddedField"
+          },
+          "title": "Fields",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "fields"
+      ],
+      "title": "EmbeddedDataNode",
+      "type": "object"
+    },
+    "EmbeddedField": {
+      "additionalProperties": false,
+      "description": "A variable set in the flow (Qualtrics 'embedded data').",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "source": {
+          "description": "'custom' = value set here; 'recipient'/'panel' = supplied per respondent (e.g. a URL parameter or contact list); 'random' = drawn at run time.",
+          "enum": [
+            "custom",
+            "recipient",
+            "panel",
+            "random",
+            "other"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "variable_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Variable Type"
+        }
+      },
+      "required": [
+        "name",
+        "source"
+      ],
+      "title": "EmbeddedField",
+      "type": "object"
+    },
+    "EndSurveyNode": {
+      "additionalProperties": false,
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Source flow id, e.g. 'FL_12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "type": {
+          "const": "end_survey",
+          "default": "end_survey",
+          "title": "Type",
+          "type": "string"
+        },
+        "termination": {
+          "default": "default",
+          "enum": [
+            "default",
+            "message",
+            "redirect",
+            "other"
+          ],
+          "title": "Termination",
+          "type": "string"
+        },
+        "redirect_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Redirect Url"
+        },
+        "message_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Message Id"
+        },
+        "response_flag": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Status recorded on the response, e.g. 'Screened', 'QuotaMet'.",
+          "title": "Response Flag"
+        },
+        "ignore_response": {
+          "default": false,
+          "description": "The response is discarded (not recorded).",
+          "title": "Ignore Response",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "EndSurveyNode",
+      "type": "object"
+    },
+    "FileUploadQuestion": {
+      "additionalProperties": false,
+      "description": "Respondent uploads a file (allowed type is in ``validation.file_type``).",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Stable source id, e.g. 'QID12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "export_tag": {
+          "description": "Data export name, e.g. 'Q12' or 'age'.",
+          "title": "Export Tag",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short label shown in editors.",
+          "title": "Description"
+        },
+        "display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Logic"
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Validation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "translations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Translation"
+          },
+          "title": "Translations",
+          "type": "object"
+        },
+        "media": {
+          "items": {
+            "$ref": "#/$defs/Media"
+          },
+          "title": "Media",
+          "type": "array"
+        },
+        "scoring": {
+          "items": {
+            "$ref": "#/$defs/Score"
+          },
+          "title": "Scoring",
+          "type": "array"
+        },
+        "default_value": {
+          "default": null,
+          "description": "Pre-filled response, source format.",
+          "title": "Default Value"
+        },
+        "javascript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Custom question JavaScript.",
+          "title": "Javascript"
+        },
+        "kind": {
+          "const": "file_upload",
+          "default": "file_upload",
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "export_tag",
+        "origin",
+        "text"
+      ],
+      "title": "FileUploadQuestion",
+      "type": "object"
+    },
+    "GraphicSliderQuestion": {
+      "additionalProperties": false,
+      "description": "A single rating shown as a graphic (bars, gauges, faces, ...).",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Stable source id, e.g. 'QID12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "export_tag": {
+          "description": "Data export name, e.g. 'Q12' or 'age'.",
+          "title": "Export Tag",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short label shown in editors.",
+          "title": "Description"
+        },
+        "display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Logic"
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Validation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "translations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Translation"
+          },
+          "title": "Translations",
+          "type": "object"
+        },
+        "media": {
+          "items": {
+            "$ref": "#/$defs/Media"
+          },
+          "title": "Media",
+          "type": "array"
+        },
+        "scoring": {
+          "items": {
+            "$ref": "#/$defs/Score"
+          },
+          "title": "Scoring",
+          "type": "array"
+        },
+        "default_value": {
+          "default": null,
+          "description": "Pre-filled response, source format.",
+          "title": "Default Value"
+        },
+        "javascript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Custom question JavaScript.",
+          "title": "Javascript"
+        },
+        "kind": {
+          "const": "graphic_slider",
+          "default": "graphic_slider",
+          "title": "Kind",
+          "type": "string"
+        },
+        "graphic": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Graphic family, e.g. 'Bars'.",
+          "title": "Graphic"
+        },
+        "scale": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Graphic preset, e.g. 'TenGauge'.",
+          "title": "Scale"
+        },
+        "points": {
+          "description": "Scale points, low to high.",
+          "items": {
+            "$ref": "#/$defs/Choice"
+          },
+          "title": "Points",
+          "type": "array"
+        },
+        "direction": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Direction"
+        }
+      },
+      "required": [
+        "id",
+        "export_tag",
+        "origin",
+        "text",
+        "points"
+      ],
+      "title": "GraphicSliderQuestion",
+      "type": "object"
+    },
+    "GroupNode": {
+      "additionalProperties": false,
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Source flow id, e.g. 'FL_12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "type": {
+          "const": "group",
+          "default": "group",
+          "title": "Type",
+          "type": "string"
+        },
+        "children": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "authenticator": "#/$defs/AuthenticatorNode",
+                "block": "#/$defs/BlockNode",
+                "branch": "#/$defs/BranchNode",
+                "embedded_data": "#/$defs/EmbeddedDataNode",
+                "end_survey": "#/$defs/EndSurveyNode",
+                "group": "#/$defs/GroupNode",
+                "library_block": "#/$defs/LibraryBlockNode",
+                "quota": "#/$defs/QuotaNode",
+                "randomizer": "#/$defs/RandomizerNode",
+                "table_of_contents": "#/$defs/TableOfContentsNode",
+                "unsupported": "#/$defs/UnsupportedNode",
+                "web_service": "#/$defs/WebServiceNode"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/BlockNode"
+              },
+              {
+                "$ref": "#/$defs/EmbeddedDataNode"
+              },
+              {
+                "$ref": "#/$defs/BranchNode"
+              },
+              {
+                "$ref": "#/$defs/RandomizerNode"
+              },
+              {
+                "$ref": "#/$defs/GroupNode"
+              },
+              {
+                "$ref": "#/$defs/EndSurveyNode"
+              },
+              {
+                "$ref": "#/$defs/WebServiceNode"
+              },
+              {
+                "$ref": "#/$defs/AuthenticatorNode"
+              },
+              {
+                "$ref": "#/$defs/TableOfContentsNode"
+              },
+              {
+                "$ref": "#/$defs/LibraryBlockNode"
+              },
+              {
+                "$ref": "#/$defs/QuotaNode"
+              },
+              {
+                "$ref": "#/$defs/UnsupportedNode"
+              }
+            ]
+          },
+          "title": "Children",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "children"
+      ],
+      "title": "GroupNode",
+      "type": "object"
+    },
+    "HeatMapQuestion": {
+      "additionalProperties": false,
+      "description": "Respondents click anywhere on an image; clicks are reported by region.",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Stable source id, e.g. 'QID12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "export_tag": {
+          "description": "Data export name, e.g. 'Q12' or 'age'.",
+          "title": "Export Tag",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short label shown in editors.",
+          "title": "Description"
+        },
+        "display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Logic"
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Validation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "translations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Translation"
+          },
+          "title": "Translations",
+          "type": "object"
+        },
+        "media": {
+          "items": {
+            "$ref": "#/$defs/Media"
+          },
+          "title": "Media",
+          "type": "array"
+        },
+        "scoring": {
+          "items": {
+            "$ref": "#/$defs/Score"
+          },
+          "title": "Scoring",
+          "type": "array"
+        },
+        "default_value": {
+          "default": null,
+          "description": "Pre-filled response, source format.",
+          "title": "Default Value"
+        },
+        "javascript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Custom question JavaScript.",
+          "title": "Javascript"
+        },
+        "kind": {
+          "const": "heat_map",
+          "default": "heat_map",
+          "title": "Kind",
+          "type": "string"
+        },
+        "image": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Media"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "regions": {
+          "items": {
+            "$ref": "#/$defs/Region"
+          },
+          "title": "Regions",
+          "type": "array"
+        },
+        "max_clicks": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Clicks"
+        }
+      },
+      "required": [
+        "id",
+        "export_tag",
+        "origin",
+        "text"
+      ],
+      "title": "HeatMapQuestion",
+      "type": "object"
+    },
+    "HighlightQuestion": {
+      "additionalProperties": false,
+      "description": "Respondents mark words in a passage with one of several categories.",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Stable source id, e.g. 'QID12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "export_tag": {
+          "description": "Data export name, e.g. 'Q12' or 'age'.",
+          "title": "Export Tag",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short label shown in editors.",
+          "title": "Description"
+        },
+        "display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Logic"
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Validation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "translations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Translation"
+          },
+          "title": "Translations",
+          "type": "object"
+        },
+        "media": {
+          "items": {
+            "$ref": "#/$defs/Media"
+          },
+          "title": "Media",
+          "type": "array"
+        },
+        "scoring": {
+          "items": {
+            "$ref": "#/$defs/Score"
+          },
+          "title": "Scoring",
+          "type": "array"
+        },
+        "default_value": {
+          "default": null,
+          "description": "Pre-filled response, source format.",
+          "title": "Default Value"
+        },
+        "javascript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Custom question JavaScript.",
+          "title": "Javascript"
+        },
+        "kind": {
+          "const": "highlight",
+          "default": "highlight",
+          "title": "Kind",
+          "type": "string"
+        },
+        "passage": {
+          "title": "Passage",
+          "type": "string"
+        },
+        "words": {
+          "description": "Selectable words; text is the word itself.",
+          "items": {
+            "$ref": "#/$defs/Choice"
+          },
+          "title": "Words",
+          "type": "array"
+        },
+        "categories": {
+          "description": "Highlight categories, e.g. like/dislike.",
+          "items": {
+            "$ref": "#/$defs/ScalePoint"
+          },
+          "title": "Categories",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "export_tag",
+        "origin",
+        "text",
+        "passage",
+        "words",
+        "categories"
+      ],
+      "title": "HighlightQuestion",
+      "type": "object"
+    },
+    "HotSpotQuestion": {
+      "additionalProperties": false,
+      "description": "Respondents click predefined regions of an image to toggle or rate them.",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Stable source id, e.g. 'QID12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "export_tag": {
+          "description": "Data export name, e.g. 'Q12' or 'age'.",
+          "title": "Export Tag",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short label shown in editors.",
+          "title": "Description"
+        },
+        "display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Logic"
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Validation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "translations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Translation"
+          },
+          "title": "Translations",
+          "type": "object"
+        },
+        "media": {
+          "items": {
+            "$ref": "#/$defs/Media"
+          },
+          "title": "Media",
+          "type": "array"
+        },
+        "scoring": {
+          "items": {
+            "$ref": "#/$defs/Score"
+          },
+          "title": "Scoring",
+          "type": "array"
+        },
+        "default_value": {
+          "default": null,
+          "description": "Pre-filled response, source format.",
+          "title": "Default Value"
+        },
+        "javascript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Custom question JavaScript.",
+          "title": "Javascript"
+        },
+        "kind": {
+          "const": "hot_spot",
+          "default": "hot_spot",
+          "title": "Kind",
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "on_off",
+            "like_dislike",
+            "other"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "image": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Media"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "regions": {
+          "items": {
+            "$ref": "#/$defs/Region"
+          },
+          "title": "Regions",
+          "type": "array"
+        },
+        "states": {
+          "description": "Rating states (like/neutral/dislike).",
+          "items": {
+            "$ref": "#/$defs/ScalePoint"
+          },
+          "title": "States",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "export_tag",
+        "origin",
+        "text",
+        "mode",
+        "regions"
+      ],
+      "title": "HotSpotQuestion",
+      "type": "object"
+    },
+    "LibraryBlockNode": {
+      "additionalProperties": false,
+      "description": "A block pulled in from a Qualtrics library at run time (``ReferenceSurvey``).\n\nIts questions are not part of the exported file, so they cannot be shown.",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Source flow id, e.g. 'FL_12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "type": {
+          "const": "library_block",
+          "default": "library_block",
+          "title": "Type",
+          "type": "string"
+        },
+        "reference_id": {
+          "description": "Library survey/block id, e.g. 'LS_abc'.",
+          "title": "Reference Id",
+          "type": "string"
+        },
+        "library_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Library Id"
+        }
+      },
+      "required": [
+        "id",
+        "reference_id"
+      ],
+      "title": "LibraryBlockNode",
+      "type": "object"
+    },
+    "LoopAndMerge": {
+      "additionalProperties": false,
+      "description": "Repeat a block once per loop, substituting per-loop field values.\n\n``static`` loops come from a fixed table (``fields``); ``question`` loops run\nonce per choice of another question (e.g. once per selected choice).",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "source": {
+          "enum": [
+            "static",
+            "question"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "question_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Question Id"
+        },
+        "locator": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Source locator for question-driven loops.",
+          "title": "Locator"
+        },
+        "fields": {
+          "additionalProperties": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "description": "Loop id -> {field number -> value}. Static loops only.",
+          "title": "Fields",
+          "type": "object"
+        },
+        "randomization": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Randomization"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "title": "LoopAndMerge",
+      "type": "object"
+    },
+    "MatrixQuestion": {
+      "additionalProperties": false,
+      "description": "A grid of statements (rows) rated on a shared scale (columns).",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Stable source id, e.g. 'QID12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "export_tag": {
+          "description": "Data export name, e.g. 'Q12' or 'age'.",
+          "title": "Export Tag",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short label shown in editors.",
+          "title": "Description"
+        },
+        "display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Logic"
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Validation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "translations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Translation"
+          },
+          "title": "Translations",
+          "type": "object"
+        },
+        "media": {
+          "items": {
+            "$ref": "#/$defs/Media"
+          },
+          "title": "Media",
+          "type": "array"
+        },
+        "scoring": {
+          "items": {
+            "$ref": "#/$defs/Score"
+          },
+          "title": "Scoring",
+          "type": "array"
+        },
+        "default_value": {
+          "default": null,
+          "description": "Pre-filled response, source format.",
+          "title": "Default Value"
+        },
+        "javascript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Custom question JavaScript.",
+          "title": "Javascript"
+        },
+        "kind": {
+          "const": "matrix",
+          "default": "matrix",
+          "title": "Kind",
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "single",
+            "multiple",
+            "dropdown",
+            "text",
+            "bipolar",
+            "rank_order",
+            "constant_sum",
+            "max_diff",
+            "profile",
+            "other"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "rows": {
+          "description": "Statements, in default presentation order.",
+          "items": {
+            "$ref": "#/$defs/Choice"
+          },
+          "title": "Rows",
+          "type": "array"
+        },
+        "columns": {
+          "description": "Scale points, in presentation order.",
+          "items": {
+            "$ref": "#/$defs/ScalePoint"
+          },
+          "title": "Columns",
+          "type": "array"
+        },
+        "row_columns": {
+          "additionalProperties": {
+            "items": {
+              "$ref": "#/$defs/ScalePoint"
+            },
+            "type": "array"
+          },
+          "description": "Per-row scale points, when each row has its own (profile mode).",
+          "title": "Row Columns",
+          "type": "object"
+        },
+        "randomization": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Randomization"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "column_randomization": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Randomization"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "carry_forward": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CarryForward"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "export_tag",
+        "origin",
+        "text",
+        "mode",
+        "rows",
+        "columns"
+      ],
+      "title": "MatrixQuestion",
+      "type": "object"
+    },
+    "Media": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "description": "Platform media/library id, e.g. 'IM_abc123'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "filename": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Filename"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "Media",
+      "type": "object"
+    },
+    "MetaInfoQuestion": {
+      "additionalProperties": false,
+      "description": "Invisible collection of browser, OS and screen resolution.",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Stable source id, e.g. 'QID12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "export_tag": {
+          "description": "Data export name, e.g. 'Q12' or 'age'.",
+          "title": "Export Tag",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short label shown in editors.",
+          "title": "Description"
+        },
+        "display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Logic"
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Validation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "translations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Translation"
+          },
+          "title": "Translations",
+          "type": "object"
+        },
+        "media": {
+          "items": {
+            "$ref": "#/$defs/Media"
+          },
+          "title": "Media",
+          "type": "array"
+        },
+        "scoring": {
+          "items": {
+            "$ref": "#/$defs/Score"
+          },
+          "title": "Scoring",
+          "type": "array"
+        },
+        "default_value": {
+          "default": null,
+          "description": "Pre-filled response, source format.",
+          "title": "Default Value"
+        },
+        "javascript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Custom question JavaScript.",
+          "title": "Javascript"
+        },
+        "kind": {
+          "const": "meta_info",
+          "default": "meta_info",
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "export_tag",
+        "origin",
+        "text"
+      ],
+      "title": "MetaInfoQuestion",
+      "type": "object"
+    },
+    "NumberRange": {
+      "additionalProperties": false,
+      "properties": {
+        "min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min"
+        },
+        "max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max"
+        },
+        "decimals": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Decimals"
+        }
+      },
+      "title": "NumberRange",
+      "type": "object"
+    },
+    "Operand": {
+      "additionalProperties": false,
+      "description": "The left-hand side of a comparison: what the condition looks at.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "question",
+            "embedded_data",
+            "loop_field",
+            "device",
+            "geo_ip",
+            "quota",
+            "scoring",
+            "constant",
+            "other"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "question_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Question Id"
+        },
+        "selector": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Which part of the question response: 'SelectableChoice', 'ChoiceTextEntryValue', 'ChoiceNumericEntryValue', 'SelectableAnswer', 'Displayed', ...",
+          "title": "Selector"
+        },
+        "choice_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Choice Id"
+        },
+        "answer_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Answer Id"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Embedded-data or loop field name.",
+          "title": "Name"
+        },
+        "loop_iteration": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Loop Iteration"
+        },
+        "args": {
+          "description": "Locator path segments after the selector, verbatim.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Args",
+          "type": "array"
+        },
+        "raw": {
+          "description": "Source locator string, e.g. 'q://QID5/SelectableChoice/2'.",
+          "title": "Raw",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "raw"
+      ],
+      "title": "Operand",
+      "type": "object"
+    },
+    "Or": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "or",
+          "default": "or",
+          "title": "Type",
+          "type": "string"
+        },
+        "terms": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "and": "#/$defs/And",
+                "comparison": "#/$defs/Comparison",
+                "or": "#/$defs/Or"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/Comparison"
+              },
+              {
+                "$ref": "#/$defs/And"
+              },
+              {
+                "$ref": "#/$defs/Or"
+              }
+            ]
+          },
+          "title": "Terms",
+          "type": "array"
+        }
+      },
+      "required": [
+        "terms"
+      ],
+      "title": "Or",
+      "type": "object"
+    },
+    "Origin": {
+      "additionalProperties": false,
+      "description": "Where a question came from, in the source platform's own terms.",
+      "properties": {
+        "format": {
+          "description": "Source format, e.g. 'qualtrics'.",
+          "title": "Format",
+          "type": "string"
+        },
+        "type": {
+          "description": "Source question type, e.g. 'MC'.",
+          "title": "Type",
+          "type": "string"
+        },
+        "selector": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Source layout selector, e.g. 'SAVR'.",
+          "title": "Selector"
+        },
+        "sub_selector": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Source sub-selector, e.g. 'TX'.",
+          "title": "Sub Selector"
+        }
+      },
+      "required": [
+        "format",
+        "type"
+      ],
+      "title": "Origin",
+      "type": "object"
+    },
+    "PageBreak": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "page_break",
+          "default": "page_break",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "title": "PageBreak",
+      "type": "object"
+    },
+    "PickGroupRankQuestion": {
+      "additionalProperties": false,
+      "description": "Drag items into named groups, optionally ranking within each group.",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Stable source id, e.g. 'QID12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "export_tag": {
+          "description": "Data export name, e.g. 'Q12' or 'age'.",
+          "title": "Export Tag",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short label shown in editors.",
+          "title": "Description"
+        },
+        "display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Logic"
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Validation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "translations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Translation"
+          },
+          "title": "Translations",
+          "type": "object"
+        },
+        "media": {
+          "items": {
+            "$ref": "#/$defs/Media"
+          },
+          "title": "Media",
+          "type": "array"
+        },
+        "scoring": {
+          "items": {
+            "$ref": "#/$defs/Score"
+          },
+          "title": "Scoring",
+          "type": "array"
+        },
+        "default_value": {
+          "default": null,
+          "description": "Pre-filled response, source format.",
+          "title": "Default Value"
+        },
+        "javascript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Custom question JavaScript.",
+          "title": "Javascript"
+        },
+        "kind": {
+          "const": "pick_group_rank",
+          "default": "pick_group_rank",
+          "title": "Kind",
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/Choice"
+          },
+          "title": "Items",
+          "type": "array"
+        },
+        "groups": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Groups",
+          "type": "array"
+        },
+        "columns": {
+          "default": false,
+          "description": "Groups laid out as columns.",
+          "title": "Columns",
+          "type": "boolean"
+        },
+        "randomization": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Randomization"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "carry_forward": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CarryForward"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "export_tag",
+        "origin",
+        "text",
+        "items",
+        "groups"
+      ],
+      "title": "PickGroupRankQuestion",
+      "type": "object"
+    },
+    "Pipe": {
+      "additionalProperties": false,
+      "description": "One piped-text reference inside a text string.",
+      "properties": {
+        "raw": {
+          "description": "The reference exactly as written, e.g. '${e://Field/x}'.",
+          "title": "Raw",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "question",
+            "embedded_data",
+            "loop_merge",
+            "scoring",
+            "random",
+            "date",
+            "other"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "scheme": {
+          "description": "Source scheme without '://', e.g. 'q', 'e', 'lm'.",
+          "title": "Scheme",
+          "type": "string"
+        },
+        "path": {
+          "description": "Everything after '://'.",
+          "title": "Path",
+          "type": "string"
+        },
+        "question_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Question Id"
+        },
+        "loop_iteration": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Loop & Merge iteration prefix, e.g. 3 for 'q://3_QID9/...'.",
+          "title": "Loop Iteration"
+        },
+        "selector": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "What is piped, e.g. 'ChoiceTextEntryValue', 'SelectedChoices'.",
+          "title": "Selector"
+        },
+        "choice_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Choice Id"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Embedded-data field name, loop field number, etc.",
+          "title": "Name"
+        }
+      },
+      "required": [
+        "raw",
+        "kind",
+        "scheme",
+        "path"
+      ],
+      "title": "Pipe",
+      "type": "object"
+    },
+    "QuestionRef": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "question",
+          "default": "question",
+          "title": "Type",
+          "type": "string"
+        },
+        "question_id": {
+          "title": "Question Id",
+          "type": "string"
+        },
+        "skip_logic": {
+          "items": {
+            "$ref": "#/$defs/SkipLogic"
+          },
+          "title": "Skip Logic",
+          "type": "array"
+        }
+      },
+      "required": [
+        "question_id"
+      ],
+      "title": "QuestionRef",
+      "type": "object"
+    },
+    "Quota": {
+      "additionalProperties": false,
+      "description": "A respondent-count limit, and what happens when it fills.",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "limit": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Number of respondents allowed.",
+          "title": "Limit"
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Which respondents count toward the quota.",
+          "title": "Condition"
+        },
+        "action": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Source action when full, e.g. 'EndCurrentSurvey', 'ForBranching'.",
+          "title": "Action"
+        },
+        "over_quota_action": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Over Quota Action"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ],
+      "title": "Quota",
+      "type": "object"
+    },
+    "QuotaNode": {
+      "additionalProperties": false,
+      "description": "Point in the flow where quotas are checked (see ``Survey.quotas``).",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Source flow id, e.g. 'FL_12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "type": {
+          "const": "quota",
+          "default": "quota",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "QuotaNode",
+      "type": "object"
+    },
+    "Randomization": {
+      "additionalProperties": false,
+      "description": "How the order of a list (choices, rows, questions, loops) is randomized.",
+      "properties": {
+        "mode": {
+          "enum": [
+            "none",
+            "all",
+            "subset",
+            "advanced"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "subset_size": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Show only this many randomly selected elements.",
+          "title": "Subset Size"
+        },
+        "even_presentation": {
+          "default": false,
+          "title": "Even Presentation",
+          "type": "boolean"
+        },
+        "slots": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Advanced mode: the presentation order with fixed ids in place and '*' for each position filled from `randomized`.",
+          "title": "Slots"
+        },
+        "randomized": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Randomized",
+          "type": "array"
+        },
+        "undisplayed": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Undisplayed",
+          "type": "array"
+        },
+        "per_page": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Questions per page (blocks only).",
+          "title": "Per Page"
+        },
+        "flip_scale": {
+          "default": false,
+          "description": "Randomly reverse the scale, consistently across questions.",
+          "title": "Flip Scale",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "title": "Randomization",
+      "type": "object"
+    },
+    "RandomizerNode": {
+      "additionalProperties": false,
+      "description": "Children are shuffled; optionally only ``subset_size`` of them run.",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Source flow id, e.g. 'FL_12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "type": {
+          "const": "randomizer",
+          "default": "randomizer",
+          "title": "Type",
+          "type": "string"
+        },
+        "subset_size": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Subset Size"
+        },
+        "even_presentation": {
+          "default": false,
+          "title": "Even Presentation",
+          "type": "boolean"
+        },
+        "children": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "authenticator": "#/$defs/AuthenticatorNode",
+                "block": "#/$defs/BlockNode",
+                "branch": "#/$defs/BranchNode",
+                "embedded_data": "#/$defs/EmbeddedDataNode",
+                "end_survey": "#/$defs/EndSurveyNode",
+                "group": "#/$defs/GroupNode",
+                "library_block": "#/$defs/LibraryBlockNode",
+                "quota": "#/$defs/QuotaNode",
+                "randomizer": "#/$defs/RandomizerNode",
+                "table_of_contents": "#/$defs/TableOfContentsNode",
+                "unsupported": "#/$defs/UnsupportedNode",
+                "web_service": "#/$defs/WebServiceNode"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/BlockNode"
+              },
+              {
+                "$ref": "#/$defs/EmbeddedDataNode"
+              },
+              {
+                "$ref": "#/$defs/BranchNode"
+              },
+              {
+                "$ref": "#/$defs/RandomizerNode"
+              },
+              {
+                "$ref": "#/$defs/GroupNode"
+              },
+              {
+                "$ref": "#/$defs/EndSurveyNode"
+              },
+              {
+                "$ref": "#/$defs/WebServiceNode"
+              },
+              {
+                "$ref": "#/$defs/AuthenticatorNode"
+              },
+              {
+                "$ref": "#/$defs/TableOfContentsNode"
+              },
+              {
+                "$ref": "#/$defs/LibraryBlockNode"
+              },
+              {
+                "$ref": "#/$defs/QuotaNode"
+              },
+              {
+                "$ref": "#/$defs/UnsupportedNode"
+              }
+            ]
+          },
+          "title": "Children",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "children"
+      ],
+      "title": "RandomizerNode",
+      "type": "object"
+    },
+    "RankOrderQuestion": {
+      "additionalProperties": false,
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Stable source id, e.g. 'QID12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "export_tag": {
+          "description": "Data export name, e.g. 'Q12' or 'age'.",
+          "title": "Export Tag",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short label shown in editors.",
+          "title": "Description"
+        },
+        "display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Logic"
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Validation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "translations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Translation"
+          },
+          "title": "Translations",
+          "type": "object"
+        },
+        "media": {
+          "items": {
+            "$ref": "#/$defs/Media"
+          },
+          "title": "Media",
+          "type": "array"
+        },
+        "scoring": {
+          "items": {
+            "$ref": "#/$defs/Score"
+          },
+          "title": "Scoring",
+          "type": "array"
+        },
+        "default_value": {
+          "default": null,
+          "description": "Pre-filled response, source format.",
+          "title": "Default Value"
+        },
+        "javascript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Custom question JavaScript.",
+          "title": "Javascript"
+        },
+        "kind": {
+          "const": "rank_order",
+          "default": "rank_order",
+          "title": "Kind",
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "drag_and_drop",
+            "radio_buttons",
+            "text_box",
+            "select_box",
+            "other"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/Choice"
+          },
+          "title": "Items",
+          "type": "array"
+        },
+        "randomization": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Randomization"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "export_tag",
+        "origin",
+        "text",
+        "mode",
+        "items"
+      ],
+      "title": "RankOrderQuestion",
+      "type": "object"
+    },
+    "Region": {
+      "additionalProperties": false,
+      "description": "A clickable area of an image (hot spot and heat map questions).",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Choice id the region reports as, if any.",
+          "title": "Id"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "shape": {
+          "default": "Polygon",
+          "description": "Source shape type, e.g. 'Polygon'.",
+          "title": "Shape",
+          "type": "string"
+        },
+        "points": {
+          "description": "Outline vertices (x, y) in image pixels.",
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array"
+          },
+          "title": "Points",
+          "type": "array"
+        },
+        "x": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "X"
+        },
+        "y": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Y"
+        },
+        "width": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Width"
+        },
+        "height": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Height"
+        }
+      },
+      "title": "Region",
+      "type": "object"
+    },
+    "ScalePoint": {
+      "additionalProperties": false,
+      "description": "A column of a matrix question (Qualtrics calls these 'answers').",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "recode": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Recode"
+        },
+        "variable_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Variable Name"
+        },
+        "exclusive": {
+          "default": false,
+          "description": "Selecting it clears other columns.",
+          "title": "Exclusive",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "text"
+      ],
+      "title": "ScalePoint",
+      "type": "object"
+    },
+    "Score": {
+      "additionalProperties": false,
+      "description": "Points awarded for a choice (or choice/answer pair) in a scoring category.",
+      "properties": {
+        "choice_id": {
+          "title": "Choice Id",
+          "type": "string"
+        },
+        "answer_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Answer Id"
+        },
+        "category": {
+          "title": "Category",
+          "type": "string"
+        },
+        "points": {
+          "title": "Points",
+          "type": "number"
+        }
+      },
+      "required": [
+        "choice_id",
+        "category",
+        "points"
+      ],
+      "title": "Score",
+      "type": "object"
+    },
+    "ScoringCategory": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ],
+      "title": "ScoringCategory",
+      "type": "object"
+    },
+    "SideBySideQuestion": {
+      "additionalProperties": false,
+      "description": "Several questions about the same statements, shown as adjacent column groups.\n\nEach entry in ``questions`` is a full question (usually a matrix) whose rows\nrepeat ``rows``. Sub-question ids look like ``QID5#1``.",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Stable source id, e.g. 'QID12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "export_tag": {
+          "description": "Data export name, e.g. 'Q12' or 'age'.",
+          "title": "Export Tag",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short label shown in editors.",
+          "title": "Description"
+        },
+        "display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Logic"
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Validation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "translations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Translation"
+          },
+          "title": "Translations",
+          "type": "object"
+        },
+        "media": {
+          "items": {
+            "$ref": "#/$defs/Media"
+          },
+          "title": "Media",
+          "type": "array"
+        },
+        "scoring": {
+          "items": {
+            "$ref": "#/$defs/Score"
+          },
+          "title": "Scoring",
+          "type": "array"
+        },
+        "default_value": {
+          "default": null,
+          "description": "Pre-filled response, source format.",
+          "title": "Default Value"
+        },
+        "javascript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Custom question JavaScript.",
+          "title": "Javascript"
+        },
+        "kind": {
+          "const": "side_by_side",
+          "default": "side_by_side",
+          "title": "Kind",
+          "type": "string"
+        },
+        "rows": {
+          "items": {
+            "$ref": "#/$defs/Choice"
+          },
+          "title": "Rows",
+          "type": "array"
+        },
+        "questions": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "captcha": "#/$defs/CaptchaQuestion",
+                "choice": "#/$defs/ChoiceQuestion",
+                "constant_sum": "#/$defs/ConstantSumQuestion",
+                "descriptive": "#/$defs/DescriptiveQuestion",
+                "drill_down": "#/$defs/DrillDownQuestion",
+                "file_upload": "#/$defs/FileUploadQuestion",
+                "graphic_slider": "#/$defs/GraphicSliderQuestion",
+                "heat_map": "#/$defs/HeatMapQuestion",
+                "highlight": "#/$defs/HighlightQuestion",
+                "hot_spot": "#/$defs/HotSpotQuestion",
+                "matrix": "#/$defs/MatrixQuestion",
+                "meta_info": "#/$defs/MetaInfoQuestion",
+                "pick_group_rank": "#/$defs/PickGroupRankQuestion",
+                "rank_order": "#/$defs/RankOrderQuestion",
+                "side_by_side": "#/$defs/SideBySideQuestion",
+                "signature": "#/$defs/SignatureQuestion",
+                "slider": "#/$defs/SliderQuestion",
+                "text_entry": "#/$defs/TextEntryQuestion",
+                "timing": "#/$defs/TimingQuestion",
+                "unsupported": "#/$defs/UnsupportedQuestion"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/ChoiceQuestion"
+              },
+              {
+                "$ref": "#/$defs/MatrixQuestion"
+              },
+              {
+                "$ref": "#/$defs/TextEntryQuestion"
+              },
+              {
+                "$ref": "#/$defs/SliderQuestion"
+              },
+              {
+                "$ref": "#/$defs/ConstantSumQuestion"
+              },
+              {
+                "$ref": "#/$defs/RankOrderQuestion"
+              },
+              {
+                "$ref": "#/$defs/DescriptiveQuestion"
+              },
+              {
+                "$ref": "#/$defs/TimingQuestion"
+              },
+              {
+                "$ref": "#/$defs/MetaInfoQuestion"
+              },
+              {
+                "$ref": "#/$defs/CaptchaQuestion"
+              },
+              {
+                "$ref": "#/$defs/SideBySideQuestion"
+              },
+              {
+                "$ref": "#/$defs/DrillDownQuestion"
+              },
+              {
+                "$ref": "#/$defs/PickGroupRankQuestion"
+              },
+              {
+                "$ref": "#/$defs/HighlightQuestion"
+              },
+              {
+                "$ref": "#/$defs/HotSpotQuestion"
+              },
+              {
+                "$ref": "#/$defs/HeatMapQuestion"
+              },
+              {
+                "$ref": "#/$defs/GraphicSliderQuestion"
+              },
+              {
+                "$ref": "#/$defs/FileUploadQuestion"
+              },
+              {
+                "$ref": "#/$defs/SignatureQuestion"
+              },
+              {
+                "$ref": "#/$defs/UnsupportedQuestion"
+              }
+            ]
+          },
+          "title": "Questions",
+          "type": "array"
+        },
+        "randomization": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Randomization"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "carry_forward": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CarryForward"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "export_tag",
+        "origin",
+        "text",
+        "rows",
+        "questions"
+      ],
+      "title": "SideBySideQuestion",
+      "type": "object"
+    },
+    "SignatureQuestion": {
+      "additionalProperties": false,
+      "description": "Respondent draws a signature.",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Stable source id, e.g. 'QID12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "export_tag": {
+          "description": "Data export name, e.g. 'Q12' or 'age'.",
+          "title": "Export Tag",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short label shown in editors.",
+          "title": "Description"
+        },
+        "display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Logic"
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Validation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "translations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Translation"
+          },
+          "title": "Translations",
+          "type": "object"
+        },
+        "media": {
+          "items": {
+            "$ref": "#/$defs/Media"
+          },
+          "title": "Media",
+          "type": "array"
+        },
+        "scoring": {
+          "items": {
+            "$ref": "#/$defs/Score"
+          },
+          "title": "Scoring",
+          "type": "array"
+        },
+        "default_value": {
+          "default": null,
+          "description": "Pre-filled response, source format.",
+          "title": "Default Value"
+        },
+        "javascript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Custom question JavaScript.",
+          "title": "Javascript"
+        },
+        "kind": {
+          "const": "signature",
+          "default": "signature",
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "export_tag",
+        "origin",
+        "text"
+      ],
+      "title": "SignatureQuestion",
+      "type": "object"
+    },
+    "SkipLogic": {
+      "additionalProperties": false,
+      "description": "After answering, jump elsewhere if ``condition`` holds.",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "condition": {
+          "discriminator": {
+            "mapping": {
+              "and": "#/$defs/And",
+              "comparison": "#/$defs/Comparison",
+              "or": "#/$defs/Or"
+            },
+            "propertyName": "type"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Comparison"
+            },
+            {
+              "$ref": "#/$defs/And"
+            },
+            {
+              "$ref": "#/$defs/Or"
+            }
+          ],
+          "title": "Condition"
+        },
+        "destination": {
+          "enum": [
+            "end_of_block",
+            "end_of_survey",
+            "question"
+          ],
+          "title": "Destination",
+          "type": "string"
+        },
+        "target_question_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Set when destination is 'question'.",
+          "title": "Target Question Id"
+        }
+      },
+      "required": [
+        "condition",
+        "destination"
+      ],
+      "title": "SkipLogic",
+      "type": "object"
+    },
+    "SliderQuestion": {
+      "additionalProperties": false,
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Stable source id, e.g. 'QID12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "export_tag": {
+          "description": "Data export name, e.g. 'Q12' or 'age'.",
+          "title": "Export Tag",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short label shown in editors.",
+          "title": "Description"
+        },
+        "display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Logic"
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Validation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "translations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Translation"
+          },
+          "title": "Translations",
+          "type": "object"
+        },
+        "media": {
+          "items": {
+            "$ref": "#/$defs/Media"
+          },
+          "title": "Media",
+          "type": "array"
+        },
+        "scoring": {
+          "items": {
+            "$ref": "#/$defs/Score"
+          },
+          "title": "Scoring",
+          "type": "array"
+        },
+        "default_value": {
+          "default": null,
+          "description": "Pre-filled response, source format.",
+          "title": "Default Value"
+        },
+        "javascript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Custom question JavaScript.",
+          "title": "Javascript"
+        },
+        "kind": {
+          "const": "slider",
+          "default": "slider",
+          "title": "Kind",
+          "type": "string"
+        },
+        "mode": {
+          "default": "slider",
+          "enum": [
+            "slider",
+            "bar",
+            "star",
+            "number_scale",
+            "other"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/Choice"
+          },
+          "title": "Items",
+          "type": "array"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min"
+        },
+        "max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max"
+        },
+        "decimals": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Decimals"
+        },
+        "grid_lines": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Grid Lines"
+        },
+        "snap_to_grid": {
+          "default": false,
+          "title": "Snap To Grid",
+          "type": "boolean"
+        },
+        "labels": {
+          "description": "Scale labels along the slider.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Labels",
+          "type": "array"
+        },
+        "show_value": {
+          "default": false,
+          "title": "Show Value",
+          "type": "boolean"
+        },
+        "start_positions": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "description": "Initial handle position per item, as a fraction (0-1) of the scale. Empty means handles start at the minimum / unset.",
+          "title": "Start Positions",
+          "type": "object"
+        },
+        "not_applicable": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Label of an extra 'not applicable' option, if offered.",
+          "title": "Not Applicable"
+        },
+        "randomization": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Randomization"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "export_tag",
+        "origin",
+        "text",
+        "items"
+      ],
+      "title": "SliderQuestion",
+      "type": "object"
+    },
+    "SourceInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "description": "e.g. 'qualtrics.qsf'.",
+          "title": "Format",
+          "type": "string"
+        },
+        "format_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Format Version"
+        },
+        "loader": {
+          "description": "Loader and version that produced this document.",
+          "title": "Loader",
+          "type": "string"
+        }
+      },
+      "required": [
+        "format",
+        "loader"
+      ],
+      "title": "SourceInfo",
+      "type": "object"
+    },
+    "TableOfContentsNode": {
+      "additionalProperties": false,
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Source flow id, e.g. 'FL_12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "type": {
+          "const": "table_of_contents",
+          "default": "table_of_contents",
+          "title": "Type",
+          "type": "string"
+        },
+        "children": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "authenticator": "#/$defs/AuthenticatorNode",
+                "block": "#/$defs/BlockNode",
+                "branch": "#/$defs/BranchNode",
+                "embedded_data": "#/$defs/EmbeddedDataNode",
+                "end_survey": "#/$defs/EndSurveyNode",
+                "group": "#/$defs/GroupNode",
+                "library_block": "#/$defs/LibraryBlockNode",
+                "quota": "#/$defs/QuotaNode",
+                "randomizer": "#/$defs/RandomizerNode",
+                "table_of_contents": "#/$defs/TableOfContentsNode",
+                "unsupported": "#/$defs/UnsupportedNode",
+                "web_service": "#/$defs/WebServiceNode"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/BlockNode"
+              },
+              {
+                "$ref": "#/$defs/EmbeddedDataNode"
+              },
+              {
+                "$ref": "#/$defs/BranchNode"
+              },
+              {
+                "$ref": "#/$defs/RandomizerNode"
+              },
+              {
+                "$ref": "#/$defs/GroupNode"
+              },
+              {
+                "$ref": "#/$defs/EndSurveyNode"
+              },
+              {
+                "$ref": "#/$defs/WebServiceNode"
+              },
+              {
+                "$ref": "#/$defs/AuthenticatorNode"
+              },
+              {
+                "$ref": "#/$defs/TableOfContentsNode"
+              },
+              {
+                "$ref": "#/$defs/LibraryBlockNode"
+              },
+              {
+                "$ref": "#/$defs/QuotaNode"
+              },
+              {
+                "$ref": "#/$defs/UnsupportedNode"
+              }
+            ]
+          },
+          "title": "Children",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "TableOfContentsNode",
+      "type": "object"
+    },
+    "Text": {
+      "additionalProperties": false,
+      "description": "Displayed text in three forms: source markup, plain text, and references.",
+      "properties": {
+        "html": {
+          "default": "",
+          "description": "Original markup from the source file.",
+          "title": "Html",
+          "type": "string"
+        },
+        "plain": {
+          "default": "",
+          "description": "Readable plain text; piped references kept as-is.",
+          "title": "Plain",
+          "type": "string"
+        },
+        "pipes": {
+          "items": {
+            "$ref": "#/$defs/Pipe"
+          },
+          "title": "Pipes",
+          "type": "array"
+        }
+      },
+      "title": "Text",
+      "type": "object"
+    },
+    "TextEntryQuestion": {
+      "additionalProperties": false,
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Stable source id, e.g. 'QID12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "export_tag": {
+          "description": "Data export name, e.g. 'Q12' or 'age'.",
+          "title": "Export Tag",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short label shown in editors.",
+          "title": "Description"
+        },
+        "display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Logic"
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Validation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "translations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Translation"
+          },
+          "title": "Translations",
+          "type": "object"
+        },
+        "media": {
+          "items": {
+            "$ref": "#/$defs/Media"
+          },
+          "title": "Media",
+          "type": "array"
+        },
+        "scoring": {
+          "items": {
+            "$ref": "#/$defs/Score"
+          },
+          "title": "Scoring",
+          "type": "array"
+        },
+        "default_value": {
+          "default": null,
+          "description": "Pre-filled response, source format.",
+          "title": "Default Value"
+        },
+        "javascript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Custom question JavaScript.",
+          "title": "Javascript"
+        },
+        "kind": {
+          "const": "text_entry",
+          "default": "text_entry",
+          "title": "Kind",
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "single_line",
+            "multi_line",
+            "essay",
+            "form",
+            "password",
+            "autocomplete",
+            "other"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "fields": {
+          "description": "Form fields (form mode).",
+          "items": {
+            "$ref": "#/$defs/Choice"
+          },
+          "title": "Fields",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "export_tag",
+        "origin",
+        "text",
+        "mode"
+      ],
+      "title": "TextEntryQuestion",
+      "type": "object"
+    },
+    "TimingQuestion": {
+      "additionalProperties": false,
+      "description": "Invisible page timer; records click/submit times.",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Stable source id, e.g. 'QID12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "export_tag": {
+          "description": "Data export name, e.g. 'Q12' or 'age'.",
+          "title": "Export Tag",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short label shown in editors.",
+          "title": "Description"
+        },
+        "display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Logic"
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Validation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "translations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Translation"
+          },
+          "title": "Translations",
+          "type": "object"
+        },
+        "media": {
+          "items": {
+            "$ref": "#/$defs/Media"
+          },
+          "title": "Media",
+          "type": "array"
+        },
+        "scoring": {
+          "items": {
+            "$ref": "#/$defs/Score"
+          },
+          "title": "Scoring",
+          "type": "array"
+        },
+        "default_value": {
+          "default": null,
+          "description": "Pre-filled response, source format.",
+          "title": "Default Value"
+        },
+        "javascript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Custom question JavaScript.",
+          "title": "Javascript"
+        },
+        "kind": {
+          "const": "timing",
+          "default": "timing",
+          "title": "Kind",
+          "type": "string"
+        },
+        "min_seconds": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Next button hidden until this many seconds.",
+          "title": "Min Seconds"
+        },
+        "auto_advance_seconds": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Page auto-submits after this many seconds.",
+          "title": "Auto Advance Seconds"
+        },
+        "show_timer": {
+          "default": false,
+          "title": "Show Timer",
+          "type": "boolean"
+        },
+        "countdown_seconds": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Visible countdown length (decrementing timers).",
+          "title": "Countdown Seconds"
+        }
+      },
+      "required": [
+        "id",
+        "export_tag",
+        "origin",
+        "text"
+      ],
+      "title": "TimingQuestion",
+      "type": "object"
+    },
+    "Translation": {
+      "additionalProperties": false,
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "choices": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Text"
+          },
+          "title": "Choices",
+          "type": "object"
+        },
+        "answers": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Text"
+          },
+          "title": "Answers",
+          "type": "object"
+        }
+      },
+      "title": "Translation",
+      "type": "object"
+    },
+    "UnsupportedNode": {
+      "additionalProperties": false,
+      "description": "A flow element surveyir does not model yet. ``extras`` holds it verbatim.",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Source flow id, e.g. 'FL_12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "type": {
+          "const": "unsupported",
+          "default": "unsupported",
+          "title": "Type",
+          "type": "string"
+        },
+        "source_type": {
+          "title": "Source Type",
+          "type": "string"
+        },
+        "children": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "authenticator": "#/$defs/AuthenticatorNode",
+                "block": "#/$defs/BlockNode",
+                "branch": "#/$defs/BranchNode",
+                "embedded_data": "#/$defs/EmbeddedDataNode",
+                "end_survey": "#/$defs/EndSurveyNode",
+                "group": "#/$defs/GroupNode",
+                "library_block": "#/$defs/LibraryBlockNode",
+                "quota": "#/$defs/QuotaNode",
+                "randomizer": "#/$defs/RandomizerNode",
+                "table_of_contents": "#/$defs/TableOfContentsNode",
+                "unsupported": "#/$defs/UnsupportedNode",
+                "web_service": "#/$defs/WebServiceNode"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/BlockNode"
+              },
+              {
+                "$ref": "#/$defs/EmbeddedDataNode"
+              },
+              {
+                "$ref": "#/$defs/BranchNode"
+              },
+              {
+                "$ref": "#/$defs/RandomizerNode"
+              },
+              {
+                "$ref": "#/$defs/GroupNode"
+              },
+              {
+                "$ref": "#/$defs/EndSurveyNode"
+              },
+              {
+                "$ref": "#/$defs/WebServiceNode"
+              },
+              {
+                "$ref": "#/$defs/AuthenticatorNode"
+              },
+              {
+                "$ref": "#/$defs/TableOfContentsNode"
+              },
+              {
+                "$ref": "#/$defs/LibraryBlockNode"
+              },
+              {
+                "$ref": "#/$defs/QuotaNode"
+              },
+              {
+                "$ref": "#/$defs/UnsupportedNode"
+              }
+            ]
+          },
+          "title": "Children",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "source_type"
+      ],
+      "title": "UnsupportedNode",
+      "type": "object"
+    },
+    "UnsupportedQuestion": {
+      "additionalProperties": false,
+      "description": "A question type surveyir does not model yet. ``extras`` holds the full payload.",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Stable source id, e.g. 'QID12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "export_tag": {
+          "description": "Data export name, e.g. 'Q12' or 'age'.",
+          "title": "Export Tag",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short label shown in editors.",
+          "title": "Description"
+        },
+        "display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Logic"
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Validation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "translations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Translation"
+          },
+          "title": "Translations",
+          "type": "object"
+        },
+        "media": {
+          "items": {
+            "$ref": "#/$defs/Media"
+          },
+          "title": "Media",
+          "type": "array"
+        },
+        "scoring": {
+          "items": {
+            "$ref": "#/$defs/Score"
+          },
+          "title": "Scoring",
+          "type": "array"
+        },
+        "default_value": {
+          "default": null,
+          "description": "Pre-filled response, source format.",
+          "title": "Default Value"
+        },
+        "javascript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Custom question JavaScript.",
+          "title": "Javascript"
+        },
+        "kind": {
+          "const": "unsupported",
+          "default": "unsupported",
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "export_tag",
+        "origin",
+        "text"
+      ],
+      "title": "UnsupportedQuestion",
+      "type": "object"
+    },
+    "Validation": {
+      "additionalProperties": false,
+      "description": "Response requirements. ``None`` on a question means no requirement.",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "required": {
+          "default": "off",
+          "enum": [
+            "off",
+            "force",
+            "request"
+          ],
+          "title": "Required",
+          "type": "string"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Source validation type, e.g. 'ContentType', 'MinChar'.",
+          "title": "Type"
+        },
+        "content_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "e.g. 'ValidNumber', 'ValidEmail', 'ValidZip'.",
+          "title": "Content Type"
+        },
+        "number": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NumberRange"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "min_chars": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Chars"
+        },
+        "max_chars": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Chars"
+        },
+        "min_choices": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Choices"
+        },
+        "max_choices": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Choices"
+        },
+        "file_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Allowed upload type for file-upload questions, e.g. 'Graphic'.",
+          "title": "File Type"
+        },
+        "total": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Required sum (constant sum).",
+          "title": "Total"
+        },
+        "custom": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Custom"
+        },
+        "custom_message": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Custom Message"
+        }
+      },
+      "title": "Validation",
+      "type": "object"
+    },
+    "WebServiceNode": {
+      "additionalProperties": false,
+      "description": "Calls an external URL at run time and may set embedded data from the response.",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Source flow id, e.g. 'FL_12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "type": {
+          "const": "web_service",
+          "default": "web_service",
+          "title": "Type",
+          "type": "string"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        },
+        "method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Method"
+        },
+        "request_params": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Request Params",
+          "type": "object"
+        },
+        "response_map": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Response key -> embedded-data field it sets.",
+          "title": "Response Map",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "WebServiceNode",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "A complete survey instrument.\n\n``blocks`` and ``questions`` are keyed by id and kept in source order. The\n``flow`` tree decides what a respondent actually sees. Blocks or questions\nthat are never reachable from the flow are still present (``unused_*``\nhelpers find them); trashed elements are dropped at load time.",
+  "properties": {
+    "extras": {
+      "additionalProperties": true,
+      "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+      "title": "Extras",
+      "type": "object"
+    },
+    "schema_version": {
+      "default": "0.2",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "description": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Description"
+    },
+    "language": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Language"
+    },
+    "languages": {
+      "description": "Additional languages with translations.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Languages",
+      "type": "array"
+    },
+    "created": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Created"
+    },
+    "modified": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Modified"
+    },
+    "source": {
+      "$ref": "#/$defs/SourceInfo"
+    },
+    "blocks": {
+      "additionalProperties": {
+        "$ref": "#/$defs/Block"
+      },
+      "title": "Blocks",
+      "type": "object"
+    },
+    "questions": {
+      "additionalProperties": {
+        "discriminator": {
+          "mapping": {
+            "captcha": "#/$defs/CaptchaQuestion",
+            "choice": "#/$defs/ChoiceQuestion",
+            "constant_sum": "#/$defs/ConstantSumQuestion",
+            "descriptive": "#/$defs/DescriptiveQuestion",
+            "drill_down": "#/$defs/DrillDownQuestion",
+            "file_upload": "#/$defs/FileUploadQuestion",
+            "graphic_slider": "#/$defs/GraphicSliderQuestion",
+            "heat_map": "#/$defs/HeatMapQuestion",
+            "highlight": "#/$defs/HighlightQuestion",
+            "hot_spot": "#/$defs/HotSpotQuestion",
+            "matrix": "#/$defs/MatrixQuestion",
+            "meta_info": "#/$defs/MetaInfoQuestion",
+            "pick_group_rank": "#/$defs/PickGroupRankQuestion",
+            "rank_order": "#/$defs/RankOrderQuestion",
+            "side_by_side": "#/$defs/SideBySideQuestion",
+            "signature": "#/$defs/SignatureQuestion",
+            "slider": "#/$defs/SliderQuestion",
+            "text_entry": "#/$defs/TextEntryQuestion",
+            "timing": "#/$defs/TimingQuestion",
+            "unsupported": "#/$defs/UnsupportedQuestion"
+          },
+          "propertyName": "kind"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/ChoiceQuestion"
+          },
+          {
+            "$ref": "#/$defs/MatrixQuestion"
+          },
+          {
+            "$ref": "#/$defs/TextEntryQuestion"
+          },
+          {
+            "$ref": "#/$defs/SliderQuestion"
+          },
+          {
+            "$ref": "#/$defs/ConstantSumQuestion"
+          },
+          {
+            "$ref": "#/$defs/RankOrderQuestion"
+          },
+          {
+            "$ref": "#/$defs/DescriptiveQuestion"
+          },
+          {
+            "$ref": "#/$defs/TimingQuestion"
+          },
+          {
+            "$ref": "#/$defs/MetaInfoQuestion"
+          },
+          {
+            "$ref": "#/$defs/CaptchaQuestion"
+          },
+          {
+            "$ref": "#/$defs/SideBySideQuestion"
+          },
+          {
+            "$ref": "#/$defs/DrillDownQuestion"
+          },
+          {
+            "$ref": "#/$defs/PickGroupRankQuestion"
+          },
+          {
+            "$ref": "#/$defs/HighlightQuestion"
+          },
+          {
+            "$ref": "#/$defs/HotSpotQuestion"
+          },
+          {
+            "$ref": "#/$defs/HeatMapQuestion"
+          },
+          {
+            "$ref": "#/$defs/GraphicSliderQuestion"
+          },
+          {
+            "$ref": "#/$defs/FileUploadQuestion"
+          },
+          {
+            "$ref": "#/$defs/SignatureQuestion"
+          },
+          {
+            "$ref": "#/$defs/UnsupportedQuestion"
+          }
+        ]
+      },
+      "title": "Questions",
+      "type": "object"
+    },
+    "flow": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "authenticator": "#/$defs/AuthenticatorNode",
+            "block": "#/$defs/BlockNode",
+            "branch": "#/$defs/BranchNode",
+            "embedded_data": "#/$defs/EmbeddedDataNode",
+            "end_survey": "#/$defs/EndSurveyNode",
+            "group": "#/$defs/GroupNode",
+            "library_block": "#/$defs/LibraryBlockNode",
+            "quota": "#/$defs/QuotaNode",
+            "randomizer": "#/$defs/RandomizerNode",
+            "table_of_contents": "#/$defs/TableOfContentsNode",
+            "unsupported": "#/$defs/UnsupportedNode",
+            "web_service": "#/$defs/WebServiceNode"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/BlockNode"
+          },
+          {
+            "$ref": "#/$defs/EmbeddedDataNode"
+          },
+          {
+            "$ref": "#/$defs/BranchNode"
+          },
+          {
+            "$ref": "#/$defs/RandomizerNode"
+          },
+          {
+            "$ref": "#/$defs/GroupNode"
+          },
+          {
+            "$ref": "#/$defs/EndSurveyNode"
+          },
+          {
+            "$ref": "#/$defs/WebServiceNode"
+          },
+          {
+            "$ref": "#/$defs/AuthenticatorNode"
+          },
+          {
+            "$ref": "#/$defs/TableOfContentsNode"
+          },
+          {
+            "$ref": "#/$defs/LibraryBlockNode"
+          },
+          {
+            "$ref": "#/$defs/QuotaNode"
+          },
+          {
+            "$ref": "#/$defs/UnsupportedNode"
+          }
+        ]
+      },
+      "title": "Flow",
+      "type": "array"
+    },
+    "scoring_categories": {
+      "items": {
+        "$ref": "#/$defs/ScoringCategory"
+      },
+      "title": "Scoring Categories",
+      "type": "array"
+    },
+    "quotas": {
+      "items": {
+        "$ref": "#/$defs/Quota"
+      },
+      "title": "Quotas",
+      "type": "array"
+    },
+    "conjoints": {
+      "items": {
+        "$ref": "#/$defs/ConjointDesign"
+      },
+      "title": "Conjoints",
+      "type": "array"
+    },
+    "options": {
+      "additionalProperties": true,
+      "description": "Survey-wide platform options, source format.",
+      "title": "Options",
+      "type": "object"
+    },
+    "diagnostics": {
+      "items": {
+        "$ref": "#/$defs/Diagnostic"
+      },
+      "title": "Diagnostics",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "source"
+  ],
+  "title": "Survey",
+  "type": "object"
+}

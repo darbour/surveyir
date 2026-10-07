@@ -1,0 +1,215 @@
+[
+{
+"column": "StartDate",
+"import_id": {
+"ImportId": "startDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "EndDate",
+"import_id": {
+"ImportId": "endDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "Progress",
+"import_id": {
+"ImportId": "progress"
+}
+},
+{
+"column": "Duration (in seconds)",
+"import_id": {
+"ImportId": "duration"
+}
+},
+{
+"column": "Finished",
+"import_id": {
+"ImportId": "finished"
+}
+},
+{
+"column": "RecordedDate",
+"import_id": {
+"ImportId": "recordedDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "SETTYPE",
+"import_id": {
+"ImportId": "QID3"
+}
+},
+{
+"column": "DWELOWN_GSS",
+"import_id": {
+"ImportId": "QID5"
+}
+},
+{
+"column": "BUS_CPS",
+"import_id": {
+"ImportId": "QID6"
+}
+},
+{
+"column": "SCHENR_CPS",
+"import_id": {
+"ImportId": "QID7"
+}
+},
+{
+"column": "PUWC_CPS",
+"import_id": {
+"ImportId": "QID8"
+}
+},
+{
+"column": "V1-V2_ATUS",
+"import_id": {
+"ImportId": "QID9"
+}
+},
+{
+"column": "HEALTH_GSS",
+"import_id": {
+"ImportId": "QID11"
+}
+},
+{
+"column": "POORSERV_GSS",
+"import_id": {
+"ImportId": "QID12"
+}
+},
+{
+"column": "WWWHR_GSS",
+"import_id": {
+"ImportId": "QID13_TEXT"
+}
+},
+{
+"column": "HLTHWEB_GSS",
+"import_id": {
+"ImportId": "QID14"
+}
+},
+{
+"column": "SATFIN_GSS",
+"import_id": {
+"ImportId": "QID15"
+}
+},
+{
+"column": "JOBLOSE_GSS",
+"import_id": {
+"ImportId": "QID16"
+}
+},
+{
+"column": "TRUST_GSS",
+"import_id": {
+"ImportId": "QID18"
+}
+},
+{
+"column": "CONBUS_GSS",
+"import_id": {
+"ImportId": "QID19"
+}
+},
+{
+"column": "CONPRESS_GSS",
+"import_id": {
+"ImportId": "QID20"
+}
+},
+{
+"column": "ATTENTION_CHECK",
+"import_id": {
+"ImportId": "QID21"
+}
+},
+{
+"column": "FAMSUFFR_GSS",
+"import_id": {
+"ImportId": "QID23"
+}
+},
+{
+"column": "IMMJOBS_GSS",
+"import_id": {
+"ImportId": "QID24"
+}
+},
+{
+"column": "AFFRMACT_GSS",
+"import_id": {
+"ImportId": "QID25"
+}
+},
+{
+"column": "GOVT_RESPONSIBILITY",
+"import_id": {
+"ImportId": "QID26"
+}
+},
+{
+"column": "HLTHTAX",
+"import_id": {
+"ImportId": "QID27"
+}
+},
+{
+"column": "GETAHEAD",
+"import_id": {
+"ImportId": "QID28"
+}
+},
+{
+"column": "FAIR",
+"import_id": {
+"ImportId": "QID29"
+}
+},
+{
+"column": "FAEDUC",
+"import_id": {
+"ImportId": "QID31"
+}
+},
+{
+"column": "CONCERNCO_PEW",
+"import_id": {
+"ImportId": "QID32"
+}
+},
+{
+"column": "TIKTOK",
+"import_id": {
+"ImportId": "QID33"
+}
+},
+{
+"column": "VOTE20_GSS",
+"import_id": {
+"ImportId": "QID35"
+}
+},
+{
+"column": "PRES20_GSS",
+"import_id": {
+"ImportId": "QID36"
+}
+},
+{
+"column": "TWIN_ID",
+"import_id": {
+"raw": "TWIN_ID"
+}
+}
+]

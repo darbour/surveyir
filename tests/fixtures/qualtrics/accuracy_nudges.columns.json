@@ -1,0 +1,1215 @@
+[
+{
+"column": "StartDate",
+"import_id": {
+"ImportId": "startDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "EndDate",
+"import_id": {
+"ImportId": "endDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "Progress",
+"import_id": {
+"ImportId": "progress"
+}
+},
+{
+"column": "Duration (in seconds)",
+"import_id": {
+"ImportId": "duration"
+}
+},
+{
+"column": "Finished",
+"import_id": {
+"ImportId": "finished"
+}
+},
+{
+"column": "RecordedDate",
+"import_id": {
+"ImportId": "recordedDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "Browser_Browser",
+"import_id": {
+"ImportId": "QID1374_BROWSER"
+}
+},
+{
+"column": "Browser_Version",
+"import_id": {
+"ImportId": "QID1374_VERSION"
+}
+},
+{
+"column": "Browser_Operating System",
+"import_id": {
+"ImportId": "QID1374_OS"
+}
+},
+{
+"column": "Browser_Resolution",
+"import_id": {
+"ImportId": "QID1374_RESOLUTION"
+}
+},
+{
+"column": "Fake1_Funny",
+"import_id": {
+"ImportId": "QID1529"
+}
+},
+{
+"column": "Fake1_RT_First Click",
+"import_id": {
+"ImportId": "QID1530_FIRST_CLICK"
+}
+},
+{
+"column": "Fake1_RT_Last Click",
+"import_id": {
+"ImportId": "QID1530_LAST_CLICK"
+}
+},
+{
+"column": "Fake1_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1530_PAGE_SUBMIT"
+}
+},
+{
+"column": "Fake1_RT_Click Count",
+"import_id": {
+"ImportId": "QID1530_CLICK_COUNT"
+}
+},
+{
+"column": "Fake2_Funny",
+"import_id": {
+"ImportId": "QID1532"
+}
+},
+{
+"column": "Fake2_RT_First Click",
+"import_id": {
+"ImportId": "QID1533_FIRST_CLICK"
+}
+},
+{
+"column": "Fake2_RT_Last Click",
+"import_id": {
+"ImportId": "QID1533_LAST_CLICK"
+}
+},
+{
+"column": "Fake2_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1533_PAGE_SUBMIT"
+}
+},
+{
+"column": "Fake2_RT_Click Count",
+"import_id": {
+"ImportId": "QID1533_CLICK_COUNT"
+}
+},
+{
+"column": "Real1_Funny",
+"import_id": {
+"ImportId": "QID1535"
+}
+},
+{
+"column": "Real1_RT_First Click",
+"import_id": {
+"ImportId": "QID1536_FIRST_CLICK"
+}
+},
+{
+"column": "Real1_RT_Last Click",
+"import_id": {
+"ImportId": "QID1536_LAST_CLICK"
+}
+},
+{
+"column": "Real1_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1536_PAGE_SUBMIT"
+}
+},
+{
+"column": "Real1_RT_Click Count",
+"import_id": {
+"ImportId": "QID1536_CLICK_COUNT"
+}
+},
+{
+"column": "Real2_Funny",
+"import_id": {
+"ImportId": "QID1538"
+}
+},
+{
+"column": "Real2_RT_First Click",
+"import_id": {
+"ImportId": "QID1539_FIRST_CLICK"
+}
+},
+{
+"column": "Real2_RT_Last Click",
+"import_id": {
+"ImportId": "QID1539_LAST_CLICK"
+}
+},
+{
+"column": "Real2_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1539_PAGE_SUBMIT"
+}
+},
+{
+"column": "Real2_RT_Click Count",
+"import_id": {
+"ImportId": "QID1539_CLICK_COUNT"
+}
+},
+{
+"column": "Fake1_2",
+"import_id": {
+"ImportId": "QID1516"
+}
+},
+{
+"column": "Fake1_RT_First Click",
+"import_id": {
+"ImportId": "QID1517_FIRST_CLICK"
+}
+},
+{
+"column": "Fake1_RT_Last Click",
+"import_id": {
+"ImportId": "QID1517_LAST_CLICK"
+}
+},
+{
+"column": "Fake1_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1517_PAGE_SUBMIT"
+}
+},
+{
+"column": "Fake1_RT_Click Count",
+"import_id": {
+"ImportId": "QID1517_CLICK_COUNT"
+}
+},
+{
+"column": "Fake2_2",
+"import_id": {
+"ImportId": "QID1519"
+}
+},
+{
+"column": "Fake2_RT_First Click",
+"import_id": {
+"ImportId": "QID1520_FIRST_CLICK"
+}
+},
+{
+"column": "Fake2_RT_Last Click",
+"import_id": {
+"ImportId": "QID1520_LAST_CLICK"
+}
+},
+{
+"column": "Fake2_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1520_PAGE_SUBMIT"
+}
+},
+{
+"column": "Fake2_RT_Click Count",
+"import_id": {
+"ImportId": "QID1520_CLICK_COUNT"
+}
+},
+{
+"column": "Real1_2",
+"import_id": {
+"ImportId": "QID1522"
+}
+},
+{
+"column": "Real1_RT_First Click",
+"import_id": {
+"ImportId": "QID1523_FIRST_CLICK"
+}
+},
+{
+"column": "Real1_RT_Last Click",
+"import_id": {
+"ImportId": "QID1523_LAST_CLICK"
+}
+},
+{
+"column": "Real1_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1523_PAGE_SUBMIT"
+}
+},
+{
+"column": "Real1_RT_Click Count",
+"import_id": {
+"ImportId": "QID1523_CLICK_COUNT"
+}
+},
+{
+"column": "Real2_2",
+"import_id": {
+"ImportId": "QID1525"
+}
+},
+{
+"column": "Real2_RT_First Click",
+"import_id": {
+"ImportId": "QID1526_FIRST_CLICK"
+}
+},
+{
+"column": "Real2_RT_Last Click",
+"import_id": {
+"ImportId": "QID1526_LAST_CLICK"
+}
+},
+{
+"column": "Real2_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1526_PAGE_SUBMIT"
+}
+},
+{
+"column": "Real2_RT_Click Count",
+"import_id": {
+"ImportId": "QID1526_CLICK_COUNT"
+}
+},
+{
+"column": "AccImp",
+"import_id": {
+"ImportId": "QID1541"
+}
+},
+{
+"column": "Fake1_3",
+"import_id": {
+"ImportId": "QID1200"
+}
+},
+{
+"column": "Fake1_RT_First Click",
+"import_id": {
+"ImportId": "QID1201_FIRST_CLICK"
+}
+},
+{
+"column": "Fake1_RT_Last Click",
+"import_id": {
+"ImportId": "QID1201_LAST_CLICK"
+}
+},
+{
+"column": "Fake1_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1201_PAGE_SUBMIT"
+}
+},
+{
+"column": "Fake1_RT_Click Count",
+"import_id": {
+"ImportId": "QID1201_CLICK_COUNT"
+}
+},
+{
+"column": "Fake2_3",
+"import_id": {
+"ImportId": "QID1204"
+}
+},
+{
+"column": "Fake2_RT_First Click",
+"import_id": {
+"ImportId": "QID1205_FIRST_CLICK"
+}
+},
+{
+"column": "Fake2_RT_Last Click",
+"import_id": {
+"ImportId": "QID1205_LAST_CLICK"
+}
+},
+{
+"column": "Fake2_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1205_PAGE_SUBMIT"
+}
+},
+{
+"column": "Fake2_RT_Click Count",
+"import_id": {
+"ImportId": "QID1205_CLICK_COUNT"
+}
+},
+{
+"column": "Fake3_3",
+"import_id": {
+"ImportId": "QID1208"
+}
+},
+{
+"column": "Fake3_RT_First Click",
+"import_id": {
+"ImportId": "QID1209_FIRST_CLICK"
+}
+},
+{
+"column": "Fake3_RT_Last Click",
+"import_id": {
+"ImportId": "QID1209_LAST_CLICK"
+}
+},
+{
+"column": "Fake3_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1209_PAGE_SUBMIT"
+}
+},
+{
+"column": "Fake3_RT_Click Count",
+"import_id": {
+"ImportId": "QID1209_CLICK_COUNT"
+}
+},
+{
+"column": "Fake4_3",
+"import_id": {
+"ImportId": "QID1212"
+}
+},
+{
+"column": "Fake4_RT_First Click",
+"import_id": {
+"ImportId": "QID1213_FIRST_CLICK"
+}
+},
+{
+"column": "Fake4_RT_Last Click",
+"import_id": {
+"ImportId": "QID1213_LAST_CLICK"
+}
+},
+{
+"column": "Fake4_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1213_PAGE_SUBMIT"
+}
+},
+{
+"column": "Fake4_RT_Click Count",
+"import_id": {
+"ImportId": "QID1213_CLICK_COUNT"
+}
+},
+{
+"column": "Fake5_3",
+"import_id": {
+"ImportId": "QID1216"
+}
+},
+{
+"column": "Fake5_RT_First Click",
+"import_id": {
+"ImportId": "QID1218_FIRST_CLICK"
+}
+},
+{
+"column": "Fake5_RT_Last Click",
+"import_id": {
+"ImportId": "QID1218_LAST_CLICK"
+}
+},
+{
+"column": "Fake5_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1218_PAGE_SUBMIT"
+}
+},
+{
+"column": "Fake5_RT_Click Count",
+"import_id": {
+"ImportId": "QID1218_CLICK_COUNT"
+}
+},
+{
+"column": "Fake6_3",
+"import_id": {
+"ImportId": "QID1221"
+}
+},
+{
+"column": "Fake6_RT_First Click",
+"import_id": {
+"ImportId": "QID1222_FIRST_CLICK"
+}
+},
+{
+"column": "Fake6_RT_Last Click",
+"import_id": {
+"ImportId": "QID1222_LAST_CLICK"
+}
+},
+{
+"column": "Fake6_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1222_PAGE_SUBMIT"
+}
+},
+{
+"column": "Fake6_RT_Click Count",
+"import_id": {
+"ImportId": "QID1222_CLICK_COUNT"
+}
+},
+{
+"column": "Fake7_3",
+"import_id": {
+"ImportId": "QID1225"
+}
+},
+{
+"column": "Fake7_RT_First Click",
+"import_id": {
+"ImportId": "QID1226_FIRST_CLICK"
+}
+},
+{
+"column": "Fake7_RT_Last Click",
+"import_id": {
+"ImportId": "QID1226_LAST_CLICK"
+}
+},
+{
+"column": "Fake7_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1226_PAGE_SUBMIT"
+}
+},
+{
+"column": "Fake7_RT_Click Count",
+"import_id": {
+"ImportId": "QID1226_CLICK_COUNT"
+}
+},
+{
+"column": "Fake8_3",
+"import_id": {
+"ImportId": "QID1229"
+}
+},
+{
+"column": "Fake8_RT_First Click",
+"import_id": {
+"ImportId": "QID1230_FIRST_CLICK"
+}
+},
+{
+"column": "Fake8_RT_Last Click",
+"import_id": {
+"ImportId": "QID1230_LAST_CLICK"
+}
+},
+{
+"column": "Fake8_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1230_PAGE_SUBMIT"
+}
+},
+{
+"column": "Fake8_RT_Click Count",
+"import_id": {
+"ImportId": "QID1230_CLICK_COUNT"
+}
+},
+{
+"column": "Real1_3",
+"import_id": {
+"ImportId": "QID1249"
+}
+},
+{
+"column": "Real_RT_First Click",
+"import_id": {
+"ImportId": "QID1250_FIRST_CLICK"
+}
+},
+{
+"column": "Real_RT_Last Click",
+"import_id": {
+"ImportId": "QID1250_LAST_CLICK"
+}
+},
+{
+"column": "Real_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1250_PAGE_SUBMIT"
+}
+},
+{
+"column": "Real_RT_Click Count",
+"import_id": {
+"ImportId": "QID1250_CLICK_COUNT"
+}
+},
+{
+"column": "Real2_3",
+"import_id": {
+"ImportId": "QID1253"
+}
+},
+{
+"column": "Real2_RT_First Click",
+"import_id": {
+"ImportId": "QID1254_FIRST_CLICK"
+}
+},
+{
+"column": "Real2_RT_Last Click",
+"import_id": {
+"ImportId": "QID1254_LAST_CLICK"
+}
+},
+{
+"column": "Real2_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1254_PAGE_SUBMIT"
+}
+},
+{
+"column": "Real2_RT_Click Count",
+"import_id": {
+"ImportId": "QID1254_CLICK_COUNT"
+}
+},
+{
+"column": "Real3_3",
+"import_id": {
+"ImportId": "QID1257"
+}
+},
+{
+"column": "Real3_RT_First Click",
+"import_id": {
+"ImportId": "QID1258_FIRST_CLICK"
+}
+},
+{
+"column": "Real3_RT_Last Click",
+"import_id": {
+"ImportId": "QID1258_LAST_CLICK"
+}
+},
+{
+"column": "Real3_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1258_PAGE_SUBMIT"
+}
+},
+{
+"column": "Real3_RT_Click Count",
+"import_id": {
+"ImportId": "QID1258_CLICK_COUNT"
+}
+},
+{
+"column": "Real4_3",
+"import_id": {
+"ImportId": "QID1261"
+}
+},
+{
+"column": "Real4_RT_First Click",
+"import_id": {
+"ImportId": "QID1262_FIRST_CLICK"
+}
+},
+{
+"column": "Real4_RT_Last Click",
+"import_id": {
+"ImportId": "QID1262_LAST_CLICK"
+}
+},
+{
+"column": "Real4_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1262_PAGE_SUBMIT"
+}
+},
+{
+"column": "Real4_RT_Click Count",
+"import_id": {
+"ImportId": "QID1262_CLICK_COUNT"
+}
+},
+{
+"column": "Real5_3",
+"import_id": {
+"ImportId": "QID1265"
+}
+},
+{
+"column": "Real5_RT_First Click",
+"import_id": {
+"ImportId": "QID1266_FIRST_CLICK"
+}
+},
+{
+"column": "Real5_RT_Last Click",
+"import_id": {
+"ImportId": "QID1266_LAST_CLICK"
+}
+},
+{
+"column": "Real5_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1266_PAGE_SUBMIT"
+}
+},
+{
+"column": "Real5_RT_Click Count",
+"import_id": {
+"ImportId": "QID1266_CLICK_COUNT"
+}
+},
+{
+"column": "Real6_3",
+"import_id": {
+"ImportId": "QID1269"
+}
+},
+{
+"column": "Real6_RT_First Click",
+"import_id": {
+"ImportId": "QID1270_FIRST_CLICK"
+}
+},
+{
+"column": "Real6_RT_Last Click",
+"import_id": {
+"ImportId": "QID1270_LAST_CLICK"
+}
+},
+{
+"column": "Real6_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1270_PAGE_SUBMIT"
+}
+},
+{
+"column": "Real6_RT_Click Count",
+"import_id": {
+"ImportId": "QID1270_CLICK_COUNT"
+}
+},
+{
+"column": "Real7_3",
+"import_id": {
+"ImportId": "QID1273"
+}
+},
+{
+"column": "Real7_RT_First Click",
+"import_id": {
+"ImportId": "QID1274_FIRST_CLICK"
+}
+},
+{
+"column": "Real7_RT_Last Click",
+"import_id": {
+"ImportId": "QID1274_LAST_CLICK"
+}
+},
+{
+"column": "Real7_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1274_PAGE_SUBMIT"
+}
+},
+{
+"column": "Real7_RT_Click Count",
+"import_id": {
+"ImportId": "QID1274_CLICK_COUNT"
+}
+},
+{
+"column": "Real8_3",
+"import_id": {
+"ImportId": "QID1277"
+}
+},
+{
+"column": "Real8_RT_First Click",
+"import_id": {
+"ImportId": "QID1278_FIRST_CLICK"
+}
+},
+{
+"column": "Real8_RT_Last Click",
+"import_id": {
+"ImportId": "QID1278_LAST_CLICK"
+}
+},
+{
+"column": "Real8_RT_Page Submit",
+"import_id": {
+"ImportId": "QID1278_PAGE_SUBMIT"
+}
+},
+{
+"column": "Real8_RT_Click Count",
+"import_id": {
+"ImportId": "QID1278_CLICK_COUNT"
+}
+},
+{
+"column": "MC_correct_entertain_1",
+"import_id": {
+"ImportId": "QID1581_10"
+}
+},
+{
+"column": "MC_correct_entertain_DO_1",
+"import_id": {
+"ImportId": "QID1581_DO",
+"choiceId": "1"
+}
+},
+{
+"column": "SocialMedia_Chk",
+"import_id": {
+"ImportId": "QID1428"
+}
+},
+{
+"column": "TC_WSJ_7",
+"import_id": {
+"ImportId": "QID1573_7"
+}
+},
+{
+"column": "TC_economist_7",
+"import_id": {
+"ImportId": "QID1574_7"
+}
+},
+{
+"column": "TC_BBC_7",
+"import_id": {
+"ImportId": "QID1575_7"
+}
+},
+{
+"column": "TC_PBS_7",
+"import_id": {
+"ImportId": "QID1576_7"
+}
+},
+{
+"column": "TC_funnytimes_7",
+"import_id": {
+"ImportId": "QID1577_7"
+}
+},
+{
+"column": "TC_quora_7",
+"import_id": {
+"ImportId": "QID1578_7"
+}
+},
+{
+"column": "TC_NE_7",
+"import_id": {
+"ImportId": "QID1579_7"
+}
+},
+{
+"column": "TC_reddit_7",
+"import_id": {
+"ImportId": "QID1580_7"
+}
+},
+{
+"column": "Q1572_First Click",
+"import_id": {
+"ImportId": "QID1572_FIRST_CLICK"
+}
+},
+{
+"column": "Q1572_Last Click",
+"import_id": {
+"ImportId": "QID1572_LAST_CLICK"
+}
+},
+{
+"column": "Q1572_Page Submit",
+"import_id": {
+"ImportId": "QID1572_PAGE_SUBMIT"
+}
+},
+{
+"column": "Q1572_Click Count",
+"import_id": {
+"ImportId": "QID1572_CLICK_COUNT"
+}
+},
+{
+"column": "Random",
+"import_id": {
+"ImportId": "QID367"
+}
+},
+{
+"column": "Google",
+"import_id": {
+"ImportId": "QID675"
+}
+},
+{
+"column": "Comments",
+"import_id": {
+"ImportId": "QID678_TEXT"
+}
+},
+{
+"column": "Condition",
+"import_id": {
+"ImportId": "Condition"
+}
+},
+{
+"column": "RealFake",
+"import_id": {
+"ImportId": "RealFake"
+}
+},
+{
+"column": "FL_158_DO_FL_159",
+"import_id": {
+"ImportId": "FL_158_DO",
+"choiceId": "FL_159"
+}
+},
+{
+"column": "FL_158_DO_FL_160",
+"import_id": {
+"ImportId": "FL_158_DO",
+"choiceId": "FL_160"
+}
+},
+{
+"column": "FL_158_DO_FL_879",
+"import_id": {
+"ImportId": "FL_158_DO",
+"choiceId": "FL_879"
+}
+},
+{
+"column": "FL_158_DO_FL_989",
+"import_id": {
+"ImportId": "FL_158_DO",
+"choiceId": "FL_989"
+}
+},
+{
+"column": "FL_995_DO_FL_993",
+"import_id": {
+"ImportId": "FL_995_DO",
+"choiceId": "FL_993"
+}
+},
+{
+"column": "FL_995_DO_FL_994",
+"import_id": {
+"ImportId": "FL_995_DO",
+"choiceId": "FL_994"
+}
+},
+{
+"column": "FL_1032_DO_Fake1_Funny",
+"import_id": {
+"ImportId": "FL_1032_DO",
+"choiceId": "Fake1_Funny"
+}
+},
+{
+"column": "FL_1032_DO_Fake2_Funny",
+"import_id": {
+"ImportId": "FL_1032_DO",
+"choiceId": "Fake2_Funny"
+}
+},
+{
+"column": "FL_1036_DO_Real1_Funny",
+"import_id": {
+"ImportId": "FL_1036_DO",
+"choiceId": "Real1_Funny"
+}
+},
+{
+"column": "FL_1036_DO_Real2_Funny",
+"import_id": {
+"ImportId": "FL_1036_DO",
+"choiceId": "Real2_Funny"
+}
+},
+{
+"column": "FL_1027_DO_Fake1_Accuracy",
+"import_id": {
+"ImportId": "FL_1027_DO",
+"choiceId": "Fake1_Accuracy"
+}
+},
+{
+"column": "FL_1027_DO_Fake2_Accurate",
+"import_id": {
+"ImportId": "FL_1027_DO",
+"choiceId": "Fake2_Accurate"
+}
+},
+{
+"column": "FL_1028_DO_Real1_Accurate",
+"import_id": {
+"ImportId": "FL_1028_DO",
+"choiceId": "Real1_Accurate"
+}
+},
+{
+"column": "FL_1028_DO_Real2_Accurate",
+"import_id": {
+"ImportId": "FL_1028_DO",
+"choiceId": "Real2_Accurate"
+}
+},
+{
+"column": "FL_167_DO_Fake1_SM",
+"import_id": {
+"ImportId": "FL_167_DO",
+"choiceId": "Fake1_SM"
+}
+},
+{
+"column": "FL_167_DO_Fake2_SM",
+"import_id": {
+"ImportId": "FL_167_DO",
+"choiceId": "Fake2_SM"
+}
+},
+{
+"column": "FL_167_DO_Fake3_SM",
+"import_id": {
+"ImportId": "FL_167_DO",
+"choiceId": "Fake3_SM"
+}
+},
+{
+"column": "FL_167_DO_Fake4_SM",
+"import_id": {
+"ImportId": "FL_167_DO",
+"choiceId": "Fake4_SM"
+}
+},
+{
+"column": "FL_167_DO_Fake5_SM",
+"import_id": {
+"ImportId": "FL_167_DO",
+"choiceId": "Fake5_SM"
+}
+},
+{
+"column": "FL_167_DO_Fake6_SM",
+"import_id": {
+"ImportId": "FL_167_DO",
+"choiceId": "Fake6_SM"
+}
+},
+{
+"column": "FL_167_DO_Fake7_SM",
+"import_id": {
+"ImportId": "FL_167_DO",
+"choiceId": "Fake7_SM"
+}
+},
+{
+"column": "FL_167_DO_Fake8_SM",
+"import_id": {
+"ImportId": "FL_167_DO",
+"choiceId": "Fake8_SM"
+}
+},
+{
+"column": "FL_167_DO_Real1_SM",
+"import_id": {
+"ImportId": "FL_167_DO",
+"choiceId": "Real1_SM"
+}
+},
+{
+"column": "FL_167_DO_Real2_SM",
+"import_id": {
+"ImportId": "FL_167_DO",
+"choiceId": "Real2_SM"
+}
+},
+{
+"column": "FL_167_DO_Real3_SM",
+"import_id": {
+"ImportId": "FL_167_DO",
+"choiceId": "Real3_SM"
+}
+},
+{
+"column": "FL_167_DO_Real4_SM",
+"import_id": {
+"ImportId": "FL_167_DO",
+"choiceId": "Real4_SM"
+}
+},
+{
+"column": "FL_167_DO_Real5_SM",
+"import_id": {
+"ImportId": "FL_167_DO",
+"choiceId": "Real5_SM"
+}
+},
+{
+"column": "FL_167_DO_Real6_SM",
+"import_id": {
+"ImportId": "FL_167_DO",
+"choiceId": "Real6_SM"
+}
+},
+{
+"column": "FL_167_DO_Real7_SM",
+"import_id": {
+"ImportId": "FL_167_DO",
+"choiceId": "Real7_SM"
+}
+},
+{
+"column": "FL_167_DO_Real8_SM",
+"import_id": {
+"ImportId": "FL_167_DO",
+"choiceId": "Real8_SM"
+}
+},
+{
+"column": "SourceTrustworthiness_DO_TC_PBS",
+"import_id": {
+"ImportId": "BL_cx6c3MSA07W8Zcq_DO",
+"choiceId": "TC_PBS"
+}
+},
+{
+"column": "SourceTrustworthiness_DO_TC_BBC",
+"import_id": {
+"ImportId": "BL_cx6c3MSA07W8Zcq_DO",
+"choiceId": "TC_BBC"
+}
+},
+{
+"column": "SourceTrustworthiness_DO_TC_economist",
+"import_id": {
+"ImportId": "BL_cx6c3MSA07W8Zcq_DO",
+"choiceId": "TC_economist"
+}
+},
+{
+"column": "SourceTrustworthiness_DO_TC_WSJ",
+"import_id": {
+"ImportId": "BL_cx6c3MSA07W8Zcq_DO",
+"choiceId": "TC_WSJ"
+}
+},
+{
+"column": "SourceTrustworthiness_DO_Q1572",
+"import_id": {
+"ImportId": "BL_cx6c3MSA07W8Zcq_DO",
+"choiceId": "Q1572"
+}
+},
+{
+"column": "SourceTrustworthiness_DO_TC_reddit",
+"import_id": {
+"ImportId": "BL_cx6c3MSA07W8Zcq_DO",
+"choiceId": "TC_reddit"
+}
+},
+{
+"column": "SourceTrustworthiness_DO_TC_NE",
+"import_id": {
+"ImportId": "BL_cx6c3MSA07W8Zcq_DO",
+"choiceId": "TC_NE"
+}
+},
+{
+"column": "SourceTrustworthiness_DO_TC_quora",
+"import_id": {
+"ImportId": "BL_cx6c3MSA07W8Zcq_DO",
+"choiceId": "TC_quora"
+}
+},
+{
+"column": "SourceTrustworthiness_DO_TC_funnytimes",
+"import_id": {
+"ImportId": "BL_cx6c3MSA07W8Zcq_DO",
+"choiceId": "TC_funnytimes"
+}
+},
+{
+"column": "TWIN_ID",
+"import_id": {
+"raw": "TWIN_ID"
+}
+},
+{
+"column": "",
+"import_id": {
+"raw": ""
+}
+},
+{
+"column": "",
+"import_id": {
+"raw": ""
+}
+},
+{
+"column": "",
+"import_id": {
+"raw": ""
+}
+},
+{
+"column": "",
+"import_id": {
+"raw": ""
+}
+}
+]

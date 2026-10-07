@@ -1,0 +1,310 @@
+[
+{
+"column": "StartDate",
+"import_id": {
+"ImportId": "startDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "EndDate",
+"import_id": {
+"ImportId": "endDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "Progress",
+"import_id": {
+"ImportId": "progress"
+}
+},
+{
+"column": "Duration (in seconds)",
+"import_id": {
+"ImportId": "duration"
+}
+},
+{
+"column": "Finished",
+"import_id": {
+"ImportId": "finished"
+}
+},
+{
+"column": "RecordedDate",
+"import_id": {
+"ImportId": "recordedDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "Q29_1",
+"import_id": {
+"ImportId": "QID36_1"
+}
+},
+{
+"column": "Q29_2",
+"import_id": {
+"ImportId": "QID36_2"
+}
+},
+{
+"column": "Q29_3",
+"import_id": {
+"ImportId": "QID36_3"
+}
+},
+{
+"column": "Q29_4",
+"import_id": {
+"ImportId": "QID36_4"
+}
+},
+{
+"column": "Q29_5",
+"import_id": {
+"ImportId": "QID36_5"
+}
+},
+{
+"column": "Q29_6",
+"import_id": {
+"ImportId": "QID36_6"
+}
+},
+{
+"column": "Q29_7",
+"import_id": {
+"ImportId": "QID36_7"
+}
+},
+{
+"column": "Q29_8",
+"import_id": {
+"ImportId": "QID36_8"
+}
+},
+{
+"column": "Q29_9",
+"import_id": {
+"ImportId": "QID36_9"
+}
+},
+{
+"column": "Q29_10",
+"import_id": {
+"ImportId": "QID36_10"
+}
+},
+{
+"column": "Q29_11",
+"import_id": {
+"ImportId": "QID36_11"
+}
+},
+{
+"column": "Q29_12",
+"import_id": {
+"ImportId": "QID36_12"
+}
+},
+{
+"column": "Q29_DO_1",
+"import_id": {
+"ImportId": "QID36_DO",
+"choiceId": "1"
+}
+},
+{
+"column": "Q29_DO_2",
+"import_id": {
+"ImportId": "QID36_DO",
+"choiceId": "2"
+}
+},
+{
+"column": "Q29_DO_3",
+"import_id": {
+"ImportId": "QID36_DO",
+"choiceId": "3"
+}
+},
+{
+"column": "Q29_DO_4",
+"import_id": {
+"ImportId": "QID36_DO",
+"choiceId": "4"
+}
+},
+{
+"column": "Q29_DO_5",
+"import_id": {
+"ImportId": "QID36_DO",
+"choiceId": "5"
+}
+},
+{
+"column": "Q29_DO_6",
+"import_id": {
+"ImportId": "QID36_DO",
+"choiceId": "6"
+}
+},
+{
+"column": "Q29_DO_7",
+"import_id": {
+"ImportId": "QID36_DO",
+"choiceId": "7"
+}
+},
+{
+"column": "Q29_DO_8",
+"import_id": {
+"ImportId": "QID36_DO",
+"choiceId": "8"
+}
+},
+{
+"column": "Q29_DO_9",
+"import_id": {
+"ImportId": "QID36_DO",
+"choiceId": "9"
+}
+},
+{
+"column": "Q29_DO_10",
+"import_id": {
+"ImportId": "QID36_DO",
+"choiceId": "10"
+}
+},
+{
+"column": "Q29_DO_11",
+"import_id": {
+"ImportId": "QID36_DO",
+"choiceId": "11"
+}
+},
+{
+"column": "Q29_DO_12",
+"import_id": {
+"ImportId": "QID36_DO",
+"choiceId": "12"
+}
+},
+{
+"column": "Q33",
+"import_id": {
+"ImportId": "QID18"
+}
+},
+{
+"column": "Q35",
+"import_id": {
+"ImportId": "QID20"
+}
+},
+{
+"column": "Q38",
+"import_id": {
+"ImportId": "QID23"
+}
+},
+{
+"column": "Q26",
+"import_id": {
+"ImportId": "QID25"
+}
+},
+{
+"column": "order",
+"import_id": {
+"ImportId": "order"
+}
+},
+{
+"column": "FL_15_DO_FL_16",
+"import_id": {
+"ImportId": "FL_15_DO",
+"choiceId": "FL_16"
+}
+},
+{
+"column": "FL_15_DO_FL_17",
+"import_id": {
+"ImportId": "FL_15_DO",
+"choiceId": "FL_17"
+}
+},
+{
+"column": "FL_13_DO_apartmentpref",
+"import_id": {
+"ImportId": "FL_13_DO",
+"choiceId": "apartmentpref"
+}
+},
+{
+"column": "FL_13_DO_wardrobe",
+"import_id": {
+"ImportId": "FL_13_DO",
+"choiceId": "wardrobe"
+}
+},
+{
+"column": "FL_13_DO_bedroom",
+"import_id": {
+"ImportId": "FL_13_DO",
+"choiceId": "bedroom"
+}
+},
+{
+"column": "FL_13_DO_homeoffice",
+"import_id": {
+"ImportId": "FL_13_DO",
+"choiceId": "homeoffice"
+}
+},
+{
+"column": "FL_22_DO_apartmentpref",
+"import_id": {
+"ImportId": "FL_22_DO",
+"choiceId": "apartmentpref"
+}
+},
+{
+"column": "FL_22_DO_wardrobe",
+"import_id": {
+"ImportId": "FL_22_DO",
+"choiceId": "wardrobe"
+}
+},
+{
+"column": "FL_22_DO_bedroom",
+"import_id": {
+"ImportId": "FL_22_DO",
+"choiceId": "bedroom"
+}
+},
+{
+"column": "FL_22_DO_homeoffice",
+"import_id": {
+"ImportId": "FL_22_DO",
+"choiceId": "homeoffice"
+}
+},
+{
+"column": "MinScale_DO_Q29",
+"import_id": {
+"ImportId": "BL_bxURjJ6UT4x3pXf_DO",
+"choiceId": "Q29"
+}
+},
+{
+"column": "TWIN_ID",
+"import_id": {
+"raw": "TWIN_ID"
+}
+}
+]

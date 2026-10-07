@@ -1,0 +1,276 @@
+[
+{
+"column": "StartDate",
+"import_id": {
+"ImportId": "startDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "EndDate",
+"import_id": {
+"ImportId": "endDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "Progress",
+"import_id": {
+"ImportId": "progress"
+}
+},
+{
+"column": "Duration (in seconds)",
+"import_id": {
+"ImportId": "duration"
+}
+},
+{
+"column": "Finished",
+"import_id": {
+"ImportId": "finished"
+}
+},
+{
+"column": "RecordedDate",
+"import_id": {
+"ImportId": "recordedDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "CONSENT",
+"import_id": {
+"ImportId": "QID2"
+}
+},
+{
+"column": "prod_choice",
+"import_id": {
+"ImportId": "QID199"
+}
+},
+{
+"column": "prod_choice_DO_1",
+"import_id": {
+"ImportId": "QID199_DO",
+"choiceId": "1"
+}
+},
+{
+"column": "prod_choice_DO_2",
+"import_id": {
+"ImportId": "QID199_DO",
+"choiceId": "2"
+}
+},
+{
+"column": "prod_choice_DO_3",
+"import_id": {
+"ImportId": "QID199_DO",
+"choiceId": "3"
+}
+},
+{
+"column": "prod_choice_DO_4",
+"import_id": {
+"ImportId": "QID199_DO",
+"choiceId": "4"
+}
+},
+{
+"column": "prod_choice_DO_5",
+"import_id": {
+"ImportId": "QID199_DO",
+"choiceId": "5"
+}
+},
+{
+"column": "prod_choice_DO_6",
+"import_id": {
+"ImportId": "QID199_DO",
+"choiceId": "6"
+}
+},
+{
+"column": "t_scen2_First Click",
+"import_id": {
+"ImportId": "QID140_FIRST_CLICK"
+}
+},
+{
+"column": "t_scen2_Last Click",
+"import_id": {
+"ImportId": "QID140_LAST_CLICK"
+}
+},
+{
+"column": "t_scen2_Page Submit",
+"import_id": {
+"ImportId": "QID140_PAGE_SUBMIT"
+}
+},
+{
+"column": "t_scen2_Click Count",
+"import_id": {
+"ImportId": "QID140_CLICK_COUNT"
+}
+},
+{
+"column": "NFT + NonExcl",
+"import_id": {
+"ImportId": "QID142_TEXT"
+}
+},
+{
+"column": "noNFT + NonExcl",
+"import_id": {
+"ImportId": "QID176_TEXT"
+}
+},
+{
+"column": "t_write_First Click",
+"import_id": {
+"ImportId": "QID188_FIRST_CLICK"
+}
+},
+{
+"column": "t_write_Last Click",
+"import_id": {
+"ImportId": "QID188_LAST_CLICK"
+}
+},
+{
+"column": "t_write_Page Submit",
+"import_id": {
+"ImportId": "QID188_PAGE_SUBMIT"
+}
+},
+{
+"column": "t_write_Click Count",
+"import_id": {
+"ImportId": "QID188_CLICK_COUNT"
+}
+},
+{
+"column": "DV1_1",
+"import_id": {
+"ImportId": "QID121_1"
+}
+},
+{
+"column": "DV1_2",
+"import_id": {
+"ImportId": "QID121_2"
+}
+},
+{
+"column": "DV1_3",
+"import_id": {
+"ImportId": "QID121_3"
+}
+},
+{
+"column": "DV1_DO_1",
+"import_id": {
+"ImportId": "QID121_DO",
+"choiceId": "1"
+}
+},
+{
+"column": "DV1_DO_2",
+"import_id": {
+"ImportId": "QID121_DO",
+"choiceId": "2"
+}
+},
+{
+"column": "DV1_DO_3",
+"import_id": {
+"ImportId": "QID121_DO",
+"choiceId": "3"
+}
+},
+{
+"column": "WTP",
+"import_id": {
+"ImportId": "QID116_TEXT"
+}
+},
+{
+"column": "Open",
+"import_id": {
+"ImportId": "QID200_TEXT"
+}
+},
+{
+"column": "fami_NFT",
+"import_id": {
+"ImportId": "QID163"
+}
+},
+{
+"column": "effort",
+"import_id": {
+"ImportId": "QID167"
+}
+},
+{
+"column": "own",
+"import_id": {
+"ImportId": "QID194"
+}
+},
+{
+"column": "test",
+"import_id": {
+"ImportId": "test"
+}
+},
+{
+"column": "item",
+"import_id": {
+"ImportId": "item"
+}
+},
+{
+"column": "FL_9_DO_FL_10",
+"import_id": {
+"ImportId": "FL_9_DO",
+"choiceId": "FL_10"
+}
+},
+{
+"column": "FL_9_DO_FL_11",
+"import_id": {
+"ImportId": "FL_9_DO",
+"choiceId": "FL_11"
+}
+},
+{
+"column": "FL_86_DO_DV(s)",
+"import_id": {
+"ImportId": "FL_86_DO",
+"choiceId": "DV(s)"
+}
+},
+{
+"column": "FL_86_DO_WTP",
+"import_id": {
+"ImportId": "FL_86_DO",
+"choiceId": "WTP"
+}
+},
+{
+"column": "TWIN_ID",
+"import_id": {
+"raw": "TWIN_ID"
+}
+},
+{
+"column": "",
+"import_id": {
+"raw": ""
+}
+}
+]

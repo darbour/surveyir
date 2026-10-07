@@ -1,0 +1,5 @@
+{
+  "description": "Qualtrics source types that still load as Unsupported*. CI fails if a corpus file hits a type not listed here; remove entries as they gain typed models.",
+  "question_types": [],
+  "flow_types": []
+}

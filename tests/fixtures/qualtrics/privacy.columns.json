@@ -1,0 +1,233 @@
+[
+{
+"column": "StartDate",
+"import_id": {
+"ImportId": "startDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "EndDate",
+"import_id": {
+"ImportId": "endDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "Status",
+"import_id": {
+"ImportId": "status"
+}
+},
+{
+"column": "Progress",
+"import_id": {
+"ImportId": "progress"
+}
+},
+{
+"column": "Duration (in seconds)",
+"import_id": {
+"ImportId": "duration"
+}
+},
+{
+"column": "Finished",
+"import_id": {
+"ImportId": "finished"
+}
+},
+{
+"column": "RecordedDate",
+"import_id": {
+"ImportId": "recordedDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "ResponseId",
+"import_id": {
+"ImportId": "_recordId"
+}
+},
+{
+"column": "RecipientLastName",
+"import_id": {
+"ImportId": "recipientLastName"
+}
+},
+{
+"column": "RecipientFirstName",
+"import_id": {
+"ImportId": "recipientFirstName"
+}
+},
+{
+"column": "RecipientEmail",
+"import_id": {
+"ImportId": "recipientEmail"
+}
+},
+{
+"column": "ExternalReference",
+"import_id": {
+"ImportId": "externalDataReference"
+}
+},
+{
+"column": "DistributionChannel",
+"import_id": {
+"ImportId": "distributionChannel"
+}
+},
+{
+"column": "UserLanguage",
+"import_id": {
+"ImportId": "userLanguage"
+}
+},
+{
+"column": "Q1_Browser",
+"import_id": {
+"ImportId": "QID1_BROWSER"
+}
+},
+{
+"column": "Q1_Version",
+"import_id": {
+"ImportId": "QID1_VERSION"
+}
+},
+{
+"column": "Q1_Operating System",
+"import_id": {
+"ImportId": "QID1_OS"
+}
+},
+{
+"column": "Q1_Resolution",
+"import_id": {
+"ImportId": "QID1_RESOLUTION"
+}
+},
+{
+"column": "Q11_1",
+"import_id": {
+"ImportId": "QID11_1"
+}
+},
+{
+"column": "Q125",
+"import_id": {
+"ImportId": "QID151"
+}
+},
+{
+"column": "Q67",
+"import_id": {
+"ImportId": "QID37"
+}
+},
+{
+"column": "Q121",
+"import_id": {
+"ImportId": "QID147"
+}
+},
+{
+"column": "Q122",
+"import_id": {
+"ImportId": "QID148"
+}
+},
+{
+"column": "Q138_1",
+"import_id": {
+"ImportId": "QID138_1"
+}
+},
+{
+"column": "Q140_1",
+"import_id": {
+"ImportId": "QID140_1"
+}
+},
+{
+"column": "Q142_1",
+"import_id": {
+"ImportId": "QID142_1"
+}
+},
+{
+"column": "Q2_1",
+"import_id": {
+"ImportId": "QID1217928509_1"
+}
+},
+{
+"column": "Q2_1",
+"import_id": {
+"ImportId": "QID1217928562_1"
+}
+},
+{
+"column": "Group",
+"import_id": {
+"ImportId": "Group"
+}
+},
+{
+"column": "Create New Field or Choose From Dropdown...",
+"import_id": {
+"ImportId": "Create New Field or Choose From Dropdown..."
+}
+},
+{
+"column": "FL_4_DO_FL_28",
+"import_id": {
+"ImportId": "FL_4_DO",
+"choiceId": "FL_28"
+}
+},
+{
+"column": "FL_4_DO_FL_29",
+"import_id": {
+"ImportId": "FL_4_DO",
+"choiceId": "FL_29"
+}
+},
+{
+"column": "FL_4_DO_FL_30",
+"import_id": {
+"ImportId": "FL_4_DO",
+"choiceId": "FL_30"
+}
+},
+{
+"column": "FL_4_DO_FL_31",
+"import_id": {
+"ImportId": "FL_4_DO",
+"choiceId": "FL_31"
+}
+},
+{
+"column": "FL_4_DO_FL_32",
+"import_id": {
+"ImportId": "FL_4_DO",
+"choiceId": "FL_32"
+}
+},
+{
+"column": "FL_4_DO_FL_34",
+"import_id": {
+"ImportId": "FL_4_DO",
+"choiceId": "FL_34"
+}
+},
+{
+"column": "TWIN_ID",
+"import_id": {
+"raw": "TWIN_ID"
+}
+}
+]

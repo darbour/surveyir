@@ -1,0 +1,397 @@
+[
+{
+"column": "StartDate",
+"import_id": {
+"ImportId": "startDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "EndDate",
+"import_id": {
+"ImportId": "endDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "Progress",
+"import_id": {
+"ImportId": "progress"
+}
+},
+{
+"column": "Duration (in seconds)",
+"import_id": {
+"ImportId": "duration"
+}
+},
+{
+"column": "Finished",
+"import_id": {
+"ImportId": "finished"
+}
+},
+{
+"column": "RecordedDate",
+"import_id": {
+"ImportId": "recordedDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "Q84",
+"import_id": {
+"ImportId": "QID84"
+}
+},
+{
+"column": "Q84_7_TEXT",
+"import_id": {
+"ImportId": "QID84_7_TEXT"
+}
+},
+{
+"column": "Q71_1",
+"import_id": {
+"ImportId": "QID75_1"
+}
+},
+{
+"column": "Q71_2",
+"import_id": {
+"ImportId": "QID75_2"
+}
+},
+{
+"column": "Q71_3",
+"import_id": {
+"ImportId": "QID75_3"
+}
+},
+{
+"column": "Q71_4",
+"import_id": {
+"ImportId": "QID75_4"
+}
+},
+{
+"column": "Q71_5",
+"import_id": {
+"ImportId": "QID75_5"
+}
+},
+{
+"column": "1_Q30_1",
+"import_id": {
+"ImportId": "1_QID34_1"
+}
+},
+{
+"column": "1_Q30_2",
+"import_id": {
+"ImportId": "1_QID34_2"
+}
+},
+{
+"column": "1_Q30_3",
+"import_id": {
+"ImportId": "1_QID34_3"
+}
+},
+{
+"column": "1_Q30_4",
+"import_id": {
+"ImportId": "1_QID34_4"
+}
+},
+{
+"column": "1_Q30_5",
+"import_id": {
+"ImportId": "1_QID34_5"
+}
+},
+{
+"column": "2_Q30_1",
+"import_id": {
+"ImportId": "2_QID34_1"
+}
+},
+{
+"column": "2_Q30_2",
+"import_id": {
+"ImportId": "2_QID34_2"
+}
+},
+{
+"column": "2_Q30_3",
+"import_id": {
+"ImportId": "2_QID34_3"
+}
+},
+{
+"column": "2_Q30_4",
+"import_id": {
+"ImportId": "2_QID34_4"
+}
+},
+{
+"column": "2_Q30_5",
+"import_id": {
+"ImportId": "2_QID34_5"
+}
+},
+{
+"column": "4_Q30_1",
+"import_id": {
+"ImportId": "4_QID34_1"
+}
+},
+{
+"column": "4_Q30_2",
+"import_id": {
+"ImportId": "4_QID34_2"
+}
+},
+{
+"column": "4_Q30_3",
+"import_id": {
+"ImportId": "4_QID34_3"
+}
+},
+{
+"column": "4_Q30_4",
+"import_id": {
+"ImportId": "4_QID34_4"
+}
+},
+{
+"column": "4_Q30_5",
+"import_id": {
+"ImportId": "4_QID34_5"
+}
+},
+{
+"column": "5_Q30_1",
+"import_id": {
+"ImportId": "5_QID34_1"
+}
+},
+{
+"column": "5_Q30_2",
+"import_id": {
+"ImportId": "5_QID34_2"
+}
+},
+{
+"column": "5_Q30_3",
+"import_id": {
+"ImportId": "5_QID34_3"
+}
+},
+{
+"column": "5_Q30_4",
+"import_id": {
+"ImportId": "5_QID34_4"
+}
+},
+{
+"column": "5_Q30_5",
+"import_id": {
+"ImportId": "5_QID34_5"
+}
+},
+{
+"column": "7_Q30_1",
+"import_id": {
+"ImportId": "7_QID34_1"
+}
+},
+{
+"column": "7_Q30_2",
+"import_id": {
+"ImportId": "7_QID34_2"
+}
+},
+{
+"column": "7_Q30_3",
+"import_id": {
+"ImportId": "7_QID34_3"
+}
+},
+{
+"column": "7_Q30_4",
+"import_id": {
+"ImportId": "7_QID34_4"
+}
+},
+{
+"column": "7_Q30_5",
+"import_id": {
+"ImportId": "7_QID34_5"
+}
+},
+{
+"column": "Q74_1",
+"import_id": {
+"ImportId": "QID78_1"
+}
+},
+{
+"column": "Q74_2",
+"import_id": {
+"ImportId": "QID78_2"
+}
+},
+{
+"column": "Q74_3",
+"import_id": {
+"ImportId": "QID78_3"
+}
+},
+{
+"column": "Q74_4",
+"import_id": {
+"ImportId": "QID78_4"
+}
+},
+{
+"column": "Q74_5",
+"import_id": {
+"ImportId": "QID78_5"
+}
+},
+{
+"column": "Q74_6",
+"import_id": {
+"ImportId": "QID78_6"
+}
+},
+{
+"column": "Q74_7",
+"import_id": {
+"ImportId": "QID78_7"
+}
+},
+{
+"column": "Q74_8",
+"import_id": {
+"ImportId": "QID78_8"
+}
+},
+{
+"column": "Q74_9",
+"import_id": {
+"ImportId": "QID78_9"
+}
+},
+{
+"column": "Q74_10",
+"import_id": {
+"ImportId": "QID78_10"
+}
+},
+{
+"column": "Q34",
+"import_id": {
+"ImportId": "QID38_TEXT"
+}
+},
+{
+"column": "Q64",
+"import_id": {
+"ImportId": "QID68_TEXT"
+}
+},
+{
+"column": "Q65",
+"import_id": {
+"ImportId": "QID69_TEXT"
+}
+},
+{
+"column": "Q66",
+"import_id": {
+"ImportId": "QID70_TEXT"
+}
+},
+{
+"column": "Q67",
+"import_id": {
+"ImportId": "QID71_TEXT"
+}
+},
+{
+"column": "Q68",
+"import_id": {
+"ImportId": "QID72_TEXT"
+}
+},
+{
+"column": "tasktime",
+"import_id": {
+"ImportId": "tasktime"
+}
+},
+{
+"column": "worktimeArray",
+"import_id": {
+"ImportId": "worktimeArray"
+}
+},
+{
+"column": "offTask",
+"import_id": {
+"ImportId": "offTask"
+}
+},
+{
+"column": "onTask",
+"import_id": {
+"ImportId": "onTask"
+}
+},
+{
+"column": "totalOffTask",
+"import_id": {
+"ImportId": "totalOffTask"
+}
+},
+{
+"column": "totalOnTask",
+"import_id": {
+"ImportId": "totalOnTask"
+}
+},
+{
+"column": "perPagePT",
+"import_id": {
+"ImportId": "perPagePT"
+}
+},
+{
+"column": "pageNo",
+"import_id": {
+"ImportId": "pageNo"
+}
+},
+{
+"column": "FL_16_DO_FL_26",
+"import_id": {
+"ImportId": "FL_16_DO",
+"choiceId": "FL_26"
+}
+},
+{
+"column": "FL_16_DO_FL_73",
+"import_id": {
+"ImportId": "FL_16_DO",
+"choiceId": "FL_73"
+}
+},
+{
+"column": "TWIN_ID",
+"import_id": {
+"raw": "TWIN_ID"
+}
+}
+]

@@ -1,0 +1,600 @@
+[
+{
+"column": "StartDate",
+"import_id": {
+"ImportId": "startDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "EndDate",
+"import_id": {
+"ImportId": "endDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "Progress",
+"import_id": {
+"ImportId": "progress"
+}
+},
+{
+"column": "Duration (in seconds)",
+"import_id": {
+"ImportId": "duration"
+}
+},
+{
+"column": "Finished",
+"import_id": {
+"ImportId": "finished"
+}
+},
+{
+"column": "RecordedDate",
+"import_id": {
+"ImportId": "recordedDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "Q_RecaptchaScore",
+"import_id": {
+"ImportId": "Q_RecaptchaScore"
+}
+},
+{
+"column": "Q_RelevantIDDuplicate",
+"import_id": {
+"ImportId": "Q_RelevantIDDuplicate"
+}
+},
+{
+"column": "Q_RelevantIDDuplicateScore",
+"import_id": {
+"ImportId": "Q_RelevantIDDuplicateScore"
+}
+},
+{
+"column": "Q_RelevantIDFraudScore",
+"import_id": {
+"ImportId": "Q_RelevantIDFraudScore"
+}
+},
+{
+"column": "Q_RelevantIDLastStartDate",
+"import_id": {
+"ImportId": "Q_RelevantIDLastStartDate",
+"timeZone": "UTC"
+}
+},
+{
+"column": "Q_BallotBoxStuffing",
+"import_id": {
+"ImportId": "Q_BallotBoxStuffing"
+}
+},
+{
+"column": "t_intro _First Click",
+"import_id": {
+"ImportId": "QID623_FIRST_CLICK"
+}
+},
+{
+"column": "t_intro _Last Click",
+"import_id": {
+"ImportId": "QID623_LAST_CLICK"
+}
+},
+{
+"column": "t_intro _Page Submit",
+"import_id": {
+"ImportId": "QID623_PAGE_SUBMIT"
+}
+},
+{
+"column": "t_intro _Click Count",
+"import_id": {
+"ImportId": "QID623_CLICK_COUNT"
+}
+},
+{
+"column": "meta_Browser",
+"import_id": {
+"ImportId": "QID624_BROWSER"
+}
+},
+{
+"column": "meta_Version",
+"import_id": {
+"ImportId": "QID624_VERSION"
+}
+},
+{
+"column": "meta_Operating System",
+"import_id": {
+"ImportId": "QID624_OS"
+}
+},
+{
+"column": "meta_Resolution",
+"import_id": {
+"ImportId": "QID624_RESOLUTION"
+}
+},
+{
+"column": "t_CTXTintro_First Click",
+"import_id": {
+"ImportId": "QID542_FIRST_CLICK"
+}
+},
+{
+"column": "t_CTXTintro_Last Click",
+"import_id": {
+"ImportId": "QID542_LAST_CLICK"
+}
+},
+{
+"column": "t_CTXTintro_Page Submit",
+"import_id": {
+"ImportId": "QID542_PAGE_SUBMIT"
+}
+},
+{
+"column": "t_CTXTintro_Click Count",
+"import_id": {
+"ImportId": "QID542_CLICK_COUNT"
+}
+},
+{
+"column": "Intro",
+"import_id": {
+"ImportId": "QID544"
+}
+},
+{
+"column": "t_Printer_TC_First Click",
+"import_id": {
+"ImportId": "QID556_FIRST_CLICK"
+}
+},
+{
+"column": "t_Printer_TC_Last Click",
+"import_id": {
+"ImportId": "QID556_LAST_CLICK"
+}
+},
+{
+"column": "t_Printer_TC_Page Submit",
+"import_id": {
+"ImportId": "QID556_PAGE_SUBMIT"
+}
+},
+{
+"column": "t_Printer_TC_Click Count",
+"import_id": {
+"ImportId": "QID556_CLICK_COUNT"
+}
+},
+{
+"column": "Bin.Printer_TC",
+"import_id": {
+"ImportId": "QID557"
+}
+},
+{
+"column": "t_Cell_Comp_First Click",
+"import_id": {
+"ImportId": "QID578_FIRST_CLICK"
+}
+},
+{
+"column": "t_Cell_Comp_Last Click",
+"import_id": {
+"ImportId": "QID578_LAST_CLICK"
+}
+},
+{
+"column": "t_Cell_Comp_Page Submit",
+"import_id": {
+"ImportId": "QID578_PAGE_SUBMIT"
+}
+},
+{
+"column": "t_Cell_Comp_Click Count",
+"import_id": {
+"ImportId": "QID578_CLICK_COUNT"
+}
+},
+{
+"column": "Comp_Cell",
+"import_id": {
+"ImportId": "QID579"
+}
+},
+{
+"column": "t_TV_Attr_First Click",
+"import_id": {
+"ImportId": "QID564_FIRST_CLICK"
+}
+},
+{
+"column": "t_TV_Attr_Last Click",
+"import_id": {
+"ImportId": "QID564_LAST_CLICK"
+}
+},
+{
+"column": "t_TV_Attr_Page Submit",
+"import_id": {
+"ImportId": "QID564_PAGE_SUBMIT"
+}
+},
+{
+"column": "t_TV_Attr_Click Count",
+"import_id": {
+"ImportId": "QID564_CLICK_COUNT"
+}
+},
+{
+"column": "Attr_TV",
+"import_id": {
+"ImportId": "QID565"
+}
+},
+{
+"column": "t_TV_Comp_First Click",
+"import_id": {
+"ImportId": "QID566_FIRST_CLICK"
+}
+},
+{
+"column": "t_TV_Comp_Last Click",
+"import_id": {
+"ImportId": "QID566_LAST_CLICK"
+}
+},
+{
+"column": "t_TV_Comp_Page Submit",
+"import_id": {
+"ImportId": "QID566_PAGE_SUBMIT"
+}
+},
+{
+"column": "t_TV_Comp_Click Count",
+"import_id": {
+"ImportId": "QID566_CLICK_COUNT"
+}
+},
+{
+"column": "Comp_TV",
+"import_id": {
+"ImportId": "QID567"
+}
+},
+{
+"column": "t_Cell_Attr_First Click",
+"import_id": {
+"ImportId": "QID576_FIRST_CLICK"
+}
+},
+{
+"column": "t_Cell_Attr_Last Click",
+"import_id": {
+"ImportId": "QID576_LAST_CLICK"
+}
+},
+{
+"column": "t_Cell_Attr_Page Submit",
+"import_id": {
+"ImportId": "QID576_PAGE_SUBMIT"
+}
+},
+{
+"column": "t_Cell_Attr_Click Count",
+"import_id": {
+"ImportId": "QID576_CLICK_COUNT"
+}
+},
+{
+"column": "Attr_Cell",
+"import_id": {
+"ImportId": "QID577"
+}
+},
+{
+"column": "t_TV_TC_First Click",
+"import_id": {
+"ImportId": "QID558_FIRST_CLICK"
+}
+},
+{
+"column": "t_TV_TC_Last Click",
+"import_id": {
+"ImportId": "QID558_LAST_CLICK"
+}
+},
+{
+"column": "t_TV_TC_Page Submit",
+"import_id": {
+"ImportId": "QID558_PAGE_SUBMIT"
+}
+},
+{
+"column": "t_TV_TC_Click Count",
+"import_id": {
+"ImportId": "QID558_CLICK_COUNT"
+}
+},
+{
+"column": "Bin.TV_TC",
+"import_id": {
+"ImportId": "QID559"
+}
+},
+{
+"column": "t_Printer_Attr_First Click",
+"import_id": {
+"ImportId": "QID570_FIRST_CLICK"
+}
+},
+{
+"column": "t_Printer_Attr_Last Click",
+"import_id": {
+"ImportId": "QID570_LAST_CLICK"
+}
+},
+{
+"column": "t_Printer_Attr_Page Submit",
+"import_id": {
+"ImportId": "QID570_PAGE_SUBMIT"
+}
+},
+{
+"column": "t_Printer_Attr_Click Count",
+"import_id": {
+"ImportId": "QID570_CLICK_COUNT"
+}
+},
+{
+"column": "Attr_Printer",
+"import_id": {
+"ImportId": "QID571"
+}
+},
+{
+"column": "t_Printer_Comp_First Click",
+"import_id": {
+"ImportId": "QID572_FIRST_CLICK"
+}
+},
+{
+"column": "t_Printer_Comp_Last Click",
+"import_id": {
+"ImportId": "QID572_LAST_CLICK"
+}
+},
+{
+"column": "t_Printer_Comp_Page Submit",
+"import_id": {
+"ImportId": "QID572_PAGE_SUBMIT"
+}
+},
+{
+"column": "t_Printer_Comp_Click Count",
+"import_id": {
+"ImportId": "QID572_CLICK_COUNT"
+}
+},
+{
+"column": "Comp_Printer",
+"import_id": {
+"ImportId": "QID573"
+}
+},
+{
+"column": "t_Cell_TC_First Click",
+"import_id": {
+"ImportId": "QID560_FIRST_CLICK"
+}
+},
+{
+"column": "t_Cell_TC_Last Click",
+"import_id": {
+"ImportId": "QID560_LAST_CLICK"
+}
+},
+{
+"column": "t_Cell_TC_Page Submit",
+"import_id": {
+"ImportId": "QID560_PAGE_SUBMIT"
+}
+},
+{
+"column": "t_Cell_TC_Click Count",
+"import_id": {
+"ImportId": "QID560_CLICK_COUNT"
+}
+},
+{
+"column": "Bin.Cell_TC",
+"import_id": {
+"ImportId": "QID561"
+}
+},
+{
+"column": "FL_213_DO_FL_215",
+"import_id": {
+"ImportId": "FL_213_DO",
+"choiceId": "FL_215"
+}
+},
+{
+"column": "FL_213_DO_FL_241",
+"import_id": {
+"ImportId": "FL_213_DO",
+"choiceId": "FL_241"
+}
+},
+{
+"column": "FL_213_DO_FL_255",
+"import_id": {
+"ImportId": "FL_213_DO",
+"choiceId": "FL_255"
+}
+},
+{
+"column": "FL_213_DO_FL_292",
+"import_id": {
+"ImportId": "FL_213_DO",
+"choiceId": "FL_292"
+}
+},
+{
+"column": "FL_213_DO_FL_274",
+"import_id": {
+"ImportId": "FL_213_DO",
+"choiceId": "FL_274"
+}
+},
+{
+"column": "FL_213_DO_FL_304",
+"import_id": {
+"ImportId": "FL_213_DO",
+"choiceId": "FL_304"
+}
+},
+{
+"column": "FL_224_DO_Bin.Printet_TC",
+"import_id": {
+"ImportId": "FL_224_DO",
+"choiceId": "Bin.Printet_TC"
+}
+},
+{
+"column": "FL_224_DO_Comp.Cell",
+"import_id": {
+"ImportId": "FL_224_DO",
+"choiceId": "Comp.Cell"
+}
+},
+{
+"column": "FL_224_DO_Attr.TV",
+"import_id": {
+"ImportId": "FL_224_DO",
+"choiceId": "Attr.TV"
+}
+},
+{
+"column": "FL_244_DO_Bin.Printet_TC",
+"import_id": {
+"ImportId": "FL_244_DO",
+"choiceId": "Bin.Printet_TC"
+}
+},
+{
+"column": "FL_244_DO_Comp.TV",
+"import_id": {
+"ImportId": "FL_244_DO",
+"choiceId": "Comp.TV"
+}
+},
+{
+"column": "FL_244_DO_Attr.Cell",
+"import_id": {
+"ImportId": "FL_244_DO",
+"choiceId": "Attr.Cell"
+}
+},
+{
+"column": "FL_258_DO_Bin.TV_TC",
+"import_id": {
+"ImportId": "FL_258_DO",
+"choiceId": "Bin.TV_TC"
+}
+},
+{
+"column": "FL_258_DO_Comp.Cell",
+"import_id": {
+"ImportId": "FL_258_DO",
+"choiceId": "Comp.Cell"
+}
+},
+{
+"column": "FL_258_DO_Attr.Printer",
+"import_id": {
+"ImportId": "FL_258_DO",
+"choiceId": "Attr.Printer"
+}
+},
+{
+"column": "FL_295_DO_Bin.TV_TC",
+"import_id": {
+"ImportId": "FL_295_DO",
+"choiceId": "Bin.TV_TC"
+}
+},
+{
+"column": "FL_295_DO_Attr.Cell",
+"import_id": {
+"ImportId": "FL_295_DO",
+"choiceId": "Attr.Cell"
+}
+},
+{
+"column": "FL_295_DO_Comp.Printer",
+"import_id": {
+"ImportId": "FL_295_DO",
+"choiceId": "Comp.Printer"
+}
+},
+{
+"column": "FL_277_DO_Bin.Cell_TC",
+"import_id": {
+"ImportId": "FL_277_DO",
+"choiceId": "Bin.Cell_TC"
+}
+},
+{
+"column": "FL_277_DO_Attr.Printer",
+"import_id": {
+"ImportId": "FL_277_DO",
+"choiceId": "Attr.Printer"
+}
+},
+{
+"column": "FL_277_DO_Comp.TV",
+"import_id": {
+"ImportId": "FL_277_DO",
+"choiceId": "Comp.TV"
+}
+},
+{
+"column": "FL_307_DO_Bin.Cell_TC",
+"import_id": {
+"ImportId": "FL_307_DO",
+"choiceId": "Bin.Cell_TC"
+}
+},
+{
+"column": "FL_307_DO_Attr.TV",
+"import_id": {
+"ImportId": "FL_307_DO",
+"choiceId": "Attr.TV"
+}
+},
+{
+"column": "FL_307_DO_Comp.Printer",
+"import_id": {
+"ImportId": "FL_307_DO",
+"choiceId": "Comp.Printer"
+}
+},
+{
+"column": "TWIN_ID",
+"import_id": {
+"raw": "TWIN_ID"
+}
+}
+]

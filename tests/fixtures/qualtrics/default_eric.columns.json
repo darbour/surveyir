@@ -1,0 +1,328 @@
+[
+{
+"column": "StartDate",
+"import_id": {
+"ImportId": "startDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "EndDate",
+"import_id": {
+"ImportId": "endDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "Progress",
+"import_id": {
+"ImportId": "progress"
+}
+},
+{
+"column": "Duration (in seconds)",
+"import_id": {
+"ImportId": "duration"
+}
+},
+{
+"column": "Finished",
+"import_id": {
+"ImportId": "finished"
+}
+},
+{
+"column": "RecordedDate",
+"import_id": {
+"ImportId": "recordedDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "Q_RecaptchaScore",
+"import_id": {
+"ImportId": "Q_RecaptchaScore"
+}
+},
+{
+"column": "Q_RelevantIDDuplicate",
+"import_id": {
+"ImportId": "Q_RelevantIDDuplicate"
+}
+},
+{
+"column": "Q_RelevantIDDuplicateScore",
+"import_id": {
+"ImportId": "Q_RelevantIDDuplicateScore"
+}
+},
+{
+"column": "Q_RelevantIDFraudScore",
+"import_id": {
+"ImportId": "Q_RelevantIDFraudScore"
+}
+},
+{
+"column": "Q_RelevantIDLastStartDate",
+"import_id": {
+"ImportId": "Q_RelevantIDLastStartDate",
+"timeZone": "UTC"
+}
+},
+{
+"column": "Q_BallotBoxStuffing",
+"import_id": {
+"ImportId": "Q_BallotBoxStuffing"
+}
+},
+{
+"column": "t_intro _First Click",
+"import_id": {
+"ImportId": "QID622_FIRST_CLICK"
+}
+},
+{
+"column": "t_intro _Last Click",
+"import_id": {
+"ImportId": "QID622_LAST_CLICK"
+}
+},
+{
+"column": "t_intro _Page Submit",
+"import_id": {
+"ImportId": "QID622_PAGE_SUBMIT"
+}
+},
+{
+"column": "t_intro _Click Count",
+"import_id": {
+"ImportId": "QID622_CLICK_COUNT"
+}
+},
+{
+"column": "meta_Browser",
+"import_id": {
+"ImportId": "QID623_BROWSER"
+}
+},
+{
+"column": "meta_Version",
+"import_id": {
+"ImportId": "QID623_VERSION"
+}
+},
+{
+"column": "meta_Operating System",
+"import_id": {
+"ImportId": "QID623_OS"
+}
+},
+{
+"column": "meta_Resolution",
+"import_id": {
+"ImportId": "QID623_RESOLUTION"
+}
+},
+{
+"column": "t_OPTOUT_Green_First Click",
+"import_id": {
+"ImportId": "QID553_FIRST_CLICK"
+}
+},
+{
+"column": "t_OPTOUT_Green_Last Click",
+"import_id": {
+"ImportId": "QID553_LAST_CLICK"
+}
+},
+{
+"column": "t_OPTOUT_Green_Page Submit",
+"import_id": {
+"ImportId": "QID553_PAGE_SUBMIT"
+}
+},
+{
+"column": "t_OPTOUT_Green_Click Count",
+"import_id": {
+"ImportId": "QID553_CLICK_COUNT"
+}
+},
+{
+"column": "OPTOUT_Green",
+"import_id": {
+"ImportId": "QID554"
+}
+},
+{
+"column": "t_OPTIN_Green_First Click",
+"import_id": {
+"ImportId": "QID538_FIRST_CLICK"
+}
+},
+{
+"column": "t_OPTIN_Green_Last Click",
+"import_id": {
+"ImportId": "QID538_LAST_CLICK"
+}
+},
+{
+"column": "t_OPTIN_Green_Page Submit",
+"import_id": {
+"ImportId": "QID538_PAGE_SUBMIT"
+}
+},
+{
+"column": "t_OPTIN_Green_Click Count",
+"import_id": {
+"ImportId": "QID538_CLICK_COUNT"
+}
+},
+{
+"column": "OPTIN_Green",
+"import_id": {
+"ImportId": "QID539"
+}
+},
+{
+"column": "t_OPTIN_Organ_First Click",
+"import_id": {
+"ImportId": "QID613_FIRST_CLICK"
+}
+},
+{
+"column": "t_OPTIN_Organ_Last Click",
+"import_id": {
+"ImportId": "QID613_LAST_CLICK"
+}
+},
+{
+"column": "t_OPTIN_Organ_Page Submit",
+"import_id": {
+"ImportId": "QID613_PAGE_SUBMIT"
+}
+},
+{
+"column": "t_OPTIN_Organ_Click Count",
+"import_id": {
+"ImportId": "QID613_CLICK_COUNT"
+}
+},
+{
+"column": "OPTIN_Organ",
+"import_id": {
+"ImportId": "QID614"
+}
+},
+{
+"column": "t_OPTOUT_Organ_First Click",
+"import_id": {
+"ImportId": "QID615_FIRST_CLICK"
+}
+},
+{
+"column": "t_OPTOUT_Organ_Last Click",
+"import_id": {
+"ImportId": "QID615_LAST_CLICK"
+}
+},
+{
+"column": "t_OPTOUT_Organ_Page Submit",
+"import_id": {
+"ImportId": "QID615_PAGE_SUBMIT"
+}
+},
+{
+"column": "t_OPTOUT_Organ_Click Count",
+"import_id": {
+"ImportId": "QID615_CLICK_COUNT"
+}
+},
+{
+"column": "OPTOUT_Organ",
+"import_id": {
+"ImportId": "QID616"
+}
+},
+{
+"column": "FL_344_DO_FL_345",
+"import_id": {
+"ImportId": "FL_344_DO",
+"choiceId": "FL_345"
+}
+},
+{
+"column": "FL_344_DO_FL_348",
+"import_id": {
+"ImportId": "FL_344_DO",
+"choiceId": "FL_348"
+}
+},
+{
+"column": "FL_212_DO_OPTOUT_Green",
+"import_id": {
+"ImportId": "FL_212_DO",
+"choiceId": "OPTOUT_Green"
+}
+},
+{
+"column": "FL_212_DO_OPTIN_Green",
+"import_id": {
+"ImportId": "FL_212_DO",
+"choiceId": "OPTIN_Green"
+}
+},
+{
+"column": "FL_338_DO_OPTIN_Organ",
+"import_id": {
+"ImportId": "FL_338_DO",
+"choiceId": "OPTIN_Organ"
+}
+},
+{
+"column": "FL_338_DO_OPTOUT_Organ",
+"import_id": {
+"ImportId": "FL_338_DO",
+"choiceId": "OPTOUT_Organ"
+}
+},
+{
+"column": "FL_353_DO_OPTIN_Organ",
+"import_id": {
+"ImportId": "FL_353_DO",
+"choiceId": "OPTIN_Organ"
+}
+},
+{
+"column": "FL_353_DO_OPTOUT_Organ",
+"import_id": {
+"ImportId": "FL_353_DO",
+"choiceId": "OPTOUT_Organ"
+}
+},
+{
+"column": "FL_349_DO_OPTOUT_Green",
+"import_id": {
+"ImportId": "FL_349_DO",
+"choiceId": "OPTOUT_Green"
+}
+},
+{
+"column": "FL_349_DO_OPTIN_Green",
+"import_id": {
+"ImportId": "FL_349_DO",
+"choiceId": "OPTIN_Green"
+}
+},
+{
+"column": "",
+"import_id": {
+"raw": ""
+}
+},
+{
+"column": "TWIN_ID",
+"import_id": {
+"raw": "TWIN_ID"
+}
+}
+]

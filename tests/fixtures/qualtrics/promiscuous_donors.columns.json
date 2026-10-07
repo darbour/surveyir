@@ -1,0 +1,515 @@
+[
+{
+"column": "StartDate",
+"import_id": {
+"ImportId": "startDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "EndDate",
+"import_id": {
+"ImportId": "endDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "Progress",
+"import_id": {
+"ImportId": "progress"
+}
+},
+{
+"column": "Duration (in seconds)",
+"import_id": {
+"ImportId": "duration"
+}
+},
+{
+"column": "Finished",
+"import_id": {
+"ImportId": "finished"
+}
+},
+{
+"column": "RecordedDate",
+"import_id": {
+"ImportId": "recordedDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "botcheck1",
+"import_id": {
+"ImportId": "QID609_TEXT"
+}
+},
+{
+"column": "botcheck2",
+"import_id": {
+"ImportId": "QID679"
+}
+},
+{
+"column": "Q403_Browser",
+"import_id": {
+"ImportId": "QID680_BROWSER"
+}
+},
+{
+"column": "Q403_Version",
+"import_id": {
+"ImportId": "QID680_VERSION"
+}
+},
+{
+"column": "Q403_Operating System",
+"import_id": {
+"ImportId": "QID680_OS"
+}
+},
+{
+"column": "Q403_Resolution",
+"import_id": {
+"ImportId": "QID680_RESOLUTION"
+}
+},
+{
+"column": "Q635",
+"import_id": {
+"ImportId": "QID635"
+}
+},
+{
+"column": "rating_1_1",
+"import_id": {
+"ImportId": "QID478_4"
+}
+},
+{
+"column": "rating_2_1",
+"import_id": {
+"ImportId": "QID690_4"
+}
+},
+{
+"column": "rating_3_1",
+"import_id": {
+"ImportId": "QID692_4"
+}
+},
+{
+"column": "rating_4_1",
+"import_id": {
+"ImportId": "QID693_4"
+}
+},
+{
+"column": "rating_5_1",
+"import_id": {
+"ImportId": "QID694_4"
+}
+},
+{
+"column": "rating_6_1",
+"import_id": {
+"ImportId": "QID697_4"
+}
+},
+{
+"column": "rating_7_1",
+"import_id": {
+"ImportId": "QID699_4"
+}
+},
+{
+"column": "rating_8_1",
+"import_id": {
+"ImportId": "QID701_4"
+}
+},
+{
+"column": "rating_9_1",
+"import_id": {
+"ImportId": "QID702_4"
+}
+},
+{
+"column": "rating_10_1",
+"import_id": {
+"ImportId": "QID703_4"
+}
+},
+{
+"column": "Q313",
+"import_id": {
+"ImportId": "QID589"
+}
+},
+{
+"column": "Q313_3_TEXT",
+"import_id": {
+"ImportId": "QID589_3_TEXT"
+}
+},
+{
+"column": "Q326",
+"import_id": {
+"ImportId": "QID596_TEXT"
+}
+},
+{
+"column": "oonservative",
+"import_id": {
+"ImportId": "QID594"
+}
+},
+{
+"column": "Q315",
+"import_id": {
+"ImportId": "QID590"
+}
+},
+{
+"column": "Q315_4_TEXT",
+"import_id": {
+"ImportId": "QID590_4_TEXT"
+}
+},
+{
+"column": "lean",
+"import_id": {
+"ImportId": "QID591"
+}
+},
+{
+"column": "strong_rep",
+"import_id": {
+"ImportId": "QID592"
+}
+},
+{
+"column": "strong_dem",
+"import_id": {
+"ImportId": "QID593"
+}
+},
+{
+"column": "OpenEndedComments",
+"import_id": {
+"ImportId": "QID98_TEXT"
+}
+},
+{
+"column": "rid",
+"import_id": {
+"ImportId": "rid"
+}
+},
+{
+"column": "age",
+"import_id": {
+"ImportId": "age"
+}
+},
+{
+"column": "gender",
+"import_id": {
+"ImportId": "gender"
+}
+},
+{
+"column": "hhi",
+"import_id": {
+"ImportId": "hhi"
+}
+},
+{
+"column": "ethnicity",
+"import_id": {
+"ImportId": "ethnicity"
+}
+},
+{
+"column": "hispanic",
+"import_id": {
+"ImportId": "hispanic"
+}
+},
+{
+"column": "education",
+"import_id": {
+"ImportId": "education"
+}
+},
+{
+"column": "political_party",
+"import_id": {
+"ImportId": "political_party"
+}
+},
+{
+"column": "region",
+"import_id": {
+"ImportId": "region"
+}
+},
+{
+"column": "zip",
+"import_id": {
+"ImportId": "zip"
+}
+},
+{
+"column": "party_1",
+"import_id": {
+"ImportId": "party_1"
+}
+},
+{
+"column": "party_2",
+"import_id": {
+"ImportId": "party_2"
+}
+},
+{
+"column": "party_3",
+"import_id": {
+"ImportId": "party_3"
+}
+},
+{
+"column": "party_4",
+"import_id": {
+"ImportId": "party_4"
+}
+},
+{
+"column": "party_5",
+"import_id": {
+"ImportId": "party_5"
+}
+},
+{
+"column": "party_6",
+"import_id": {
+"ImportId": "party_6"
+}
+},
+{
+"column": "party_7",
+"import_id": {
+"ImportId": "party_7"
+}
+},
+{
+"column": "party_8",
+"import_id": {
+"ImportId": "party_8"
+}
+},
+{
+"column": "party_9",
+"import_id": {
+"ImportId": "party_9"
+}
+},
+{
+"column": "party_10",
+"import_id": {
+"ImportId": "party_10"
+}
+},
+{
+"column": "party_11",
+"import_id": {
+"ImportId": "party_11"
+}
+},
+{
+"column": "occupation_1",
+"import_id": {
+"ImportId": "occupation_1"
+}
+},
+{
+"column": "occupation_2",
+"import_id": {
+"ImportId": "occupation_2"
+}
+},
+{
+"column": "occupation_3",
+"import_id": {
+"ImportId": "occupation_3"
+}
+},
+{
+"column": "occupation_4",
+"import_id": {
+"ImportId": "occupation_4"
+}
+},
+{
+"column": "occupation_5",
+"import_id": {
+"ImportId": "occupation_5"
+}
+},
+{
+"column": "occupation_6",
+"import_id": {
+"ImportId": "occupation_6"
+}
+},
+{
+"column": "occupation_7",
+"import_id": {
+"ImportId": "occupation_7"
+}
+},
+{
+"column": "occupation_8",
+"import_id": {
+"ImportId": "occupation_8"
+}
+},
+{
+"column": "occupation_9",
+"import_id": {
+"ImportId": "occupation_9"
+}
+},
+{
+"column": "occupation_10",
+"import_id": {
+"ImportId": "occupation_10"
+}
+},
+{
+"column": "history_1",
+"import_id": {
+"ImportId": "history_1"
+}
+},
+{
+"column": "history_2",
+"import_id": {
+"ImportId": "history_2"
+}
+},
+{
+"column": "history_3",
+"import_id": {
+"ImportId": "history_3"
+}
+},
+{
+"column": "history_4",
+"import_id": {
+"ImportId": "history_4"
+}
+},
+{
+"column": "history_5",
+"import_id": {
+"ImportId": "history_5"
+}
+},
+{
+"column": "history_6",
+"import_id": {
+"ImportId": "history_6"
+}
+},
+{
+"column": "history_7",
+"import_id": {
+"ImportId": "history_7"
+}
+},
+{
+"column": "history_8",
+"import_id": {
+"ImportId": "history_8"
+}
+},
+{
+"column": "history_9",
+"import_id": {
+"ImportId": "history_9"
+}
+},
+{
+"column": "history_10",
+"import_id": {
+"ImportId": "history_10"
+}
+},
+{
+"column": "donation_1",
+"import_id": {
+"ImportId": "donation_1"
+}
+},
+{
+"column": "donation_2",
+"import_id": {
+"ImportId": "donation_2"
+}
+},
+{
+"column": "donation_3",
+"import_id": {
+"ImportId": "donation_3"
+}
+},
+{
+"column": "donation_4",
+"import_id": {
+"ImportId": "donation_4"
+}
+},
+{
+"column": "donation_5",
+"import_id": {
+"ImportId": "donation_5"
+}
+},
+{
+"column": "donation_6",
+"import_id": {
+"ImportId": "donation_6"
+}
+},
+{
+"column": "donation_7",
+"import_id": {
+"ImportId": "donation_7"
+}
+},
+{
+"column": "donation_8",
+"import_id": {
+"ImportId": "donation_8"
+}
+},
+{
+"column": "donation_9",
+"import_id": {
+"ImportId": "donation_9"
+}
+},
+{
+"column": "donation_10",
+"import_id": {
+"ImportId": "donation_10"
+}
+},
+{
+"column": "TWIN_ID",
+"import_id": {
+"raw": "TWIN_ID"
+}
+}
+]

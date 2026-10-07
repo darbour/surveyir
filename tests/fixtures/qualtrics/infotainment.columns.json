@@ -1,0 +1,341 @@
+[
+{
+"column": "StartDate",
+"import_id": {
+"ImportId": "startDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "EndDate",
+"import_id": {
+"ImportId": "endDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "Progress",
+"import_id": {
+"ImportId": "progress"
+}
+},
+{
+"column": "Duration (in seconds)",
+"import_id": {
+"ImportId": "duration"
+}
+},
+{
+"column": "Finished",
+"import_id": {
+"ImportId": "finished"
+}
+},
+{
+"column": "RecordedDate",
+"import_id": {
+"ImportId": "recordedDate",
+"timeZone": "America/New_York"
+}
+},
+{
+"column": "Browser_Browser",
+"import_id": {
+"ImportId": "QID1374_BROWSER"
+}
+},
+{
+"column": "Browser_Version",
+"import_id": {
+"ImportId": "QID1374_VERSION"
+}
+},
+{
+"column": "Browser_Operating System",
+"import_id": {
+"ImportId": "QID1374_OS"
+}
+},
+{
+"column": "Browser_Resolution",
+"import_id": {
+"ImportId": "QID1374_RESOLUTION"
+}
+},
+{
+"column": "Q275_First Click",
+"import_id": {
+"ImportId": "QID1594_FIRST_CLICK"
+}
+},
+{
+"column": "Q275_Last Click",
+"import_id": {
+"ImportId": "QID1594_LAST_CLICK"
+}
+},
+{
+"column": "Q275_Page Submit",
+"import_id": {
+"ImportId": "QID1594_PAGE_SUBMIT"
+}
+},
+{
+"column": "Q275_Click Count",
+"import_id": {
+"ImportId": "QID1594_CLICK_COUNT"
+}
+},
+{
+"column": "Profile1",
+"import_id": {
+"ImportId": "QID1625"
+}
+},
+{
+"column": "Profile2",
+"import_id": {
+"ImportId": "QID1607"
+}
+},
+{
+"column": "Profile3",
+"import_id": {
+"ImportId": "QID1609"
+}
+},
+{
+"column": "Profile4",
+"import_id": {
+"ImportId": "QID1610"
+}
+},
+{
+"column": "Profile5",
+"import_id": {
+"ImportId": "QID1611"
+}
+},
+{
+"column": "Profile6",
+"import_id": {
+"ImportId": "QID1612"
+}
+},
+{
+"column": "Profile7",
+"import_id": {
+"ImportId": "QID1613"
+}
+},
+{
+"column": "Profile8",
+"import_id": {
+"ImportId": "QID1614"
+}
+},
+{
+"column": "Profile9",
+"import_id": {
+"ImportId": "QID1615"
+}
+},
+{
+"column": "Profile10",
+"import_id": {
+"ImportId": "QID1616"
+}
+},
+{
+"column": "Profile11",
+"import_id": {
+"ImportId": "QID1617"
+}
+},
+{
+"column": "Profile12",
+"import_id": {
+"ImportId": "QID1618"
+}
+},
+{
+"column": "Profile13",
+"import_id": {
+"ImportId": "QID1619"
+}
+},
+{
+"column": "Profile14",
+"import_id": {
+"ImportId": "QID1620"
+}
+},
+{
+"column": "Profile15",
+"import_id": {
+"ImportId": "QID1621"
+}
+},
+{
+"column": "Profile16",
+"import_id": {
+"ImportId": "QID1622"
+}
+},
+{
+"column": "Profile17",
+"import_id": {
+"ImportId": "QID1623"
+}
+},
+{
+"column": "Profile18",
+"import_id": {
+"ImportId": "QID1624"
+}
+},
+{
+"column": "Impt_ratings_1",
+"import_id": {
+"ImportId": "QID1589_1"
+}
+},
+{
+"column": "Impt_ratings_2",
+"import_id": {
+"ImportId": "QID1589_2"
+}
+},
+{
+"column": "Impt_ratings_3",
+"import_id": {
+"ImportId": "QID1589_3"
+}
+},
+{
+"column": "Impt_ratings_4",
+"import_id": {
+"ImportId": "QID1589_5"
+}
+},
+{
+"column": "Impt_ratings_5",
+"import_id": {
+"ImportId": "QID1589_6"
+}
+},
+{
+"column": "Acc_ratings_1",
+"import_id": {
+"ImportId": "QID1591_1"
+}
+},
+{
+"column": "Acc_ratings_2",
+"import_id": {
+"ImportId": "QID1591_2"
+}
+},
+{
+"column": "Acc_ratings_3",
+"import_id": {
+"ImportId": "QID1591_3"
+}
+},
+{
+"column": "Acc_ratings_4",
+"import_id": {
+"ImportId": "QID1591_5"
+}
+},
+{
+"column": "Acc_ratings_5",
+"import_id": {
+"ImportId": "QID1591_6"
+}
+},
+{
+"column": "MC_correct_entertain_1",
+"import_id": {
+"ImportId": "QID1581_10"
+}
+},
+{
+"column": "TC_BBC_7",
+"import_id": {
+"ImportId": "QID1575_7"
+}
+},
+{
+"column": "TC_PBS_7",
+"import_id": {
+"ImportId": "QID1576_7"
+}
+},
+{
+"column": "TC_quora_7",
+"import_id": {
+"ImportId": "QID1578_7"
+}
+},
+{
+"column": "TC_reddit_7",
+"import_id": {
+"ImportId": "QID1580_7"
+}
+},
+{
+"column": "Q1572_First Click",
+"import_id": {
+"ImportId": "QID1572_FIRST_CLICK"
+}
+},
+{
+"column": "Q1572_Last Click",
+"import_id": {
+"ImportId": "QID1572_LAST_CLICK"
+}
+},
+{
+"column": "Q1572_Page Submit",
+"import_id": {
+"ImportId": "QID1572_PAGE_SUBMIT"
+}
+},
+{
+"column": "Q1572_Click Count",
+"import_id": {
+"ImportId": "QID1572_CLICK_COUNT"
+}
+},
+{
+"column": "SocialMedia_Chk",
+"import_id": {
+"ImportId": "QID1428"
+}
+},
+{
+"column": "Random",
+"import_id": {
+"ImportId": "QID367"
+}
+},
+{
+"column": "Google",
+"import_id": {
+"ImportId": "QID675"
+}
+},
+{
+"column": "Comments",
+"import_id": {
+"ImportId": "QID678_TEXT"
+}
+},
+{
+"column": "TWIN_ID",
+"import_id": {
+"raw": "TWIN_ID"
+}
+}
+]

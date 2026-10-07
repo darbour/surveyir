@@ -1,0 +1,127 @@
+[
+{
+"column": "StartDate",
+"import_id": {
+"ImportId": "startDate",
+"timeZone": "America/Denver"
+}
+},
+{
+"column": "EndDate",
+"import_id": {
+"ImportId": "endDate",
+"timeZone": "America/Denver"
+}
+},
+{
+"column": "Progress",
+"import_id": {
+"ImportId": "progress"
+}
+},
+{
+"column": "Duration (in seconds)",
+"import_id": {
+"ImportId": "duration"
+}
+},
+{
+"column": "Finished",
+"import_id": {
+"ImportId": "finished"
+}
+},
+{
+"column": "RecordedDate",
+"import_id": {
+"ImportId": "recordedDate",
+"timeZone": "America/Denver"
+}
+},
+{
+"column": "Q16",
+"import_id": {
+"ImportId": "QID1337_TEXT"
+}
+},
+{
+"column": "Q18",
+"import_id": {
+"ImportId": "QID1367"
+}
+},
+{
+"column": "fair1",
+"import_id": {
+"ImportId": "QID1396"
+}
+},
+{
+"column": "Q41_First Click",
+"import_id": {
+"ImportId": "QID1453_FIRST_CLICK"
+}
+},
+{
+"column": "Q41_Last Click",
+"import_id": {
+"ImportId": "QID1453_LAST_CLICK"
+}
+},
+{
+"column": "Q41_Page Submit",
+"import_id": {
+"ImportId": "QID1453_PAGE_SUBMIT"
+}
+},
+{
+"column": "Q41_Click Count",
+"import_id": {
+"ImportId": "QID1453_CLICK_COUNT"
+}
+},
+{
+"column": "comments",
+"import_id": {
+"ImportId": "QID1451_TEXT"
+}
+},
+{
+"column": "Segment",
+"import_id": {
+"ImportId": "Segment"
+}
+},
+{
+"column": "target",
+"import_id": {
+"ImportId": "target"
+}
+},
+{
+"column": "FL_491_DO",
+"import_id": {
+"ImportId": "FL_491_DO"
+}
+},
+{
+"column": "TWIN_ID",
+"import_id": {
+"raw": "TWIN_ID"
+}
+},
+{
+"column": "FL_491_DO_FL_493",
+"import_id": {
+"ImportId": "FL_491_DO",
+"choiceId": "FL_493"
+}
+},
+{
+"column": "FL_491_DO_FL_497",
+"import_id": {
+"ImportId": "FL_491_DO",
+"choiceId": "FL_497"
+}
+}
+]

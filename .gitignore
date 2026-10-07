@@ -1,0 +1,20 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+corpus/external/
+corpus/external_columns/
+
+# Research notes and reports (local working material)
+research_notes/
+reports/
