@@ -40,8 +40,11 @@
       "condition": null,
       "last_shown_assigns": [],
       "annotation": null,
-      "contrast": "exposure",
-      "recorded_field": []
+      "contrast": "assignment",
+      "recorded_field": [
+        "Segment",
+        "target"
+      ]
     }
   ],
   "order": [],

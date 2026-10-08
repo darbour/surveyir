@@ -16,7 +16,7 @@ The contrast everywhere below is **mean(fair1 | broad shown) − mean(fair1 | ta
 ## 1. Execution status
 
 - **Preflight** (`surveyir check --strict`, saved in `outputs/check.txt`): 0 blocking gaps; the instrument runs under strict execution with no `allow` or `implementations`.
-- **Design** (`outputs/design.txt`): `FL_491` is reported as an *exposure* contrast. Its arms only set embedded data; the exposure is decided afterwards by display logic, so the gate checks the displayed screens directly.
+- **Design** (`outputs/design.txt`): `FL_491` is reported as an *assignment* contrast. Its arms only set embedded data; the exposure is decided afterwards by display logic, so the gate checks the displayed screens directly.
 
 Exposure gate, per simulated condition (failures out of n respondents):
 
