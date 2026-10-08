@@ -462,6 +462,37 @@
           "default": null,
           "title": "Display Logic"
         },
+        "in_page_display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display logic Qualtrics evaluates on the page itself, as earlier questions on the same page are answered (``InPageDisplayLogic``).",
+          "title": "In Page Display Logic"
+        },
         "validation": {
           "anyOf": [
             {
@@ -857,6 +888,37 @@
           ],
           "default": null,
           "title": "Display Logic"
+        },
+        "in_page_display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display logic Qualtrics evaluates on the page itself, as earlier questions on the same page are answered (``InPageDisplayLogic``).",
+          "title": "In Page Display Logic"
         },
         "validation": {
           "anyOf": [
@@ -1292,6 +1354,37 @@
           "default": null,
           "title": "Display Logic"
         },
+        "in_page_display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display logic Qualtrics evaluates on the page itself, as earlier questions on the same page are answered (``InPageDisplayLogic``).",
+          "title": "In Page Display Logic"
+        },
         "validation": {
           "anyOf": [
             {
@@ -1519,6 +1612,37 @@
           "default": null,
           "title": "Display Logic"
         },
+        "in_page_display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display logic Qualtrics evaluates on the page itself, as earlier questions on the same page are answered (``InPageDisplayLogic``).",
+          "title": "In Page Display Logic"
+        },
         "validation": {
           "anyOf": [
             {
@@ -1707,6 +1831,37 @@
           ],
           "default": null,
           "title": "Display Logic"
+        },
+        "in_page_display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display logic Qualtrics evaluates on the page itself, as earlier questions on the same page are answered (``InPageDisplayLogic``).",
+          "title": "In Page Display Logic"
         },
         "validation": {
           "anyOf": [
@@ -2058,6 +2213,37 @@
           "default": null,
           "title": "Display Logic"
         },
+        "in_page_display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display logic Qualtrics evaluates on the page itself, as earlier questions on the same page are answered (``InPageDisplayLogic``).",
+          "title": "In Page Display Logic"
+        },
         "validation": {
           "anyOf": [
             {
@@ -2192,6 +2378,37 @@
           ],
           "default": null,
           "title": "Display Logic"
+        },
+        "in_page_display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display logic Qualtrics evaluates on the page itself, as earlier questions on the same page are answered (``InPageDisplayLogic``).",
+          "title": "In Page Display Logic"
         },
         "validation": {
           "anyOf": [
@@ -2476,6 +2693,37 @@
           "default": null,
           "title": "Display Logic"
         },
+        "in_page_display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display logic Qualtrics evaluates on the page itself, as earlier questions on the same page are answered (``InPageDisplayLogic``).",
+          "title": "In Page Display Logic"
+        },
         "validation": {
           "anyOf": [
             {
@@ -2641,6 +2889,37 @@
           "default": null,
           "title": "Display Logic"
         },
+        "in_page_display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display logic Qualtrics evaluates on the page itself, as earlier questions on the same page are answered (``InPageDisplayLogic``).",
+          "title": "In Page Display Logic"
+        },
         "validation": {
           "anyOf": [
             {
@@ -2798,6 +3077,37 @@
           ],
           "default": null,
           "title": "Display Logic"
+        },
+        "in_page_display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display logic Qualtrics evaluates on the page itself, as earlier questions on the same page are answered (``InPageDisplayLogic``).",
+          "title": "In Page Display Logic"
         },
         "validation": {
           "anyOf": [
@@ -3101,6 +3411,37 @@
           "default": null,
           "title": "Display Logic"
         },
+        "in_page_display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display logic Qualtrics evaluates on the page itself, as earlier questions on the same page are answered (``InPageDisplayLogic``).",
+          "title": "In Page Display Logic"
+        },
         "validation": {
           "anyOf": [
             {
@@ -3353,6 +3694,37 @@
           ],
           "default": null,
           "title": "Display Logic"
+        },
+        "in_page_display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display logic Qualtrics evaluates on the page itself, as earlier questions on the same page are answered (``InPageDisplayLogic``).",
+          "title": "In Page Display Logic"
         },
         "validation": {
           "anyOf": [
@@ -3747,6 +4119,37 @@
           ],
           "default": null,
           "title": "Display Logic"
+        },
+        "in_page_display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display logic Qualtrics evaluates on the page itself, as earlier questions on the same page are answered (``InPageDisplayLogic``).",
+          "title": "In Page Display Logic"
         },
         "validation": {
           "anyOf": [
@@ -4400,6 +4803,37 @@
           "default": null,
           "title": "Display Logic"
         },
+        "in_page_display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display logic Qualtrics evaluates on the page itself, as earlier questions on the same page are answered (``InPageDisplayLogic``).",
+          "title": "In Page Display Logic"
+        },
         "validation": {
           "anyOf": [
             {
@@ -4800,6 +5234,37 @@
           "default": null,
           "title": "Display Logic"
         },
+        "in_page_display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display logic Qualtrics evaluates on the page itself, as earlier questions on the same page are answered (``InPageDisplayLogic``).",
+          "title": "In Page Display Logic"
+        },
         "validation": {
           "anyOf": [
             {
@@ -5059,6 +5524,37 @@
           "default": null,
           "title": "Display Logic"
         },
+        "in_page_display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display logic Qualtrics evaluates on the page itself, as earlier questions on the same page are answered (``InPageDisplayLogic``).",
+          "title": "In Page Display Logic"
+        },
         "validation": {
           "anyOf": [
             {
@@ -5254,6 +5750,37 @@
           ],
           "default": null,
           "title": "Display Logic"
+        },
+        "in_page_display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display logic Qualtrics evaluates on the page itself, as earlier questions on the same page are answered (``InPageDisplayLogic``).",
+          "title": "In Page Display Logic"
         },
         "validation": {
           "anyOf": [
@@ -5667,6 +6194,37 @@
           "default": null,
           "title": "Display Logic"
         },
+        "in_page_display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display logic Qualtrics evaluates on the page itself, as earlier questions on the same page are answered (``InPageDisplayLogic``).",
+          "title": "In Page Display Logic"
+        },
         "validation": {
           "anyOf": [
             {
@@ -5823,6 +6381,37 @@
           ],
           "default": null,
           "title": "Display Logic"
+        },
+        "in_page_display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display logic Qualtrics evaluates on the page itself, as earlier questions on the same page are answered (``InPageDisplayLogic``).",
+          "title": "In Page Display Logic"
         },
         "validation": {
           "anyOf": [
@@ -6146,6 +6735,37 @@
           ],
           "default": null,
           "title": "Display Logic"
+        },
+        "in_page_display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display logic Qualtrics evaluates on the page itself, as earlier questions on the same page are answered (``InPageDisplayLogic``).",
+          "title": "In Page Display Logic"
         },
         "validation": {
           "anyOf": [

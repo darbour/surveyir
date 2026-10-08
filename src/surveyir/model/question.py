@@ -195,6 +195,13 @@ class QuestionBase(Extensible):
     text: Text
     description: str | None = Field(default=None, description="Short label shown in editors.")
     display_logic: Condition | None = None
+    in_page_display_logic: Condition | None = Field(
+        default=None,
+        description=(
+            "Display logic Qualtrics evaluates on the page itself, as earlier questions on "
+            "the same page are answered (``InPageDisplayLogic``)."
+        ),
+    )
     validation: Validation | None = None
     translations: dict[str, Translation] = Field(default_factory=dict)
     media: list[Media] = Field(default_factory=list)

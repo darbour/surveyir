@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
+
+from .trace import Affects, Approximation
 
 
 @dataclass
@@ -57,6 +60,10 @@ class RespondentState:
     location: dict[str, str] = field(default_factory=dict)  # for ${loc://City} etc.
     quotas_met: set[str] = field(default_factory=set)
     notes: list[str] = field(default_factory=list)
+    approximations: list[Approximation] = field(default_factory=list)
+    #: called with every approximation before it is recorded (strict mode raises here)
+    on_approximation: Callable[[Approximation], None] | None = field(
+        default=None, repr=False, compare=False)
 
     # ------------------------------------------------------------------ lookups
 
@@ -80,3 +87,17 @@ class RespondentState:
     def note(self, message: str) -> None:
         if message not in self.notes:
             self.notes.append(message)
+
+    def approximate(self, code: str, location: str, affects: Affects, detail: str) -> None:
+        """Record that the runtime could not reproduce something exactly.
+
+        The runtime that owns this state decides what an approximation means
+        (``on_approximation``): strict runs raise on execution-affecting ones
+        unless they were allowed. ``notes`` keeps the human-readable detail.
+        """
+        approx = Approximation(code, location, affects, detail)
+        if self.on_approximation is not None:
+            self.on_approximation(approx)
+        if approx not in self.approximations:
+            self.approximations.append(approx)
+        self.note(detail)

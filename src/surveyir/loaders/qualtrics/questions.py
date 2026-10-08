@@ -527,9 +527,10 @@ class _QuestionReader:
         if self.recodes and not self.recodes_used:
             extras["RecodeValues"] = self.recodes
         in_page = self.p.data.get("InPageDisplayLogic")
-        if in_page and not fields.get("display_logic"):
-            # Logic evaluated on the same page as its source question.
-            fields["display_logic"] = parse_logic(in_page, self.diags, self.qid)
+        if in_page:
+            # Evaluated on the page as earlier same-page questions are answered; kept
+            # separate from the page-load ``display_logic`` (a question may have both).
+            fields["in_page_display_logic"] = parse_logic(in_page, self.diags, self.qid)
             extras.pop("InPageDisplayLogic", None)
         fields["extras"] = extras
         return fields

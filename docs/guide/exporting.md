@@ -35,7 +35,7 @@ print(again == survey, f"{len(text):,} characters")
 ```
 
 ```text
-True 604,309 characters
+True 609,230 characters
 ```
 
 `compact=True` drops `extras` (untyped source keys), raw HTML and survey options.
@@ -47,7 +47,7 @@ print(f"{len(compact):,} characters")
 ```
 
 ```text
-309,406 characters
+313,529 characters
 ```
 
 The JSON validates against `schema/surveyir.schema.json` (`surveyir schema`

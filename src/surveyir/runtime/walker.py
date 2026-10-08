@@ -201,6 +201,7 @@ class ScreenerAwareAnswerer(RandomAnswerer):
         self.strings: dict[str, list[str]] = {}
         conditions = [getattr(n, "condition", None) for n in walk(survey.flow)]
         conditions += [q.display_logic for q in survey.questions.values()]
+        conditions += [q.in_page_display_logic for q in survey.questions.values()]
         for cond in conditions:
             if cond is None:
                 continue
@@ -586,7 +587,8 @@ class _Walk:
 
     def question(self, q: Question, block: Block, page: int) -> None:
         state = self.state
-        if q.display_logic is not None and not evaluate(q.display_logic, state, self.survey):
+        if any(c is not None and not evaluate(c, state, self.survey)
+               for c in (q.display_logic, q.in_page_display_logic)):
             return
         key = state.key(q.id)
         state.displayed.add(key)
