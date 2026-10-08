@@ -28,11 +28,12 @@ from __future__ import annotations
 
 import contextlib
 import dataclasses
+import math
 import random
 import re
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Literal, Protocol
+from typing import Any, Literal, Protocol, TypeVar, cast
 
 from ..model import (
     AuthenticatorNode,
@@ -73,10 +74,18 @@ from ..model import (
     UnsupportedQuestion,
     WebServiceNode,
 )
+from .executability import _Inventory, external_fields
+from .execution import (
+    APPROXIMATIONS,
+    ExecutionError,
+    ExecutionPolicy,
+    javascript_affects,
+)
 from .logic import evaluate
 from .pipes import render, render_display
 from .state import Answer, LoopContext, RespondentState
 from .trace import (
+    Affects,
     Approximation,
     AuditEvent,
     BranchEval,
@@ -206,8 +215,12 @@ no_answer = _NoAnswer()
 class RandomAnswerer:
     """Uniformly random, well-formed answers; useful for exercising a design.
 
-    Reads only what is displayed (``ctx.view``). Calling it as a legacy answerer,
-    ``answerer(view, state)``, gives the same answers.
+    Reads only what is displayed (``ctx.view``), and respects the validation the
+    question displays (``Display.validation``): a number within the allowed range
+    for numeric text entry, an e-mail address or ZIP code where one is required,
+    text within the character limits, a number of selections within the allowed
+    minimum and maximum, and constant-sum parts that add up to the total. Calling
+    it as a legacy answerer, ``answerer(view, state)``, gives the same answers.
     """
 
     __respondent_protocol__ = 2
@@ -229,27 +242,35 @@ class RandomAnswerer:
         if rng.random() < self.skip_rate:
             return None
         kind = d.kind
+        v = d.validation
         if kind == "choice" and ids:
             if d.multiple:
-                return rng.sample(ids, rng.randint(1, len(ids)))
+                lo, hi = _int(v.get("min_choices")) or 1, _int(v.get("max_choices")) or len(ids)
+                hi = max(1, min(hi, len(ids)))
+                return rng.sample(ids, rng.randint(min(max(lo, 1), hi), hi))
             return rng.choice(ids)
         if kind == "matrix" and ids:
             if d.mode == "text":
-                return {r: {c: "text" for c in cols} for r in ids}
+                return {r: {c: _text_answer(v, rng) for c in cols} for r in ids}
             if d.mode == "multiple" and cols:
                 return {r: rng.sample(cols, rng.randint(1, len(cols))) for r in ids}
             row_cols = {r: [a.id for a in d.row_columns.get(r, ())] or cols for r in ids}
             return {r: rng.choice(c) for r, c in row_cols.items() if c}
         if kind == "text_entry":
-            return {f: "text" for f in ids} if d.mode == "form" else "text"
+            if d.mode == "form":
+                return {f: _text_answer(v, rng) for f in ids}
+            return _text_answer(v, rng)
         if kind == "slider":
             lo, hi = d.bounds or (0, 100)
             return {i: round(rng.uniform(lo, hi)) for i in ids}
         if kind == "constant_sum" and ids:
-            total = d.validation.get("total") or 100
+            total = _num(v.get("total")) or 100
             cuts = sorted(rng.uniform(0, total) for _ in range(len(ids) - 1))
             parts = [b - a for a, b in zip([0, *cuts], [*cuts, total], strict=True)]
-            return {i: round(p) for i, p in zip(ids, parts, strict=True)}
+            out = {i: round(p) for i, p in zip(ids, parts, strict=True)}
+            if _num(v.get("total")) is not None:  # the parts must add up exactly
+                out[ids[-1]] += round(total) - sum(out.values())
+            return out
         if kind == "rank_order":
             order = rng.sample(ids, len(ids))
             return {i: order.index(i) + 1 for i in ids}
@@ -263,6 +284,121 @@ class RandomAnswerer:
         return None
 
 
+def _num(x: Any) -> float | None:
+    if isinstance(x, bool) or x is None:
+        return None
+    try:
+        out = float(x)
+    except (TypeError, ValueError):
+        return None
+    return out if math.isfinite(out) else None
+
+
+def _int(x: Any) -> int | None:
+    n = _num(x)
+    return int(n) if n is not None else None
+
+
+_EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+_ZIP = re.compile(r"^\d{5}(-\d{4})?$")
+
+
+def _numeric(v: Mapping[str, Any]) -> bool:
+    return v.get("content_type") == "ValidNumber" or any(
+        _num(v.get(k)) is not None for k in ("number_min", "number_max"))
+
+
+def _text_answer(v: Mapping[str, Any], rng: random.Random) -> str:
+    """A text answer that satisfies the displayed validation ``v``.
+
+    Without numeric validation no random draw is made, so questions without it
+    get exactly the answers they always did.
+    """
+    if _numeric(v):
+        lo, hi = _num(v.get("number_min")), _num(v.get("number_max"))
+        if lo is None:
+            lo = 0.0 if hi is None or hi >= 0 else hi - 100
+        if hi is None or hi < lo:
+            hi = lo + 100
+        a, b = math.ceil(lo), math.floor(hi)
+        if a <= b:  # whole numbers satisfy any decimal-places limit
+            return str(rng.randint(a, b))
+        return f"{(lo + hi) / 2:g}"
+    content = v.get("content_type")
+    if content == "ValidEmail":
+        text = "respondent@example.com"
+    elif content == "ValidZip":
+        text = "12345"
+    elif content == "ValidDate":
+        text = "01/01/2024"
+    else:
+        text = "text"
+    lo_chars, hi_chars = _int(v.get("min_chars")), _int(v.get("max_chars"))
+    if lo_chars is not None and len(text) < lo_chars:
+        text = " ".join([text] * (lo_chars // (len(text) + 1) + 1))[: max(lo_chars, len(text))]
+    if hi_chars is not None and hi_chars >= 0 and len(text) > hi_chars:
+        text = text[:hi_chars]
+    return text
+
+
+def validation_errors(d: Display, value: Any) -> list[str]:
+    """How an answer to ``d`` violates the validation the question displays.
+
+    Checks the rules ``Display.validation`` exposes: numeric content and range,
+    e-mail and ZIP formats, character limits, the number of selections, and a
+    constant-sum total. Unanswered questions are not checked, and neither is
+    custom validation logic.
+    """
+    v = d.validation
+    if not v or value is None:
+        return []
+    errors: list[str] = []
+
+    def text(x: Any, where: str) -> None:
+        if not isinstance(x, (str, int, float)) or isinstance(x, bool) or x == "":
+            return
+        s = str(x)
+        if _numeric(v):
+            n = _num(s.strip())
+            lo, hi = _num(v.get("number_min")), _num(v.get("number_max"))
+            if n is None:
+                errors.append(f"{where}{s!r} is not a number")
+            elif (lo is not None and n < lo) or (hi is not None and n > hi):
+                errors.append(f"{where}{s} is outside [{lo}, {hi}]")
+        content = v.get("content_type")
+        if content == "ValidEmail" and not _EMAIL.match(s):
+            errors.append(f"{where}{s!r} is not an e-mail address")
+        if content == "ValidZip" and not _ZIP.match(s):
+            errors.append(f"{where}{s!r} is not a ZIP code")
+        lo_c, hi_c = _int(v.get("min_chars")), _int(v.get("max_chars"))
+        if lo_c is not None and len(s) < lo_c:
+            errors.append(f"{where}{len(s)} characters, fewer than {lo_c}")
+        if hi_c is not None and len(s) > hi_c:
+            errors.append(f"{where}{len(s)} characters, more than {hi_c}")
+
+    if d.kind == "text_entry":
+        for k, x in (value.items() if isinstance(value, dict) else [("", value)]):
+            text(x, f"{k}: " if k else "")
+    elif d.kind == "matrix" and isinstance(value, dict) and d.mode == "text":
+        for r, cells in value.items():
+            for c, x in (cells.items() if isinstance(cells, dict) else []):
+                text(x, f"{r}/{c}: ")
+    elif d.kind == "choice" and d.multiple and isinstance(value, (list, tuple)):
+        lo, hi = _int(v.get("min_choices")), _int(v.get("max_choices"))
+        if lo is not None and len(value) < lo:
+            errors.append(f"{len(value)} selected, fewer than {lo}")
+        if hi is not None and len(value) > hi:
+            errors.append(f"{len(value)} selected, more than {hi}")
+    elif d.kind == "constant_sum" and isinstance(value, dict):
+        total = _num(v.get("total"))
+        parts = [_num(x) for x in value.values()]
+        if total is not None and all(p is not None for p in parts):
+            got = sum(p for p in parts if p is not None)
+            if abs(got - total) > 1e-6:
+                errors.append(f"parts sum to {got:g}, not {total:g}")
+    return errors
+
+
 class ScreenerAwareAnswerer(RandomAnswerer):
     """Random answers, except free-text answers contain every string the survey's
     own logic tests that question's text for.
@@ -270,7 +406,9 @@ class ScreenerAwareAnswerer(RandomAnswerer):
     Surveys often screen respondents on typed text ("end the survey unless the
     answer contains 'yes'"). Random text fails those screeners, so every simulated
     respondent would exit early. This answerer gets through them, which makes it
-    the right default for exercising a design. It reads the survey's logic once,
+    the right default for exercising a design. A question screened on a number
+    gets one of the numbers the logic tests (the first that meets its validation).
+    It reads the survey's logic once,
     when constructed; while answering it sees only the displayed question.
     """
 
@@ -291,7 +429,14 @@ class ScreenerAwareAnswerer(RandomAnswerer):
 
     def _draw(self, d: Display) -> Any:
         if d.kind == "text_entry" and d.mode != "form" and d.qid in self.strings:
-            return " ".join(self.strings[d.qid])
+            strings = self.strings[d.qid]
+            if all(_num(x) is not None for x in strings):
+                # a number screener ("equal to 50", "at most 17"): one valid number
+                for x in strings:
+                    if not validation_errors(d, x):
+                        return x
+                return super()._draw(d)
+            return " ".join(strings)
         return super()._draw(d)
 
 
@@ -299,7 +444,6 @@ class ScreenerAwareAnswerer(RandomAnswerer):
 
 _IMG = re.compile(r"<img\b[^>]*>", re.IGNORECASE)
 _ATTR = re.compile(r"""\b(src|alt)\s*=\s*["']([^"']*)["']""", re.IGNORECASE)
-_JS_ASSIGNS = re.compile(r"Math\.random|shuffle|setEmbeddedData")
 
 
 def _presentation(q: Question, text: Callable[[Text], str]) -> dict[str, Any]:
@@ -424,6 +568,16 @@ class _EndSurvey(Exception):
     pass
 
 
+_Ob = TypeVar("_Ob")
+
+
+def _public(ob: _Ob) -> _Ob:
+    """``ob`` as a respondent may be given it: block ids are the runtime's, not shown."""
+    if isinstance(ob, (Display, PageStart)) and ob.block_id:
+        return cast(_Ob, dataclasses.replace(ob, block_id=""))
+    return ob
+
+
 # --------------------------------------------------------------------------- ordering helpers
 
 
@@ -515,10 +669,24 @@ class Simulator:
     >>> run = sim.respondent(RandomAnswerer(seed=2))
     >>> run.flow_order, run.embedded, run.trace
 
-    ``embedded`` supplies per-respondent fields Qualtrics would receive from a
-    panel or URL (``Recipient`` embedded data such as PROLIFIC_PID).
-    ``web_service`` lets the caller emulate a web-service element: it receives the
-    node and state and returns the embedded fields to set.
+    Execution is strict by default: the first thing the runtime cannot administer
+    exactly that could change assignment, exposure, routing or outcome raises
+    ``ExecutionError`` (see ``runtime.execution``). To get past a gap, supply an
+    implementation, accept it with ``allow`` (by code, or ``"code:location"``;
+    recorded as ``Allowed`` in the audit), or pass ``strict=False`` to record every
+    gap and carry on. ``policy`` passes a ready-made ``ExecutionPolicy`` instead.
+
+    ``implementations`` (keys as in ``runtime.execution``):
+
+    * ``"web_service"``: ``fn(node, state) -> dict`` of embedded fields, or a dict
+      of such functions by flow id;
+    * ``"javascript"``: ``{qid: fn(state) -> dict}``, run when the question is
+      displayed; the fields it returns are set;
+    * ``"embedded"``: ``{field: value}`` for panel, recipient or URL fields
+      (``respondent(embedded=...)`` overrides them per respondent);
+    * ``"location"``: ``{name: value}`` for ``${loc://...}`` and GeoIP logic.
+
+    ``web_service=`` and ``location=`` are shorthands for the first and last.
     """
 
     def __init__(
@@ -528,17 +696,44 @@ class Simulator:
         seed: int | None = None,
         balancer: Counterbalancer | None = None,
         device: str = "desktop",
-        location: dict[str, str] | None = None,
+        location: Mapping[str, str] | None = None,
         web_service: Callable[[WebServiceNode, RespondentState], dict[str, str]] | None = None,
+        strict: bool = True,
+        allow: Iterable[str] = (),
+        implementations: Mapping[str, Any] | None = None,
+        policy: ExecutionPolicy | None = None,
     ) -> None:
+        impl = dict(implementations or {})
+        if web_service is not None:
+            impl["web_service"] = web_service
+        if location is not None:
+            impl["location"] = {**(impl.get("location") or {}), **location}
+        allow = {allow} if isinstance(allow, str) else set(allow)
+        if policy is None:
+            policy = ExecutionPolicy(strict=strict, allow=frozenset(allow), implementations=impl)
+        else:
+            if allow or strict is not True:
+                raise ValueError("pass either policy= or strict=/allow=, not both")
+            if impl:
+                policy = dataclasses.replace(
+                    policy, implementations={**policy.implementations, **impl})
+        self.policy = policy
         self.survey = survey
         self.seed_rng = random.Random(seed)
         self.balancer = balancer or Counterbalancer()
         self.device = device
-        self.location = dict(location or {})
-        self.web_service = web_service
+        supplied = policy.implementations.get("location")
+        self.location: dict[str, str] = dict(supplied) if isinstance(supplied, Mapping) else {}
+        supplied = policy.implementations.get("embedded")
+        self.embedded: dict[str, str] = dict(supplied) if isinstance(supplied, Mapping) else {}
         self.quota_counts: dict[str, int] = {}
         self.count = 0
+        self._external = set(external_fields(survey))
+        self._field_affects = _Inventory(survey).field_affects
+
+    @property
+    def strict(self) -> bool:
+        return self.policy.strict
 
     # ---------------------------------------------------------------- public
 
@@ -550,32 +745,61 @@ class Simulator:
         seed: int | None = None,
     ) -> RespondentRun:
         """Walk one respondent. ``answerer`` is a ``Respondent`` (has ``answer(ctx)``)
-        or a legacy ``(view, state)`` callable, which makes the run ``privileged``."""
+        or a legacy ``(view, state)`` callable, which makes the run ``privileged``.
+
+        Raises ``ExecutionError`` in a strict run that reaches a gap it may not
+        pass; the partial run is on the error's ``run`` attribute.
+        """
         seed = self.seed_rng.randrange(2**32) if seed is None else seed
+        supplied = {**self.embedded, **(embedded or {})}
         state = RespondentState(
-            embedded=dict(embedded or {}), device=self.device, location=dict(self.location)
+            embedded=supplied, device=self.device, location=dict(self.location)
         )
-        state.quotas_met = {
-            qid
-            for qid, q in ((q.id, q) for q in self.survey.quotas)
-            if q.limit is not None and self.quota_counts.get(qid, 0) >= q.limit
-        }
+        state.unsupplied = self._external - set(supplied)
+        self._quota_status(state)
         run = RespondentRun(index=self.count, seed=seed, state=state)
         self.count += 1
         walk = _Walk(self, run, random.Random(seed), answerer)
-        with contextlib.suppress(_EndSurvey):
-            walk.nodes(self.survey.flow)
-            walk.end("flow_end", finished=True)
-        run.trace, run.audit = tuple(walk.trace), tuple(walk.audit)
-        for quota in self.survey.quotas:
-            if quota.condition is not None and evaluate(quota.condition, state, self.survey):
-                self.quota_counts[quota.id] = self.quota_counts.get(quota.id, 0) + 1
+        try:
+            with contextlib.suppress(_EndSurvey):
+                walk.nodes(self.survey.flow)
+                walk.end("flow_end", finished=True)
+            # the response is recorded: it now counts toward every quota it qualifies
+            # for, except one that screened it out as over quota
+            for quota in self.survey.quotas:
+                if run.ended_by == f"quota {quota.id}" or quota.condition is None:
+                    continue
+                if evaluate(quota.condition, state, self.survey):
+                    self.quota_counts[quota.id] = self.quota_counts.get(quota.id, 0) + 1
+        except ExecutionError as e:
+            e.run = run
+            raise
+        finally:
+            run.trace, run.audit = tuple(walk.trace), tuple(walk.audit)
         return run
 
     def run(
         self, n: int, answerer: Respondent | Answerer = no_answer, **kw: Any
     ) -> list[RespondentRun]:
+        """``n`` respondents in turn. Keyword arguments go to ``respondent``.
+
+        A fixed ``seed=`` here would give every respondent the same random stream;
+        strict runs reject it (seed the ``Simulator`` instead).
+        """
+        if self.policy.strict and kw.get("seed") is not None:
+            raise ValueError(
+                "run(n, seed=...) reuses one seed for every respondent, so they are not "
+                "independent draws; seed the Simulator instead (Simulator(survey, seed=...)), "
+                "or pass strict=False"
+            )
         return [self.respondent(answerer, **kw) for _ in range(n)]
+
+    def _quota_status(self, state: RespondentState) -> None:
+        """Which quotas are full, from the responses recorded so far."""
+        state.quotas_met = {
+            q.id for q in self.survey.quotas
+            if q.limit is not None and self.quota_counts.get(q.id, 0) >= q.limit
+        }
 
 
 @dataclass
@@ -610,6 +834,8 @@ class _Walk:
         # shifts the main stream's assignments and orders
         self.pipe_rng = random.Random(f"{run.seed}:pipes")
         self.trace: list[Observation] = []
+        #: the trace as respondents are given it: no block ids (see ``_public``)
+        self.public: list[Observation] = []
         self.audit: list[AuditEvent] = []
         self.page = 0  # global page number; 0 until the first page renders
         self.seq = 0
@@ -625,8 +851,29 @@ class _Walk:
             self.audit.append(EmbeddedSet(name, value, "respondent"))
 
     def _approximated(self, approx: Approximation) -> None:
+        """The state's hook: the policy decides (raising in a strict run), then the
+        approximation, and any ``Allowed``, is audited once per respondent."""
+        allowed = self.sim.policy.handle(approx)
         if approx not in self.state.approximations:
             self.audit.append(approx)
+        if allowed is not None and allowed not in self.audit:
+            self.audit.append(allowed)
+
+    def approximate(self, code: str, location: str, detail: str | None = None,
+                    affects: Affects | None = None) -> None:
+        """Record ``code`` at ``location``, with its registered ``affects`` and meaning
+        unless given (``execution.APPROXIMATIONS``)."""
+        default, meaning = APPROXIMATIONS[code]
+        self.state.approximate(code, location, affects or default, detail or meaning)
+
+    def set_embedded(self, name: str, value: Any, source: str) -> None:
+        self.state.set_embedded(name, value)
+        self.audit.append(EmbeddedSet(name, value, source))
+
+    def observe(self, ob: Observation) -> None:
+        """Append to the trace, and to what respondents are shown of it."""
+        self.trace.append(ob)
+        self.public.append(_public(ob))
 
     @property
     def loop_id(self) -> str | None:
@@ -639,7 +886,7 @@ class _Walk:
         finished: bool,
         flow_id: str | None = None,
     ) -> None:
-        self.trace.append(End(reason, finished, flow_id))
+        self.observe(End(reason, finished, flow_id))
 
     # ---------------------------------------------------------------- flow
 
@@ -652,25 +899,24 @@ class _Walk:
         if isinstance(node, BlockNode):
             block = self.survey.blocks.get(node.block_id)
             if block is None:
-                state.approximate("flow.missing_block", node.id, "exposure",
-                                  f"flow references missing block {node.block_id}")
+                self.approximate("flow.missing_block", node.block_id,
+                                 f"flow element {node.id} references block {node.block_id}, "
+                                 "which is not in the file; skipped")
                 return
             self.block(block)
         elif isinstance(node, EmbeddedDataNode):
             for f in node.fields:
                 if f.source == "custom" and f.value is not None:
-                    value = render(f.value, state, self.survey, self.rng)  # rand:// assigns
-                    state.embedded[f.name] = value
-                    self.audit.append(EmbeddedSet(f.name, value, node.id))
+                    value = render(f.value, state, self.survey, self.rng,  # rand:// assigns
+                                   self.sim._field_affects(f.name))
+                    self.set_embedded(f.name, value, node.id)
                 elif f.name not in state.embedded:
+                    # a panel / recipient / URL field nobody supplied: empty, and
+                    # ``embedded.unset`` is recorded if logic or text reads it
                     state.embedded[f.name] = ""
-                    state.approximate("embedded.unset", f.name, "assignment",
-                                      f"embedded field {f.name} ({f.source}) not supplied; "
-                                      "left empty")
         elif isinstance(node, BranchNode):
             if node.condition is None:
-                state.approximate("branch.no_condition", node.id, "routing",
-                                  f"branch {node.id} has no readable condition; skipped")
+                self.approximate("branch.no_condition", node.id)
             else:
                 result = evaluate(node.condition, state, self.survey)
                 self.audit.append(BranchEval(node.id, result))
@@ -678,7 +924,10 @@ class _Walk:
                     self.nodes(node.children)
         elif isinstance(node, RandomizerNode):
             self.randomizer(node)
-        elif isinstance(node, (GroupNode, AuthenticatorNode, TableOfContentsNode)):
+        elif isinstance(node, AuthenticatorNode):
+            self.approximate("flow.authenticator", node.id)
+            self.nodes(node.children)
+        elif isinstance(node, (GroupNode, TableOfContentsNode)):
             self.nodes(node.children)
         elif isinstance(node, EndSurveyNode):
             self.run.ended_by = node.id
@@ -687,20 +936,22 @@ class _Walk:
             self.end("end_survey", finished=self.run.finished, flow_id=node.id)
             raise _EndSurvey
         elif isinstance(node, WebServiceNode):
-            if self.sim.web_service is not None:
-                values = self.sim.web_service(node, state)
-                state.embedded.update(values)
-                self.audit += [EmbeddedSet(k, v, f"web_service:{node.id}")
-                               for k, v in values.items()]
+            service = self.sim.policy.implementation("web_service", node.id)
+            if service is not None:
+                for k, v in (service(node, state) or {}).items():
+                    self.set_embedded(k, v, f"web_service:{node.id}")
             else:
-                state.approximate("web_service", node.id, "assignment",
-                                  f"web service {node.id} not executed; fields left empty")
+                sets = ", ".join(node.sets_fields) or "no fields"
+                self.approximate("web_service", node.id,
+                                 f"web service {node.id} ({node.method or 'GET'} "
+                                 f"{node.url or ''}) not called; sets {sets}, left empty")
                 for name in node.sets_fields:
                     state.embedded.setdefault(name, "")
         elif isinstance(node, LibraryBlockNode):
-            state.approximate("library_block", node.id, "exposure",
-                              f"library block {node.reference_id} not in file; skipped")
+            self.approximate("library_block", node.id,
+                             f"library block {node.reference_id} is not in the file; skipped")
         elif isinstance(node, QuotaNode):
+            self.sim._quota_status(state)  # quota status as of now, not at respondent start
             for quota in self.survey.quotas:
                 if quota.id not in state.quotas_met:
                     continue
@@ -710,13 +961,16 @@ class _Walk:
                         self.run.finished = False
                         self.end("quota", finished=False, flow_id=node.id)
                         raise _EndSurvey
-                elif evaluate(quota.condition, state, self.survey):
-                    state.approximate("quota.action_ignored", quota.id, "routing",
-                                      f"quota {quota.id} is met; its action {quota.action!r} "
-                                      "is not simulated")
+                elif quota.action not in (None, "ForBranching") and evaluate(
+                    quota.condition, state, self.survey
+                ):
+                    self.approximate("quota.action_ignored", quota.id,
+                                     f"quota {quota.id} is met; its action {quota.action!r} "
+                                     "is not simulated")
         elif isinstance(node, UnsupportedNode):
-            state.approximate("flow.unsupported", node.id, "exposure",
-                              f"unsupported flow element {node.source_type} skipped")
+            self.approximate("flow.unsupported", node.id,
+                             f"unsupported flow element {node.source_type} skipped; "
+                             "its children are run")
             self.nodes(node.children)
 
     def randomizer(self, node: RandomizerNode) -> None:
@@ -798,9 +1052,14 @@ class _Walk:
             return None
         ids: list[str]
         if loop.source == "static" or not loop.question_id:
+            if loop.source != "static":
+                self.approximate("loop.unknown_mode", block.id,
+                                 f"loop over a missing question in {block.id}; looping over "
+                                 "its static fields")
             ids = sorted(loop.fields, key=lambda k: (not k.isdigit(), int(k) if k.isdigit() else 0))
         else:
-            ids = self._loop_ids_from_question(loop.question_id, loop.locator or "", loop.fields)
+            ids = self._loop_ids_from_question(
+                block.id, loop.question_id, loop.locator or "", loop.fields)
         ids, decision = self._arrange("loop", block.id, ids, loop.randomization, f"loop:{block.id}")
         if decision is not None:
             self.audit.append(decision)
@@ -809,7 +1068,9 @@ class _Walk:
             for n, i in enumerate(ids, start=1)
         ]
 
-    def _loop_ids_from_question(self, qid: str, locator: str, table: dict) -> list[str]:
+    def _loop_ids_from_question(
+        self, block_id: str, qid: str, locator: str, table: dict
+    ) -> list[str]:
         answer = self.state.answer(qid)
         value = answer.value if answer else None
         source = self.survey.questions.get(qid)
@@ -829,15 +1090,17 @@ class _Walk:
             return [i for i in all_ids if answer and answer.text.get(i)]
         if mode == "UnselectedChoices":
             return [i for i in all_ids if i not in selected]
+        if mode == "AllChoices":
+            return all_ids
         if mode == "DisplayedChoices":
             key = self.state.key(qid)
             if key not in self.state.displayed_choices:
-                self.state.approximate("loop.no_displayed_choices", qid, "exposure",
-                                       f"loop over displayed choices of {qid}, which was not "
-                                       "shown; looping over all choices")
+                self.approximate("loop.no_displayed_choices", block_id,
+                                 f"loop over displayed choices of {qid}, which was not "
+                                 "shown; looping over all choices")
             return self.state.displayed_choices.get(key, all_ids)
-        self.state.approximate("loop.unknown_mode", qid, "exposure",
-                               f"loop over {locator!r} not supported; looping over all choices")
+        self.approximate("loop.unknown_mode", block_id,
+                         f"loop over {locator!r} not supported; looping over all choices")
         return all_ids
 
     def block_once(self, block: Block) -> None:
@@ -958,7 +1221,7 @@ class _Walk:
     def _submit(self) -> None:
         if self.page_open:
             self.page_open = False
-            self.trace.append(PageSubmit(self.page))
+            self.observe(PageSubmit(self.page))
 
     # ---------------------------------------------------------------- questions
 
@@ -988,12 +1251,9 @@ class _Walk:
         )
         columns = list(q.columns) if isinstance(q, MatrixQuestion) else []
         col_r = getattr(q, "column_randomization", None)
-        if columns and col_r is not None and col_r.mode == "subset" and col_r.even_presentation:
-            audit.append(Approximation(
-                "columns.unbalanced", q.id, "assignment",
-                f"columns of {q.id} are presented evenly in Qualtrics; drawn at random here"))
-        col_ids, col_decision = self._arrange(
-            "columns", q.id, [a.id for a in columns], col_r, None, reverse=flipped and matrix
+        col_ids, col_decision = self._arrange(  # evenly presented subsets are balanced
+            "columns", q.id, [a.id for a in columns], col_r, f"columns:{q.id}",
+            reverse=flipped and matrix,
         )
         audit += [d for d in (decision, col_decision) if d is not None]
 
@@ -1026,7 +1286,7 @@ class _Walk:
             self.page += 1
             self.page_open = True
             loop = state.loop
-            self.trace.append(PageStart(
+            self.observe(PageStart(
                 self.page, block.id, loop.loop_id if loop else None,
                 loop.number if loop else None, loop.total if loop else None,
             ))
@@ -1042,19 +1302,21 @@ class _Walk:
             self.run.choice_order[key] = item.order
         if isinstance(q, MatrixQuestion) and q.columns:
             self.run.column_order[key] = item.col_ids
-        self.trace.append(item.display)
-        for event in item.audit:
-            if isinstance(event, Approximation):
-                state.approximate(event.code, event.location, event.affects, event.detail)
-            else:
-                self.audit.append(event)
+        self.observe(item.display)
+        self.audit += item.audit
         if isinstance(q, UnsupportedQuestion):
-            state.approximate("question.unsupported", q.id, "outcome",
-                              f"question {q.id} is an unsupported type; shown but not answered")
-        if q.javascript:
-            affects = "assignment" if _JS_ASSIGNS.search(q.javascript) else "exposure"
-            state.approximate("javascript", q.id, affects,
-                              f"question {q.id} has JavaScript, which is not run")
+            self.approximate("question.unsupported", q.id,
+                             f"question {q.id} is an unsupported type; shown but not answered")
+        script = self.sim.policy.implementation("javascript", q.id)
+        if script is not None:  # the caller's implementation runs as the question displays
+            for name, value in (script(state) or {}).items():
+                self.set_embedded(name, value, f"javascript:{q.id}")
+        elif (affects := javascript_affects(q.javascript)) is not None:
+            what = ("randomizes or sets embedded data" if affects == "assignment"
+                    else "may change what is shown")
+            self.approximate("javascript", q.id,
+                             f"question {q.id} has JavaScript, which is not run (it {what})",
+                             affects)
 
     def _answer(self, item: _Item, page: Sequence[_Item]) -> None:
         """Ask the respondent for ``item`` (never for text-only screens), and record it."""
@@ -1075,19 +1337,24 @@ class _Walk:
             value = self.legacy(view, state)
         else:
             assert self.respondent is not None
-            ctx = ResponseContext(
-                view=d,
-                page=tuple(i.display for i in page if i.shown),
-                history=tuple(self.trace),
+            ctx = ResponseContext(  # what the respondent perceived: no block ids
+                view=_public(d),
+                page=tuple(_public(i.display) for i in page if i.shown),
+                history=tuple(self.public),
                 respondent_index=self.run.index,
             )
             value = self.respondent.answer(ctx)
         if value is None:
             return
         answer = value if isinstance(value, Answer) else Answer(value=value)
+        errors = validation_errors(d, answer.value)
+        if errors:
+            self.approximate("answer.invalid", d.qid,
+                             f"answer to {d.qid} violates its validation ({'; '.join(errors)}); "
+                             "Qualtrics would not have accepted it")
         state.answers[item.key] = answer
-        self.trace.append(Response(d.page, d.seq, d.qid, d.loop_id, answer.value,
-                                   dict(answer.text)))
+        self.observe(Response(d.page, d.seq, d.qid, d.loop_id, answer.value,
+                              dict(answer.text)))
 
     def _items(self, q: Question) -> tuple[list[Choice], dict[str, tuple[str, str]]]:
         """Options in source order, and {carried choice id: (source qid, source id)}."""
@@ -1103,7 +1370,7 @@ class _Walk:
             cf = getattr(q, "carry_forward", None)
             if cf is not None:
                 ids = {b.id for b in base}
-                extra = [c for c in self._carried(cf) if c.id not in ids]
+                extra = [c for c in self._carried(q, cf) if c.id not in ids]
                 return base + extra, {c.id: (cf.question_id, c.id[1:]) for c in extra}
             return base, {}
         if isinstance(q, (SliderQuestion, ConstantSumQuestion, RankOrderQuestion)):
@@ -1120,12 +1387,17 @@ class _Walk:
             return [], {}
         return [], {}
 
-    def _carried(self, cf: Any) -> list[Choice]:
+    def _carried(self, q: Question, cf: Any) -> list[Choice]:
         """Carry-forward choices (ids prefixed with "x", as Qualtrics does)."""
         state = self.state
+        if cf.source == "reference_list":
+            self.approximate("carry_forward.reference", q.id,
+                             f"{q.id} carries forward from reference list "
+                             f"{cf.list_id or cf.raw}; nothing carried")
+            return []
         if cf.source != "question" or not cf.question_id:
-            state.approximate("carry_forward.reference", cf.raw, "exposure",
-                              f"carry forward from {cf.raw} not supported")
+            self.approximate("carry_forward.unsupported_mode", q.id,
+                             f"{q.id} carries forward from {cf.raw}; nothing carried")
             return []
         source = self.survey.questions.get(cf.question_id)
         items = list(
@@ -1151,8 +1423,11 @@ class _Walk:
             keep = [c for c in items if c.id not in shown]
         elif mode in ("SelectedChoicesTextEntry", "EnteredChoicesTextEntry"):
             keep = [c for c in items if answer and answer.text.get(c.id)]
+        elif mode == "AllChoices":
+            keep = items
         else:
-            state.approximate("carry_forward.unsupported_mode", cf.question_id, "exposure",
-                              f"carry forward mode {mode!r} not supported; carrying all choices")
+            self.approximate("carry_forward.unsupported_mode", q.id,
+                             f"{q.id} carries forward {mode!r} from {cf.question_id}, which is "
+                             "not supported; carrying all choices")
             keep = items
         return [c.model_copy(update={"id": f"x{c.id}", "display_logic": None}) for c in keep]

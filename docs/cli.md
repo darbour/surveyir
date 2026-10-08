@@ -118,6 +118,37 @@ Nominal shares are k/n, ignoring branches; not exposure probabilities, nor condi
 `--json` writes the full design (factors, arms, assignments, order randomization,
 random values, and anything not reproducible).
 
+## `check`: what can be administered exactly
+
+```console
+$ surveyir check tests/fixtures/qualtrics/promiscuous_donors.qsf --strict
+[Promiscuous Donors] 2025.3.31 Digital Twins: 1 needs implementation, 1 preserved only, 6 executable
+
+Needs implementation:
+  question_javascript at QID481 (assignment) [javascript]: question JavaScript randomizes or sets embedded data
+
+Preserved only:
+  conjoint at conjoint 1 (none): diy_js design metadata (high confidence); its randomization runs only as listed above
+
+Executable:
+  branch x1: FL_163
+  end_survey x2: FL_162, FL_45
+  display_logic x3: QID591, QID592, QID593
+
+Blocking under strict execution (1):
+  javascript at QID481 (assignment): question JavaScript randomizes or sets embedded data
+    resolve: implementations={'javascript': {'QID481': ...}} or allow javascript:QID481 or allow javascript
+
+Or run permissively (--permissive / strict=False); gaps are then recorded.
+```
+
+`check` lists every feature that matters for administering the survey, with its
+status: executable, needs an implementation (JavaScript, web services, panel
+fields, location), approximated, or preserved only. With `--strict` it exits 1
+if anything would stop a strict simulation, and says how to resolve each gap;
+`--allow CODE[:LOCATION]` accepts one, as in `simulate`. `--json` gives the
+report as JSON.
+
 ## `simulate`: random respondents as a CSV
 
 ```console
@@ -130,8 +161,13 @@ StartDate,EndDate,Status,IPAddress,Progress,Duration (in seconds),Finished,Recor
 
 The columns match a real Qualtrics export (with metadata). Answers are random,
 except that free-text answers satisfy the survey's own text screeners
-(`ScreenerAwareAnswerer`). Choice screeners still apply, so the second respondent
-here declined consent and was screened out.
+(`ScreenerAwareAnswerer`) and every answer meets the question's validation. Choice
+screeners still apply, so the second respondent here declined consent and was
+screened out.
+
+`simulate` is strict: on a survey with gaps (see `check`) it stops at the first
+one, prints why, and exits 1. Pass `--allow CODE[:LOCATION]` (repeatable) to
+accept a gap, or `--permissive` to record every gap and carry on.
 To simulate real people or LLM personas, use the Python API
 ([Simulating respondents](guide/simulation.md)).
 

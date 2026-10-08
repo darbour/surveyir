@@ -1,0 +1,67 @@
+{
+  "case": "f_in_page",
+  "spec": "Block BL_1, page 1: QID1 (Yes/No), QID2 with in-page display logic 'QID1 = No' and skip logic 'if QID2 = Yes, skip to end of block', QID3. Page 2 of BL_1: QID4. Then block BL_2: QID5. Questions are answered in page order; QID2 is revealed on page 1 right after QID1 is answered No; the skip acts when page 1 is submitted.",
+  "runs": [
+    {
+      "name": "revealed, then skip at submit",
+      "answers": {"QID1": "2", "QID2": "1", "QID3": "1", "QID5": "2"},
+      "trace": [
+        {"type": "page_start", "page": 1, "block": "BL_1"},
+        {"type": "display", "qid": "QID1", "kind": "choice", "text": "Do you exercise?", "choices": [["1", "Yes"], ["2", "No"]]},
+        {"type": "display", "qid": "QID3", "kind": "choice", "text": "Do you sleep well?", "choices": [["1", "Yes"], ["2", "No"]]},
+        {"type": "response", "qid": "QID1", "value": "2"},
+        {"type": "display", "qid": "QID2", "kind": "choice", "text": "Would you like tips on starting?", "choices": [["1", "Yes"], ["2", "No"]], "revealed": true},
+        {"type": "response", "qid": "QID2", "value": "1"},
+        {"type": "response", "qid": "QID3", "value": "1"},
+        {"type": "submit", "page": 1},
+        {"type": "page_start", "page": 2, "block": "BL_2"},
+        {"type": "display", "qid": "QID5", "kind": "choice", "text": "Any last thoughts?", "choices": [["1", "Yes"], ["2", "No"]]},
+        {"type": "response", "qid": "QID5", "value": "2"},
+        {"type": "submit", "page": 2},
+        {"type": "end", "reason": "flow_end", "finished": true}
+      ],
+      "not_displayed": ["QID4"],
+      "history_at_response": {
+        "QID1": ["QID1", "QID3"],
+        "QID2": ["QID1", "QID3", "QID2"],
+        "QID3": ["QID1", "QID3", "QID2"],
+        "QID5": ["QID1", "QID3", "QID2", "QID5"]
+      },
+      "page_at_response": {
+        "QID1": ["QID1", "QID3"],
+        "QID2": ["QID1", "QID2", "QID3"],
+        "QID3": ["QID1", "QID2", "QID3"]
+      },
+      "skips": [["QID2", "end_of_block"]]
+    },
+    {
+      "name": "not revealed, no skip",
+      "answers": {"QID1": "1", "QID3": "2", "QID4": "1", "QID5": "1"},
+      "trace": [
+        {"type": "page_start", "page": 1, "block": "BL_1"},
+        {"type": "display", "qid": "QID1", "kind": "choice", "text": "Do you exercise?", "choices": [["1", "Yes"], ["2", "No"]]},
+        {"type": "display", "qid": "QID3", "kind": "choice", "text": "Do you sleep well?", "choices": [["1", "Yes"], ["2", "No"]]},
+        {"type": "response", "qid": "QID1", "value": "1"},
+        {"type": "response", "qid": "QID3", "value": "2"},
+        {"type": "submit", "page": 1},
+        {"type": "page_start", "page": 2, "block": "BL_1"},
+        {"type": "display", "qid": "QID4", "kind": "choice", "text": "How many days a week?", "choices": [["1", "Yes"], ["2", "No"]]},
+        {"type": "response", "qid": "QID4", "value": "1"},
+        {"type": "submit", "page": 2},
+        {"type": "page_start", "page": 3, "block": "BL_2"},
+        {"type": "display", "qid": "QID5", "kind": "choice", "text": "Any last thoughts?", "choices": [["1", "Yes"], ["2", "No"]]},
+        {"type": "response", "qid": "QID5", "value": "1"},
+        {"type": "submit", "page": 3},
+        {"type": "end", "reason": "flow_end", "finished": true}
+      ],
+      "not_displayed": ["QID2"],
+      "history_at_response": {
+        "QID1": ["QID1", "QID3"],
+        "QID3": ["QID1", "QID3"],
+        "QID4": ["QID1", "QID3", "QID4"],
+        "QID5": ["QID1", "QID3", "QID4", "QID5"]
+      },
+      "skips": []
+    }
+  ]
+}

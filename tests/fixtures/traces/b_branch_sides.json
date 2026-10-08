@@ -1,0 +1,42 @@
+{
+  "case": "b_branch_sides",
+  "spec": "Block BL_1 asks the screener QID1 (Do you own a car? 1=Yes, 2=No). Branch FL_3 (QID1 = Yes) shows BL_X (QID2); branch FL_5 (QID1 = No) shows BL_Y (QID3). Each block is one page.",
+  "runs": [
+    {
+      "name": "screener yes -> BL_X",
+      "answers": {"QID1": "1", "QID2": "2"},
+      "trace": [
+        {"type": "page_start", "page": 1, "block": "BL_1"},
+        {"type": "display", "qid": "QID1", "kind": "choice", "text": "Do you own a car?", "choices": [["1", "Yes"], ["2", "No"]]},
+        {"type": "response", "qid": "QID1", "value": "1"},
+        {"type": "submit", "page": 1},
+        {"type": "page_start", "page": 2, "block": "BL_X"},
+        {"type": "display", "qid": "QID2", "kind": "choice", "text": "How often do you drive?", "choices": [["1", "Daily"], ["2", "Weekly"]]},
+        {"type": "response", "qid": "QID2", "value": "2"},
+        {"type": "submit", "page": 2},
+        {"type": "end", "reason": "flow_end", "finished": true}
+      ],
+      "not_displayed": ["QID3"],
+      "history_at_response": {"QID1": ["QID1"], "QID2": ["QID1", "QID2"]},
+      "branches": [["FL_3", true], ["FL_5", false]]
+    },
+    {
+      "name": "screener no -> BL_Y",
+      "answers": {"QID1": "2", "QID3": "1"},
+      "trace": [
+        {"type": "page_start", "page": 1, "block": "BL_1"},
+        {"type": "display", "qid": "QID1", "kind": "choice", "text": "Do you own a car?", "choices": [["1", "Yes"], ["2", "No"]]},
+        {"type": "response", "qid": "QID1", "value": "2"},
+        {"type": "submit", "page": 1},
+        {"type": "page_start", "page": 2, "block": "BL_Y"},
+        {"type": "display", "qid": "QID3", "kind": "choice", "text": "How do you commute?", "choices": [["1", "Bus"], ["2", "Bicycle"]]},
+        {"type": "response", "qid": "QID3", "value": "1"},
+        {"type": "submit", "page": 2},
+        {"type": "end", "reason": "flow_end", "finished": true}
+      ],
+      "not_displayed": ["QID2"],
+      "history_at_response": {"QID1": ["QID1"], "QID3": ["QID1", "QID3"]},
+      "branches": [["FL_3", false], ["FL_5", true]]
+    }
+  ]
+}

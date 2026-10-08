@@ -1,4 +1,14 @@
-"""Resolve piped text (``${...}``) against a respondent's state."""
+"""Resolve piped text (``${...}``) against a respondent's state.
+
+References the runtime cannot reproduce exactly are recorded as approximations
+(``pipe.*`` codes, located at the reference path; see ``runtime.execution``):
+a location reference with no supplied location (``pipe.loc``), a date
+(``pipe.date``: rendered as today's ISO date), a random reference other than
+``rand://int`` and any other unsupported scheme. Reading a panel, recipient or
+URL field that was never supplied records ``embedded.unset``. ``affects`` says
+what the rendered text feeds: ``"exposure"`` for displayed text; for the value
+of an embedded-data field, what reading that field affects.
+"""
 
 from __future__ import annotations
 
@@ -9,6 +19,7 @@ from datetime import date
 from ..model import Pipe, Survey, Text
 from ..model.text import PIPE_PATTERN
 from .state import RespondentState
+from .trace import Affects
 
 
 def _choice_label(survey: Survey | None, question_id: str, choice_id: str) -> str:
@@ -21,11 +32,15 @@ def _choice_label(survey: Survey | None, question_id: str, choice_id: str) -> st
 
 
 def resolve_pipe(
-    pipe: Pipe, state: RespondentState, survey: Survey | None, rng: random.Random
+    pipe: Pipe,
+    state: RespondentState,
+    survey: Survey | None,
+    rng: random.Random,
+    affects: Affects = "exposure",
 ) -> str | None:
     """The value of one reference, or None if it cannot be resolved."""
     if pipe.kind == "embedded_data":
-        return state.embedded.get(pipe.name or "", "")
+        return state.read_embedded(pipe.name or "", affects)
     if pipe.kind == "loop_merge":
         loop = state.loop
         if loop is None:
@@ -40,11 +55,19 @@ def resolve_pipe(
         if m:
             lo, hi = sorted((int(m.group(1)), int(m.group(2))))
             return str(rng.randint(lo, hi))
-        state.note(f"random reference {pipe.raw} not supported")
+        state.approximate("pipe.random_unsupported", pipe.path, affects,
+                          f"random reference {pipe.raw} not supported; left as written")
         return None
     if pipe.scheme == "loc":
-        return state.location.get(pipe.path, "")
+        if pipe.path in state.location:
+            return state.location[pipe.path]
+        state.approximate("pipe.loc", pipe.path, affects,
+                          f"location reference {pipe.raw} with no supplied location; "
+                          "rendered empty")
+        return ""
     if pipe.kind == "date":
+        state.approximate("pipe.date", pipe.path, affects,
+                          f"date reference {pipe.raw} rendered as today's ISO date")
         return date.today().isoformat()
     if pipe.kind == "question" and pipe.question_id:
         answer = state.answer(pipe.question_id, pipe.loop_iteration)
@@ -65,7 +88,8 @@ def resolve_pipe(
         if isinstance(value, (str, int, float)):
             return _choice_label(survey, pipe.question_id, str(value))
         return ""
-    state.note(f"piped reference {pipe.raw} not supported")
+    state.approximate("pipe.unsupported", pipe.path, affects,
+                      f"piped reference {pipe.raw} not supported; left as written")
     return None
 
 
@@ -74,10 +98,11 @@ def render(
     state: RespondentState,
     survey: Survey | None = None,
     rng: random.Random | None = None,
+    affects: Affects = "exposure",
 ) -> str:
     """``text`` with every resolvable reference filled in."""
     rng = rng or random.Random()
-    return text.render(lambda p: resolve_pipe(p, state, survey, rng))
+    return text.render(lambda p: resolve_pipe(p, state, survey, rng, affects))
 
 
 def render_display(

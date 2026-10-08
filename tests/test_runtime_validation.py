@@ -37,13 +37,28 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = json.loads((ROOT / "tests" / "fixtures" / "validation" / "twin.json").read_text())
 STUDIES = sorted(DATA)
 
+#: question JavaScript these studies run and the simulator does not (``surveyir check``).
+#: The checks below compare flow randomizers, block question order and logic replayed
+#: on real responses, none of which the scripts drive: they change what is shown
+#: (exposure), or randomize into embedded data (promiscuous_donors' conjoint profiles,
+#: recommendation_algorithms' platform pick and screen-out field), which the replay
+#: reads from the real responses instead.
+ALLOW: dict[str, set[str]] = {
+    "context_effects": {"javascript:QID631"},
+    "default_eric": {"javascript:QID631"},
+    "idea_evaluation": {f"javascript:{q}" for q in ("QID4", "QID9", "QID15", "QID19")},
+    "promiscuous_donors": {"javascript:QID481"},
+    "recommendation_algorithms": {"javascript:QID7"},
+}
+
 
 @pytest.fixture(scope="module")
 def simulations() -> dict:
     out = {}
     for study in STUDIES:
         survey = load_qsf(ROOT / "tests" / "fixtures" / "qualtrics" / f"{study}.qsf")
-        out[study] = Simulator(survey, seed=7).run(2000, ScreenerAwareAnswerer(survey, seed=9))
+        sim = Simulator(survey, seed=7, allow=ALLOW.get(study, ()))
+        out[study] = sim.run(2000, ScreenerAwareAnswerer(survey, seed=9))
     return out
 
 

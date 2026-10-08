@@ -103,14 +103,24 @@ In practice this means three things:
   loops and piped text are executed by the walker, not left to a model.
 - Each run records what was displayed, in what order, and under which assignment.
 - What the walker cannot execute (JavaScript, web services, unevaluable
-  conditions) is reported, not silently approximated.
+  conditions) is recorded as a structured approximation, and strict execution
+  (the default) stops the run there instead of approximating.
 
 What has been shown so far is limited:
 
-- Simulated randomizer frequencies match real Qualtrics exports.
-- Logic predictions are consistent with observed responses in 19 Twin-2K-500
-  studies (see `scripts/validate_runtime.py`). These are consistency checks
-  against final recorded data, not a replay of each respondent's session.
+- On small synthetic instruments, the respondent-visible trace matches a
+  hand-written specification exactly, including what must not be displayed and
+  the history available at each response (`tests/test_exact_traces.py`).
+- Simulated randomizer frequencies match real Qualtrics exports in 19
+  Twin-2K-500 studies.
+- Logic predictions are consistent with observed responses in the 3 studies
+  with display logic and the 4 with branches (see `scripts/validate_runtime.py`).
+  These are one-sided consistency checks against final recorded data, not a
+  replay of each respondent's session: they can reveal a contradiction, but
+  not show that a respondent saw what the runtime would show.
+
+None of this bears on whether simulated *answers* resemble human ones. That is
+a separate, empirical question about the respondent model.
 
 What remains to show is the end-to-end study. It would take an instrument with
 a text-vignette treatment and a human benchmark, run it through the execution

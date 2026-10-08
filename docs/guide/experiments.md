@@ -43,9 +43,11 @@ Nominal shares are k/n, ignoring branches; not exposure probabilities, nor condi
 Reading the summary:
 
 - **Factors.** Each line `FL_…` is a flow randomizer. "exposure contrast, 1 of 2"
-  means each respondent sees one of two arms, and not the other. "order
-  contrast, 4 of 4" would mean everyone sees every arm, in random order: arms
-  then differ only in their position.
+  means each respondent gets one of two arms, and not the other. "order
+  contrast, 4 of 4" would mean every arm is run for everyone, in random order:
+  arms then differ only in their position. What a respondent is *shown* also
+  depends on what the arms display and on later branches (see
+  [below](#a-recorded-field-is-not-an-exposure)).
 - **Assignments.** An arm lists the embedded-data values it sets, which is usually
   how the condition is recorded in the data (`s_1='control'`).
 - **Nominal shares.** "nominal share 0.5" is k/n: the share of respondents
@@ -128,33 +130,80 @@ javascript QID38 - question JavaScript sets embedded data
 javascript QID9 - question JavaScript sets embedded data
 ```
 
-The simulator records a note when a respondent reaches one of these. You can
-emulate a web service with a hook (see [Simulating respondents](simulation.md)).
+At run time these become structured approximations in the run's audit: code
+`"javascript"` when a displayed question has JavaScript that could change
+assignment or exposure (anything beyond comments and empty handlers), and
+`"web_service"` when an unimplemented web service is reached. Strict execution,
+the default, stops the run there with `ExecutionError`. To run anyway, supply
+the missing behaviour with `implementations=`, or accept the approximation
+explicitly with `allow=` (see [Simulating respondents](simulation.md)).
 
 ## A recorded field is not an exposure
 
-*Privacy* shows all six groups to every respondent, in random order. Each group
-sets the same field, `Group`, so the value that sticks is the last one shown.
-The real data confirms this: every respondent's exported `Group` equals the
-last arm in their display order.
+*Privacy* has six conditions, and its randomizer FL_4 runs all six arms for
+every respondent, in random order. The arms display nothing: each one only sets
+the field `Group`, so the value that sticks is the last one run. The real data
+confirms this: every respondent's exported `Group` equals the last arm in their
+display order. Branches after the randomizer then read `Group` and show one of
+six group blocks.
 
-That makes `Group` look like a 1-of-6 assignment, but it isn't one: everyone saw
-all six stimuli. Respondents who differ in `Group` differ in which stimulus came
-*last*, so the contrast is order, not exposure. `design()` reports such a factor
-as an order contrast with a recorded field. If the study intends a different
-contrast, declare it with `design(survey, annotations=...)`, and the summary
-shows your declaration next to what the structure implies.
+So three things that are easy to conflate differ here:
+
+- the **randomization node**: FL_4, which runs six field assignments in random
+  order;
+- the **recorded field**: `Group`, which holds the last arm run;
+- the **exposure**: the one group block a branch on `Group` shows.
+
+Because the arms display nothing, `design()` reports FL_4 as an **assignment**
+recorded in `Group`: a 1-of-6 assignment in effect, whose exposure is decided by
+later logic. Had each arm displayed its own block, the same structure would be
+an **order** contrast: every respondent would see all six stimuli, and `Group`
+would only record which came last. `design()` can tell the two apart from the
+structure, but not which later branches act on the field, so check a run's
+exposure history (below). If the study intends a different contrast, declare it
+with `design(survey, annotations=...)`, and the summary shows your declaration
+next to what the structure implies.
 
 ```python
-privacy = surveyir.design(surveyir.load_qsf("tests/fixtures/qualtrics/privacy.qsf"))
+privacy_survey = surveyir.load_qsf("tests/fixtures/qualtrics/privacy.qsf")
+privacy = surveyir.design(privacy_survey)
 print(privacy.summary().splitlines()[0])
 print(privacy.factors[0].contrast, privacy.factors[0].recorded_field)
 ```
 
 ```text
-FL_4: order contrast; field Group records the last arm shown (each value with nominal share 1/6), 6 of 6, evenly presented
-order ['Group']
+FL_4: assignment recorded in Group: the arms display nothing, the last one sets Group (each value with nominal share 1/6), and later logic on it decides what is shown, 6 of 6, evenly presented
+assignment ['Group']
 ```
+
+What a respondent was actually shown comes from a run. `exposures(run, survey)`
+derives the exposure history from the run's trace and audit: every screen
+displayed, in order, and which randomizer arms each came from. It deliberately
+leaves out the recorded fields, so the two can be compared:
+
+```python
+from surveyir.runtime.design import exposures
+
+panel = {"PROLIFIC_PID": "p1", "STUDY_ID": "s1", "SESSION_ID": "x1"}  # panel fields
+sim = surveyir.Simulator(privacy_survey, seed=1)
+run = sim.respondent(surveyir.RandomAnswerer(seed=2), embedded=panel)
+history = exposures(run, privacy_survey)
+fl4 = history.factor("FL_4")
+print("arms run, in order:", fl4.arms_shown_in_order)
+print("screens shown inside them:", sum(len(a.displays) for a in fl4.arms))
+print("recorded Group:", run.embedded["Group"])
+print("blocks shown:", [privacy_survey.blocks[b].description for b, _ in history.blocks])
+```
+
+```text
+arms run, in order: ('FL_34', 'FL_28', 'FL_32', 'FL_31', 'FL_29', 'FL_30')
+screens shown inside them: 0
+recorded Group: PSA
+blocks shown: ['Introduction', 'Privacy Sandbox - A', 'Finish-1']
+```
+
+The randomizer ran all six arms, `Group` holds the last one, and the respondent
+saw exactly one condition block: the one the branch on `Group` selected.
 
 ## Random values
 

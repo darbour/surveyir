@@ -20,7 +20,7 @@ branch.no_condition
 flow.missing_block              the missing block id
 question.unsupported,           question id
 javascript, columns.unbalanced,
-carry_forward.*
+carry_forward.*, answer.invalid
 embedded.unset                  embedded-data field name
 loop.*                          block id
 quota.action_ignored,           quota id
@@ -67,6 +67,8 @@ APPROXIMATIONS: dict[str, tuple[Affects, str]] = {
     "quota.snapshot": ("routing", "quota status taken at respondent start, not updated mid-walk"),
     # questions
     "question.unsupported": ("outcome", "unsupported question type: shown but not answered"),
+    "answer.invalid": ("outcome", "answer violates the question's validation, which Qualtrics "
+                       "would not have accepted; recorded as given"),
     "javascript": ("exposure", "question JavaScript not run"),
     "columns.unbalanced": ("exposure", "evenly presented column subset drawn without balancing"),
     "loop.unknown_mode": ("exposure", "loop source mode not handled; looped over every choice"),
@@ -144,7 +146,13 @@ def approximation(code: str, location: str, detail: str | None = None,
 
 
 class ExecutionError(RuntimeError):
-    """A strict run reached something it cannot administer exactly."""
+    """A strict run reached something it cannot administer exactly.
+
+    ``approximation`` is the gap; ``run`` the respondent's partial run (its trace
+    and audit up to the gap) when raised by ``Simulator``.
+    """
+
+    run: Any = None
 
     def __init__(self, approximation: Approximation) -> None:
         self.approximation = a = approximation

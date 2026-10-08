@@ -175,35 +175,15 @@ def cmd_check(args: argparse.Namespace) -> int:
     return 1 if blocking else 0
 
 
-def _simulator_execution(args: argparse.Namespace, simulator: Any) -> dict[str, Any]:
-    """Keyword arguments that apply ``args.policy`` to ``simulator``, if it supports them."""
-    import inspect
-
-    params = inspect.signature(simulator).parameters
-    policy = args.policy
-    if "policy" in params:
-        return {"policy": policy}
-    if "strict" in params:
-        kw: dict[str, Any] = {"strict": policy.strict}
-        if "allow" in params:
-            kw["allow"] = set(policy.allow)
-        return kw
-    if args.strict or args.allow:
-        raise NotImplementedError(
-            "strict execution is not available from Simulator yet; omit --strict/--allow"
-        )
-    return {}
-
-
 def cmd_simulate(args: argparse.Namespace) -> int:
     import csv
 
     from .columns import ColumnOptions, response_columns
-    from .runtime import ScreenerAwareAnswerer, Simulator
+    from .runtime import ExecutionError, ScreenerAwareAnswerer, Simulator
 
     survey = load(args.input, format=args.source_format)
     options = ColumnOptions(include_metadata=True)
-    sim = Simulator(survey, seed=args.seed, **_simulator_execution(args, Simulator))
+    sim = Simulator(survey, seed=args.seed, policy=args.policy)
     answerer = ScreenerAwareAnswerer(survey, seed=args.seed)
     names = [c.name for c in response_columns(survey, options=options)]
 
@@ -213,11 +193,16 @@ def cmd_simulate(args: argparse.Namespace) -> int:
         for _ in range(args.n):
             writer.writerow([v for _, v in sim.respondent(answerer).cells(survey, options)])
 
-    if args.output:
-        with open(args.output, "w", newline="", encoding="utf-8") as f:
-            write(f)
-    else:
-        write(sys.stdout)
+    try:
+        if args.output:
+            with open(args.output, "w", newline="", encoding="utf-8") as f:
+                write(f)
+        else:
+            write(sys.stdout)
+    except ExecutionError as e:
+        print(f"surveyir: {e}", file=sys.stderr)
+        print("See `surveyir check --strict` for every gap in the survey.", file=sys.stderr)
+        return 1
     return 0
 
 
@@ -274,7 +259,8 @@ def main(argv: list[str] | None = None) -> int:
 
     p = sub.add_parser(
         "simulate",
-        help="Simulate respondents with random answers; writes a Qualtrics-style CSV.",
+        help="Simulate respondents with random answers; writes a Qualtrics-style CSV. "
+        "Strict by default: stops (exit 1) at anything it cannot administer exactly.",
     )
     p.add_argument("input")
     p.add_argument("-n", type=int, default=100, help="Number of respondents.")

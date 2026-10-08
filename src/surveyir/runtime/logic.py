@@ -17,6 +17,8 @@ real response data (branch replay in tests/test_runtime_validation.py):
   ``runtime.execution.APPROXIMATIONS``). So are invalid regular expressions and
   ordering comparisons against a value that is present but not a number. In a
   strict run the state's ``on_approximation`` hook raises instead.
+* Reading a panel, recipient or URL field that was declared but never supplied
+  records ``embedded.unset`` (affecting routing); the value is read as empty.
 """
 
 from __future__ import annotations
@@ -101,7 +103,7 @@ def _operand_value(c: Comparison, state: RespondentState, survey: Survey | None)
     """The operand's value; ``None`` if unanswered, ``UNKNOWN`` if it cannot be known."""
     left = c.left
     if left.kind == "embedded_data":
-        return state.embedded.get(left.name or "", "")
+        return state.read_embedded(left.name or "", "routing")
     if left.kind == "loop_field":
         if state.loop is None:
             return ""

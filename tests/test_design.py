@@ -178,18 +178,34 @@ def test_cells_limit():
     assert len(cells) == 5 and not complete
 
 
-def test_last_shown_factor_is_an_order_contrast_with_a_recorded_field():
+def test_last_shown_factor_whose_arms_display_nothing_is_an_assignment():
+    """Privacy's design: the arms only set Group; later branches on Group show one block."""
     (f,) = design(last_shown_survey()).factors
     assert (f.k, f.n) == (2, 2)
-    assert f.contrast == "order"
+    assert f.contrast == "assignment"
     assert f.recorded_field == f.last_shown_assigns == ["Group"]
     assert f.between_subjects  # kept for doublecast: the recorded field is 1-of-n
     assert [a.nominal_share for a in f.arms] == [1.0, 1.0]
     first = design(last_shown_survey()).summary().splitlines()[0]
     assert first == (
-        "FL_2: order contrast; field Group records the last arm shown "
-        "(each value with nominal share 1/2), 2 of 2, evenly presented"
+        "FL_2: assignment recorded in Group: the arms display nothing, the last one sets Group "
+        "(each value with nominal share 1/2), and later logic on it decides what is shown, "
+        "2 of 2, evenly presented"
     )
+
+
+def test_last_shown_factor_whose_arms_display_blocks_is_an_order_contrast():
+    """Every respondent sees both stimuli; Group only records which came last."""
+    def arm(flow_id: str, value: str) -> dict:
+        return {"Type": "Group", "FlowID": flow_id, "Description": value, "Flow": [
+            setter(f"{flow_id}a", "Group", value),
+            {"Type": "Block", "ID": "BL_1", "FlowID": f"{flow_id}b"}]}
+
+    flow = [randomizer("FL_2", [arm("FL_3", "A"), arm("FL_4", "B")], subset=2)]
+    (f,) = design(load_qsf(minimal_qsf([mc()], flow=flow))).factors
+    assert f.contrast == "order" and f.recorded_field == ["Group"]
+    assert "order contrast; field Group records the last arm shown" in design(
+        load_qsf(minimal_qsf([mc()], flow=flow))).summary()
 
 
 def test_pure_order_factor_and_exposure_factor():

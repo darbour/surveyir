@@ -210,22 +210,37 @@ class _Inventory:
         self.blocks = [survey.blocks[b] for b in used if b in survey.blocks]
         self.questions = list({q.id: q for b in used for q in survey.block_questions(b)}.values())
         self.logic_reads: set[str] = set()  # embedded fields read by conditions
-        self.pipe_reads: set[str] = set()  # embedded fields piped into text
+        #: embedded field -> where it is piped: question ids, "embedded:<field>"
+        self.pipe_reads: dict[str, set[str]] = {}
         for cond, _, _ in self.conditions():
             for c in iter_comparisons(cond):
                 if c.left.kind == "embedded_data" and c.left.name:
                     self.logic_reads.add(c.left.name)
-        for _, pipe in self.pipes():
+        for where, pipe in self.pipes():
             if pipe.kind == "embedded_data" and pipe.name:
-                self.pipe_reads.add(pipe.name)
+                self.pipe_reads.setdefault(pipe.name, set()).add(where)
 
     def add(self, feature: Feature) -> None:
         self.rows.append(feature)
 
-    def field_affects(self, name: str) -> Affects:
+    def field_affects(self, name: str, _seen: frozenset[str] = frozenset()) -> Affects:
+        """What reading embedded field ``name`` can change: ``"routing"`` if logic
+        reads it, ``"exposure"`` if it is piped into question text, else what the
+        fields it is piped into affect (``"none"`` if nothing reads it)."""
         if name in self.logic_reads:
             return "routing"
-        return "exposure" if name in self.pipe_reads else "none"
+        out: Affects = "none"
+        for where in self.pipe_reads.get(name, ()):
+            target = where.removeprefix("embedded:")
+            if target == where:
+                out = "exposure"
+            elif target not in _seen:
+                affects = self.field_affects(target, _seen | {name})
+                if affects == "routing":
+                    return "routing"
+                if affects == "exposure":
+                    out = "exposure"
+        return out
 
     # ---------------------------------------------------------------- sources
 
@@ -358,28 +373,13 @@ class _Inventory:
 
     def embedded(self) -> None:
         """Panel / recipient / URL fields that logic or text read."""
-        set_elsewhere = {
-            name for node in self.survey.walk_flow() if isinstance(node, WebServiceNode)
-            for name in node.sets_fields
-        }
-        scripts = " ".join(q.javascript or "" for q in self.questions)
-        seen: set[str] = set()
-        for node in self.survey.walk_flow():
-            if not isinstance(node, EmbeddedDataNode):
+        for name, (source, node_id) in external_fields(self.survey).items():
+            affects = self.field_affects(name)
+            if affects == "none":
                 continue
-            for f in node.fields:
-                external = f.source != "custom" or f.value is None
-                if not external or f.name in seen or f.name in set_elsewhere:
-                    continue
-                if f"'{f.name}'" in scripts or f'"{f.name}"' in scripts:
-                    continue  # a placeholder for question JavaScript (see its row)
-                affects = self.field_affects(f.name)
-                if affects == "none":
-                    continue
-                seen.add(f.name)
-                how = "read by logic" if affects == "routing" else "piped into text"
-                self.add(_gap("embedded_field", "embedded.unset", f.name,
-                              f"{f.source} field declared in {node.id}, {how}", affects=affects))
+            how = "read by logic" if affects == "routing" else "piped into text"
+            self.add(_gap("embedded_field", "embedded.unset", name,
+                          f"{source} field declared in {node_id}, {how}", affects=affects))
 
     def pipe_rows(self) -> None:
         for where, p in self.pipes():
@@ -434,11 +434,10 @@ class _Inventory:
                 self.add(Feature("choice_order", q.id, "executable", "exposure", detail=r.mode))
             cr = getattr(q, "column_randomization", None)
             if cr is not None and cr.mode != "none":
-                if cr.mode == "subset" and cr.even_presentation:
-                    self.add(_gap("column_order", "columns.unbalanced", q.id))
-                else:
-                    self.add(Feature("column_order", q.id, "executable", "exposure",
-                                     detail=cr.mode))
+                even = (", evenly presented (balanced across the simulated sample)"
+                        if cr.mode == "subset" and cr.even_presentation else "")
+                self.add(Feature("column_order", q.id, "executable", "exposure",
+                                 detail=cr.mode + even))
 
     def block_rows(self) -> None:
         for block in self.blocks:
@@ -481,6 +480,39 @@ class _Inventory:
             self.add(Feature("conjoint", cj.id or f"conjoint {i + 1}", "preserved_only", "none",
                              detail=f"{cj.kind} design metadata ({cj.confidence} confidence); "
                              "its randomization runs only as listed above"))
+
+
+def external_fields(survey: Survey) -> dict[str, tuple[str, str]]:
+    """Panel / recipient / URL fields the flow declares and nothing in the survey sets.
+
+    ``{name: (source, flow id of the first declaration)}``. Excludes fields the
+    flow sets itself (an embedded-data element with a value, or a web service) and
+    fields named in reachable question JavaScript (placeholders the script fills;
+    see the JavaScript's own row). Unless the caller supplies them, reading one is
+    an ``embedded.unset`` approximation; the runtime and ``executability`` both
+    use this list.
+    """
+    set_elsewhere = {
+        name for node in survey.walk_flow() if isinstance(node, WebServiceNode)
+        for name in node.sets_fields
+    } | {
+        f.name for node in survey.walk_flow() if isinstance(node, EmbeddedDataNode)
+        for f in node.fields if f.source == "custom" and f.value is not None
+    }
+    used = survey.flow_block_ids()
+    scripts = " ".join(q.javascript or "" for b in used for q in survey.block_questions(b))
+    out: dict[str, tuple[str, str]] = {}
+    for node in survey.walk_flow():
+        if not isinstance(node, EmbeddedDataNode):
+            continue
+        for f in node.fields:
+            external = f.source != "custom" or f.value is None
+            if not external or f.name in out or f.name in set_elsewhere:
+                continue
+            if f"'{f.name}'" in scripts or f'"{f.name}"' in scripts:
+                continue
+            out[f.name] = (f.source, node.id)
+    return out
 
 
 def executability(survey: Survey) -> ExecutabilityReport:

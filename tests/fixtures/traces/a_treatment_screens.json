@@ -1,0 +1,44 @@
+{
+  "case": "a_treatment_screens",
+  "spec": "A 1-of-2 evenly presented randomizer FL_2 has two arms: FL_3 shows block BL_alpha (text-only vignette QID10), FL_4 shows block BL_beta (text-only vignette QID11). Then everyone sees BL_1 with the same outcome QID1. Each block is one page. Block ids are researcher-side identifiers and must not reach the respondent model.",
+  "runs": [
+    {
+      "name": "arm FL_3 (alpha)",
+      "when": {"FL_2": ["FL_3"]},
+      "answers": {"QID1": "1"},
+      "trace": [
+        {"type": "page_start", "page": 1, "block": "BL_alpha"},
+        {"type": "display", "qid": "QID10", "kind": "descriptive", "text": "A neighbour returns your lost wallet with every banknote inside."},
+        {"type": "submit", "page": 1},
+        {"type": "page_start", "page": 2, "block": "BL_1"},
+        {"type": "display", "qid": "QID1", "kind": "choice", "text": "How much do you trust people around you?", "choices": [["1", "Yes"], ["2", "No"]]},
+        {"type": "response", "qid": "QID1", "value": "1"},
+        {"type": "submit", "page": 2},
+        {"type": "end", "reason": "flow_end", "finished": true}
+      ],
+      "not_displayed": ["QID11"],
+      "not_in_transcript": ["A stranger keeps the wallet you dropped on the train."],
+      "not_in_context": ["BL_alpha", "BL_beta", "FL_"],
+      "history_at_response": {"QID1": ["QID10", "QID1"]}
+    },
+    {
+      "name": "arm FL_4 (beta)",
+      "when": {"FL_2": ["FL_4"]},
+      "answers": {"QID1": "2"},
+      "trace": [
+        {"type": "page_start", "page": 1, "block": "BL_beta"},
+        {"type": "display", "qid": "QID11", "kind": "descriptive", "text": "A stranger keeps the wallet you dropped on the train."},
+        {"type": "submit", "page": 1},
+        {"type": "page_start", "page": 2, "block": "BL_1"},
+        {"type": "display", "qid": "QID1", "kind": "choice", "text": "How much do you trust people around you?", "choices": [["1", "Yes"], ["2", "No"]]},
+        {"type": "response", "qid": "QID1", "value": "2"},
+        {"type": "submit", "page": 2},
+        {"type": "end", "reason": "flow_end", "finished": true}
+      ],
+      "not_displayed": ["QID10"],
+      "not_in_transcript": ["A neighbour returns your lost wallet with every banknote inside."],
+      "not_in_context": ["BL_alpha", "BL_beta", "FL_"],
+      "history_at_response": {"QID1": ["QID11", "QID1"]}
+    }
+  ]
+}

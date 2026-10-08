@@ -1,0 +1,45 @@
+{
+  "case": "e_web_service",
+  "spec": "A web service FL_2 sets the embedded field 'segment' from its response. Branch FL_3 (segment = premium) shows BL_2 (QID2). Then everyone sees BL_1 (QID1). Default strict execution must stop; allowing the gap runs it with segment empty (branch false); implementing the service with segment=premium takes the branch.",
+  "runs": [
+    {
+      "name": "allowed approximation",
+      "simulator": "allow",
+      "answers": {"QID1": "1"},
+      "trace": [
+        {"type": "page_start", "page": 1, "block": "BL_1"},
+        {"type": "display", "qid": "QID1", "kind": "choice", "text": "Any comments?", "choices": [["1", "Yes"], ["2", "No"]]},
+        {"type": "response", "qid": "QID1", "value": "1"},
+        {"type": "submit", "page": 1},
+        {"type": "end", "reason": "flow_end", "finished": true}
+      ],
+      "not_displayed": ["QID2"],
+      "history_at_response": {"QID1": ["QID1"]},
+      "branches": [["FL_3", false]],
+      "approximations": [["web_service", "FL_2", "assignment"]],
+      "allowed": [["web_service", "FL_2"]]
+    },
+    {
+      "name": "implemented service",
+      "simulator": "implement",
+      "answers": {"QID2": "2", "QID1": "1"},
+      "trace": [
+        {"type": "page_start", "page": 1, "block": "BL_2"},
+        {"type": "display", "qid": "QID2", "kind": "choice", "text": "Would you like the premium offer?", "choices": [["1", "Yes"], ["2", "No"]]},
+        {"type": "response", "qid": "QID2", "value": "2"},
+        {"type": "submit", "page": 1},
+        {"type": "page_start", "page": 2, "block": "BL_1"},
+        {"type": "display", "qid": "QID1", "kind": "choice", "text": "Any comments?", "choices": [["1", "Yes"], ["2", "No"]]},
+        {"type": "response", "qid": "QID1", "value": "1"},
+        {"type": "submit", "page": 2},
+        {"type": "end", "reason": "flow_end", "finished": true}
+      ],
+      "not_displayed": [],
+      "history_at_response": {"QID2": ["QID2"], "QID1": ["QID2", "QID1"]},
+      "branches": [["FL_3", true]],
+      "approximations": [],
+      "allowed": [],
+      "embedded_sets": [["segment", "premium", "web_service:FL_2"]]
+    }
+  ]
+}

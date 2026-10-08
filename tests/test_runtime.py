@@ -360,10 +360,10 @@ def test_web_service_hook():
         {"Type": "Block", "ID": "BL_1", "FlowID": "FL_3"},
     ]
     survey = load_qsf(minimal_qsf([mc()], flow=flow))
-    plain = Simulator(survey).respondent()
+    plain = Simulator(survey, allow={"web_service:FL_2"}).respondent()
     assert plain.embedded["seed"] == "" and any("web service" in n for n in plain.notes)
     hooked = Simulator(survey, web_service=lambda node, state: {"seed": "42"}).respondent()
-    assert hooked.embedded["seed"] == "42"
+    assert hooked.embedded["seed"] == "42" and not hooked.state.approximations
 
 
 # ------------------------------------------------------------------ design

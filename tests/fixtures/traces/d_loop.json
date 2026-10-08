@@ -1,0 +1,32 @@
+{
+  "case": "d_loop",
+  "spec": "Block BL_1 loops (static Loop & Merge, no randomization) over three items whose field 1 is apples, bananas, cherries. Its one question QID1 pipes the loop field: 'How much do you like ${lm://Field/1}?'. Each iteration is one page.",
+  "runs": [
+    {
+      "name": "three iterations",
+      "answers": {"QID1@1": "1", "QID1@2": "2", "QID1@3": "1"},
+      "trace": [
+        {"type": "page_start", "page": 1, "block": "BL_1", "loop": "1", "loop_number": 1, "loop_total": 3},
+        {"type": "display", "qid": "QID1", "loop": "1", "kind": "choice", "text": "How much do you like apples?", "choices": [["1", "A lot"], ["2", "A little"]]},
+        {"type": "response", "qid": "QID1", "loop": "1", "value": "1"},
+        {"type": "submit", "page": 1},
+        {"type": "page_start", "page": 2, "block": "BL_1", "loop": "2", "loop_number": 2, "loop_total": 3},
+        {"type": "display", "qid": "QID1", "loop": "2", "kind": "choice", "text": "How much do you like bananas?", "choices": [["1", "A lot"], ["2", "A little"]]},
+        {"type": "response", "qid": "QID1", "loop": "2", "value": "2"},
+        {"type": "submit", "page": 2},
+        {"type": "page_start", "page": 3, "block": "BL_1", "loop": "3", "loop_number": 3, "loop_total": 3},
+        {"type": "display", "qid": "QID1", "loop": "3", "kind": "choice", "text": "How much do you like cherries?", "choices": [["1", "A lot"], ["2", "A little"]]},
+        {"type": "response", "qid": "QID1", "loop": "3", "value": "1"},
+        {"type": "submit", "page": 3},
+        {"type": "end", "reason": "flow_end", "finished": true}
+      ],
+      "not_displayed": [],
+      "not_in_transcript": ["lm://"],
+      "history_at_response": {
+        "QID1@1": ["QID1@1"],
+        "QID1@2": ["QID1@1", "QID1@2"],
+        "QID1@3": ["QID1@1", "QID1@2", "QID1@3"]
+      }
+    }
+  ]
+}

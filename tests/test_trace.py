@@ -2,10 +2,21 @@
 
 from __future__ import annotations
 
+import dataclasses
+
+import pytest
+
 from surveyir import load_qsf
 from surveyir.model import Survey
-from surveyir.runtime import RandomAnswerer, Simulator, transcript
+from surveyir.runtime import (
+    ExecutionError,
+    RandomAnswerer,
+    Simulator,
+    executability,
+    transcript,
+)
 from surveyir.runtime.trace import (
+    Allowed,
     Approximation,
     BranchEval,
     ChoiceHidden,
@@ -69,7 +80,9 @@ def test_descriptive_screen_is_displayed_not_answered():
     assert screen.text == "Read this." and not screen.responds
     assert ("QID1", None) not in run.answers and run.answers[("QID2", None)].value == "2"
     assert [c.view.qid for c in who.contexts] == ["QID2"]  # never asked about the screen
-    assert who.contexts[0].history[1] == screen
+    # respondents get the trace without block ids; the run's trace keeps them
+    assert screen.block_id == "BL_1"
+    assert who.contexts[0].history[1] == dataclasses.replace(screen, block_id="")
     assert of(run, End) == [End("flow_end", True)] and not run.privileged
 
 
@@ -131,15 +144,41 @@ def test_approximations_are_audited_and_noted():
     ]
     survey = load_qsf(minimal_qsf([mc(QuestionJS="Qualtrics.SurveyEngine.setEmbeddedData('x')")],
                                   flow=flow))
-    run = Simulator(survey).respondent()
+    run = Simulator(survey, strict=False).respondent()
     codes = [(a.code, a.location, a.affects) for a in of(run, Approximation)]
-    assert codes == [("web_service", "FL_2", "assignment"), ("embedded.unset", "pid", "assignment"),
-                     ("javascript", "QID1", "assignment")]
+    # pid is declared but never read, so its being unset changes nothing
+    assert codes == [("web_service", "FL_2", "assignment"), ("javascript", "QID1", "assignment")]
     assert [a for a in run.audit if isinstance(a, Approximation)] == run.state.approximations
     assert all(a.detail in run.notes for a in run.state.approximations)
-    supplied = Simulator(survey).respondent(embedded={"pid": "p1"})
+    assert not of(run, Allowed)
+    supplied = Simulator(survey, strict=False).respondent(embedded={"pid": "p1"})
     assert EmbeddedSet("pid", "p1", "respondent") in supplied.audit
-    assert "embedded.unset" not in {a.code for a in supplied.state.approximations}
+    allowed = Simulator(survey, allow={"web_service", "javascript:QID1"}).run(2)
+    for r in allowed:  # each respondent records each allowed gap once
+        assert of(r, Allowed) == [Allowed("web_service", "FL_2"), Allowed("javascript", "QID1")]
+
+
+def test_unset_fields_are_recorded_where_they_are_read():
+    flow = [
+        {"Type": "EmbeddedData", "FlowID": "FL_2", "EmbeddedData": [
+            {"Field": "pid", "Type": "Recipient"}, {"Field": "src", "Type": "Recipient"},
+            {"Field": "unused", "Type": "Recipient"}]},
+        {"Type": "Branch", "FlowID": "FL_3", "Description": "b",
+         "BranchLogic": logic(ed("pid", "EqualTo", "1")),
+         "Flow": [{"Type": "Block", "ID": "BL_1", "FlowID": "FL_4"}]},
+        {"Type": "Block", "ID": "BL_1", "FlowID": "FL_5"},
+    ]
+    survey = load_qsf(minimal_qsf([mc(QuestionText="From ${e://Field/src}")], flow=flow))
+    run = Simulator(survey, strict=False).respondent()
+    got = {(a.code, a.location, a.affects) for a in of(run, Approximation)}
+    assert got == {("embedded.unset", "pid", "routing"), ("embedded.unset", "src", "exposure")}
+    report = executability(survey)
+    assert {(f.code, f.location, f.affects) for f in report.features if f.code} == got
+    with pytest.raises(ExecutionError, match="embedded.unset at pid"):
+        Simulator(survey).respondent()
+    done = Simulator(survey, implementations={"embedded": {"pid": "1", "src": "x"}}).respondent()
+    assert not of(done, Approximation) and done.trace[1].text == "From x"
+    assert EmbeddedSet("pid", "1", "respondent") in done.audit
 
 
 def test_choice_display_logic_and_piped_rand_do_not_shift_seeds():

@@ -1,7 +1,8 @@
 # surveyir
 
-**A lossless intermediate representation (IR) for survey instruments, with a
-full-fidelity Qualtrics `.qsf` loader and pluggable exporters.**
+**An intermediate representation (IR) for survey instruments that keeps every
+source key, with a Qualtrics `.qsf` loader, a simulator that records what each
+respondent saw, and pluggable exporters.**
 
 Survey platforms export instruments in formats built for their editors, not for
 analysis or simulation. `surveyir` turns them into one typed, documented,
@@ -31,11 +32,41 @@ analysis pipeline, a survey renderer) can then work from that one structure.
 - **Data columns match real exports.** `response_columns()` produces the exact
   column names and ImportIds of a Qualtrics CSV export, including Loop & Merge,
   side-by-side, carry-forward and display-order columns. Simulated responses can
-  be analyzed with the same code as human data. 36,102 of 36,155 columns
-  (99.85%) from 1,875 real exports are reproduced exactly.
+  be analyzed with the same code as human data. In 1,875 real exports paired
+  with their .qsf, 36,102 of 36,155 question columns (99.85%) are reproduced
+  exactly, and 67,641 of 67,697 (99.92%) when metadata, score and
+  display-order columns are counted too ([docs/parity.md](docs/parity.md)).
 - **Language-neutral.** The IR is plain JSON with a published
   [JSON Schema](schema/surveyir.schema.json), so R, JavaScript and other tools
   can consume it without Python.
+
+## What surveyir claims, and on what evidence
+
+Three separate claims, which need different evidence:
+
+1. **Information preserved.** The IR holds everything in the source file.
+   Evidence: source accounting (every key is read into a typed field or kept
+   verbatim in `extras`; `surveyir inspect --extras` lists the untyped ones) and
+   exact IR → JSON → IR round trips, both checked on all 880 corpus files
+   ([docs/parity.md](docs/parity.md)). There is no QSF writer yet, so a
+   .qsf → IR → .qsf round trip is not checked.
+2. **Instrument administered faithfully.** A simulated respondent is shown what
+   the instrument specifies, in that order, and given only what was shown.
+   Evidence: hand-written exact traces checked in CI
+   (`tests/test_exact_traces.py`), strict execution (the default), which stops
+   a run at any approximation that could change assignment, exposure, routing
+   or outcome (gaps that affect none of these are recorded, not stopped), and
+   consistency checks against observed responses (below). This holds only for strict runs: a run with
+   `strict=False` or `allow=` records its approximations in `run.audit`, but
+   can differ from what Qualtrics would show.
+3. **Responses behaviorally valid.** Whether simulated answers resemble what
+   people would answer. This is out of scope for the core: it depends on the
+   respondent model and needs separate empirical validation against human data.
+   surveyir provides the record such a validation needs, not the validation.
+
+See [docs/design.md](docs/design.md#what-surveyir-claims) for details and
+[docs/positioning.md](docs/positioning.md) for how this compares with related
+tools.
 
 ## Install
 
@@ -54,7 +85,8 @@ Start with the [quickstart](docs/quickstart.md), then the guides:
 [loading](docs/guide/loading.md), [exporting](docs/guide/exporting.md),
 [data columns](docs/guide/data-columns.md), [experiments](docs/guide/experiments.md),
 [simulating respondents](docs/guide/simulation.md) and the
-[command line](docs/cli.md). Every example in the docs is run by the test suite,
+[command line](docs/cli.md). [Positioning](docs/positioning.md) compares
+surveyir with related tools. Every example in the docs is run by the test suite,
 and runnable scripts are in [`examples/`](examples).
 
 ## Quick start
@@ -129,17 +161,26 @@ runs = sim.run(1000, answer)
 rows = [r.row(survey) for r in runs]
 ```
 
-This was checked against 13,879 real respondents in 19 studies
-(`tests/test_runtime_validation.py`):
+The runtime was compared with 13,879 real respondents in 19 studies
+(`tests/test_runtime_validation.py`, `scripts/validate_runtime.py`):
 
 - **Randomizers:** 56 flow randomizers (159 arms) were compared: arm names, arms
   per respondent and arm frequencies all match the real data. The other 25
   randomizers had fewer than 50 real respondents each. Blocks with randomized
   question order show the same number of questions.
-- **Logic:** replaying real respondents' recorded embedded data and answers
-  through the logic evaluator gives zero violations: 0 of 14,797 display-logic
-  checks (3 studies) and 0 of 25,784 branch checks (4 studies). 1,001 checks could
-  not be verified because they test a field that is not in the export.
+- **Consistency checks against observed responses:** each finished
+  respondent's recorded embedded data and answers are fed to the logic
+  evaluator. A violation is a question answered although the evaluator predicts
+  it hidden, or a branch's blocks answered although it predicts the branch not
+  taken. There were 0 violations in 14,797 display-logic checks (3 studies) and
+  0 in 25,784 branch checks (4 studies). The checks are one-sided: a blank
+  answer cannot tell a hidden question from a skipped one, so 2,846 branch
+  checks where the evaluator predicts the branch taken but nothing was answered
+  count as unknown, not as agreement, and 1,001 branch checks could not be
+  evaluated (a field the export lacks, or an undecidable comparison). All 25,784 branch checks (and 1,200 display checks) depend on
+  final embedded values rather than the values at the moment of the decision:
+  this is not a replay of each session, and it cannot show that a respondent
+  saw what the runtime would have shown.
 
 Simulated rows leave timing and meta-info columns blank. Because export tags can
 repeat, `run.cells(survey)` gives the exact column layout; `run.row()` is a

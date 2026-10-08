@@ -59,6 +59,9 @@ class RespondentState:
     device: str = "desktop"
     location: dict[str, str] = field(default_factory=dict)  # for ${loc://City} etc.
     quotas_met: set[str] = field(default_factory=set)
+    #: panel / recipient / URL fields declared in the flow but not supplied; reading
+    #: one (in logic or piped text) records an ``embedded.unset`` approximation
+    unsupplied: set[str] = field(default_factory=set)
     notes: list[str] = field(default_factory=list)
     approximations: list[Approximation] = field(default_factory=list)
     #: called with every approximation before it is recorded (strict mode raises here)
@@ -83,6 +86,20 @@ class RespondentState:
         return self.key(question_id, loop) in self.displayed or (
             loop is None and (question_id, None) in self.displayed
         )
+
+    def set_embedded(self, name: str, value: str) -> None:
+        """Set an embedded field (it is then no longer unsupplied)."""
+        self.embedded[name] = value
+        self.unsupplied.discard(name)
+
+    def read_embedded(self, name: str, affects: Affects) -> str:
+        """An embedded field's value, recording ``embedded.unset`` if it was never supplied."""
+        if name in self.unsupplied:
+            how = "read by logic" if affects == "routing" else "piped into text"
+            self.approximate("embedded.unset", name, affects,
+                             f"embedded field {name} was not supplied (panel, recipient or "
+                             f"URL field), {how}; read as empty")
+        return self.embedded.get(name, "")
 
     def note(self, message: str) -> None:
         if message not in self.notes:

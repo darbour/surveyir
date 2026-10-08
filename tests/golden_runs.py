@@ -3,6 +3,8 @@
 The golden snapshot pins what the runtime does under fixed seeds, so changes
 that should not alter administration (recording traces, page handling for
 surveys without same-page dependencies, strict mode) are checked against it.
+Runs are permissive (``strict=False``): several fixtures have question
+JavaScript or unsupplied panel fields, which a strict run stops on.
 Regenerate only for a deliberate behaviour change:
 
     uv run python tests/golden_runs.py
@@ -59,5 +61,5 @@ if __name__ == "__main__":
     import warnings
 
     warnings.filterwarnings("ignore")
-    GOLDEN.write_text(json.dumps(all_snapshots(), indent=1, sort_keys=True) + "\n")
+    GOLDEN.write_text(json.dumps(all_snapshots(strict=False), indent=1, sort_keys=True) + "\n")
     print(f"wrote {GOLDEN}")

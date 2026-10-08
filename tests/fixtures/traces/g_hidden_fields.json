@@ -1,0 +1,40 @@
+{
+  "case": "g_hidden_fields",
+  "spec": "A 1-of-2 randomizer FL_2 assigns the never-piped field cond_secret (ZK9 in arm FL_3, QX7 in arm FL_4). Embedded FL_5 sets shown_name=Avery, which QID1 pipes: 'Hello ${e://Field/shown_name}, are you ready?'. Then BL_1 (QID1). The assignment field's name and values must never reach the respondent; the piped field appears exactly as rendered.",
+  "runs": [
+    {
+      "name": "arm FL_3",
+      "when": {"FL_2": ["FL_3"]},
+      "answers": {"QID1": "1"},
+      "trace": [
+        {"type": "page_start", "page": 1, "block": "BL_1"},
+        {"type": "display", "qid": "QID1", "kind": "choice", "text": "Hello Avery, are you ready?", "choices": [["1", "Yes"], ["2", "No"]]},
+        {"type": "response", "qid": "QID1", "value": "1"},
+        {"type": "submit", "page": 1},
+        {"type": "end", "reason": "flow_end", "finished": true}
+      ],
+      "not_displayed": [],
+      "not_in_transcript": ["cond_secret", "ZK9", "QX7", "shown_name", "FL_"],
+      "not_in_context": ["cond_secret", "ZK9", "QX7", "shown_name", "FL_"],
+      "rendered_once": ["Hello Avery, are you ready?"],
+      "history_at_response": {"QID1": ["QID1"]}
+    },
+    {
+      "name": "arm FL_4",
+      "when": {"FL_2": ["FL_4"]},
+      "answers": {"QID1": "2"},
+      "trace": [
+        {"type": "page_start", "page": 1, "block": "BL_1"},
+        {"type": "display", "qid": "QID1", "kind": "choice", "text": "Hello Avery, are you ready?", "choices": [["1", "Yes"], ["2", "No"]]},
+        {"type": "response", "qid": "QID1", "value": "2"},
+        {"type": "submit", "page": 1},
+        {"type": "end", "reason": "flow_end", "finished": true}
+      ],
+      "not_displayed": [],
+      "not_in_transcript": ["cond_secret", "ZK9", "QX7", "shown_name", "FL_"],
+      "not_in_context": ["cond_secret", "ZK9", "QX7", "shown_name", "FL_"],
+      "rendered_once": ["Hello Avery, are you ready?"],
+      "history_at_response": {"QID1": ["QID1"]}
+    }
+  ]
+}

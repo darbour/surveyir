@@ -14,6 +14,7 @@ VIGNETTES = {
     "BL_beta": "A stranger keeps the wallet you dropped on the train.",
 }
 FIELD, VALUES = "treatment_cond", {"BL_alpha": "arm_alpha", "BL_beta": "arm_beta"}
+SCREENS = {"BL_alpha": "QID10", "BL_beta": "QID11"}
 
 
 def vignette_survey():
@@ -73,10 +74,14 @@ def test_prompt_holds_the_assigned_vignette_and_no_hidden_state():
         assert ctx.view.qid == "QID1" and ctx.respondent_index == run.index
         assert VIGNETTES[block] in prompt and VIGNETTES[other] not in prompt
         assert prompt.index(VIGNETTES[block]) < prompt.index("How much do you trust")
-        leaks = [FIELD, *VALUES.values(), "FL_", other]
+        leaks = [FIELD, *VALUES.values(), "FL_"]
         assert not [s for s in leaks if s in prompt or s in repr(ctx)]
+        # block ids are the runtime's: not in the context for either arm (the
+        # run's own trace keeps them)
+        assert not [b for b in (*VALUES, "BL_1", "BL_") if b in repr(ctx)]
+        assert {o.block_id for o in run.trace if isinstance(o, Display)} == {block, "BL_1"}
         # the vignette is in the trace, displayed, but never answered
-        screen = next(o for o in ctx.history if isinstance(o, Display) and o.block_id == block)
+        screen = next(o for o in ctx.history if isinstance(o, Display) and o.qid == SCREENS[block])
         assert not screen.responds and (screen.qid, None) not in run.answers
     assert seen == set(VALUES)
 

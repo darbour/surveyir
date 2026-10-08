@@ -15,16 +15,7 @@ EXPECTED = json.loads(GOLDEN.read_text())
 def actual():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        return all_snapshots(**_simulator_kwargs())
-
-
-def _simulator_kwargs():
-    """Arguments that keep today's permissive behaviour once strict mode exists."""
-    import inspect
-
-    from surveyir.runtime import Simulator
-
-    return {"strict": False} if "strict" in inspect.signature(Simulator).parameters else {}
+        return all_snapshots(strict=False)
 
 
 @pytest.mark.parametrize("study", sorted(EXPECTED))

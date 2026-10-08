@@ -62,13 +62,21 @@ def test_llm_example_with_a_fake_client():
     sys.path.insert(0, str(ROOT))
     import surveyir
     from examples.llm_respondents import MODEL, claude_answerer
-    from surveyir.runtime import Display, Simulator
-    from surveyir.runtime.trace import Response
+    from surveyir.runtime import Display, ExecutionError, Simulator
+    from surveyir.runtime.trace import Allowed, Response
 
     survey = surveyir.load(ROOT / "tests/fixtures/qualtrics/obedient_twins.qsf")
     client = FakeClient()
-    run = Simulator(survey, seed=1).respondent(claude_answerer(client, "You are a test persona."))
+    persona = claude_answerer(client, "You are a test persona.")
+    with pytest.raises(ExecutionError, match="answer.invalid at QID14"):  # 100 characters
+        Simulator(survey, seed=1).respondent(persona)
+    client = FakeClient()
+    persona = claude_answerer(client, "You are a test persona.")
+    run = Simulator(survey, seed=1, allow={"answer.invalid"}).respondent(persona)
     assert run.answers and len(run.displayed) > 2 and not run.privileged
+    assert Allowed("answer.invalid", "QID14") in run.audit
+    assert any("Write at least 100 characters." in m["content"]
+               for r in client.requests for m in r["messages"])
     first, last = client.requests[0], client.requests[-1]
     assert first["model"] == MODEL and first["fallbacks"] == "default"
     assert "You are a test persona." in first["system"]

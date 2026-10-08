@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-import inspect
 import json
 
 import pytest
 
 from surveyir.cli import main
-from surveyir.runtime import Simulator
 from tests.conftest import FIXTURES
 
 DONORS = str(FIXTURES / "promiscuous_donors.qsf")
@@ -53,10 +51,12 @@ def test_unknown_allow_code_is_an_error():
 
 
 def test_simulate_flags(capsys):
-    assert main(["simulate", HIRING, "-n", "1", "--seed", "1", "--permissive"]) == 0
+    assert main(["simulate", HIRING, "-n", "1", "--seed", "1"]) == 0  # strict by default
     assert capsys.readouterr().out.startswith("StartDate,")
-    if "strict" in inspect.signature(Simulator).parameters:
-        assert main(["simulate", HIRING, "-n", "1", "--seed", "1", "--strict"]) == 0
-    else:
-        with pytest.raises(NotImplementedError, match="strict execution"):
-            main(["simulate", HIRING, "-n", "1", "--strict"])
+    assert main(["simulate", DONORS, "-n", "2", "--seed", "1"]) == 1
+    err = capsys.readouterr().err
+    assert "javascript at QID481" in err and "surveyir check --strict" in err
+    for flags in (["--permissive"], ["--allow", "javascript:QID481"], ["--strict", "--allow",
+                                                                         "javascript"]):
+        assert main(["simulate", DONORS, "-n", "2", "--seed", "1", *flags]) == 0
+        assert capsys.readouterr().out.startswith("StartDate,")

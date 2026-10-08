@@ -76,13 +76,10 @@ def test_fixture_spot_checks():
     assert {loc for loc, *_ in rows(executability(load("idea_evaluation")), "javascript")} == {
         "QID4", "QID9", "QID15", "QID19"
     }
+    # story_beliefs declares its chapter texts as recipient fields, then sets them
+    # in the flow, and never reads the panel fields (PROLIFIC_PID, ...) it declares
     stories = executability(load("story_beliefs"))
-    unset = rows(stories, "embedded.unset")
-    assert {r[1:] for r in unset} == {("needs_implementation", "exposure")}
-    fields = {"StoryA_Chapter1", "StoryA_Chapter2", "StoryB_Chapter1", "StoryB_Chapter2"}
-    assert {r[0] for r in rows(stories, "embedded.unset")} == fields
-    supplied = ExecutionPolicy(implementations={"embedded": dict.fromkeys(fields, "text")})
-    assert stories.blocking(supplied) == []
+    assert rows(stories, "embedded.unset") == [] and stories.blocking(ExecutionPolicy()) == []
 
     # idea_generation's in-flow JavaScript is entirely commented out; the live
     # scripts that set embedded data sit in blocks the flow never reaches
@@ -149,12 +146,12 @@ def test_synthetic_inventory():
     policy = ExecutionPolicy(
         allow=frozenset({"flow.unsupported", "flow.authenticator:FL_10"}),
         implementations={"location": {"CountryName": "US", "City": "Paris"},
-                         "web_service": lambda node, state: {}},
+                         "web_service": lambda node, state: {}, "embedded": {"pid": "p1"}},
     )
     left = {(f.code, f.location) for f in report.blocking(policy)}
     assert left == set(got) - {
         ("flow.unsupported", "FL_11"), ("flow.authenticator", "FL_10"), ("web_service", "FL_4"),
-        ("logic.geo_ip", "loc://CountryName"), ("pipe.loc", "City"),
+        ("logic.geo_ip", "loc://CountryName"), ("pipe.loc", "City"), ("embedded.unset", "pid"),
     }
     text = report.summary()
     assert "Needs implementation:" in text and "Approximated:" in text

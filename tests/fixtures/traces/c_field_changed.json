@@ -1,0 +1,26 @@
+{
+  "case": "c_field_changed",
+  "spec": "Flow: embedded x=1 (FL_2); branch FL_3 (x = 1) shows BL_2 (QID2); embedded x=2 (FL_4); branch FL_5 (x = 1) shows BL_3 (QID3); branch FL_6 (x = 2) shows BL_4 (QID4). Branches read x when they are reached, so QID2 and QID4 are shown and QID3 is not.",
+  "runs": [
+    {
+      "name": "x changes from 1 to 2",
+      "answers": {"QID2": "1", "QID4": "2"},
+      "trace": [
+        {"type": "page_start", "page": 1, "block": "BL_2"},
+        {"type": "display", "qid": "QID2", "kind": "choice", "text": "Second question", "choices": [["1", "Yes"], ["2", "No"]]},
+        {"type": "response", "qid": "QID2", "value": "1"},
+        {"type": "submit", "page": 1},
+        {"type": "page_start", "page": 2, "block": "BL_4"},
+        {"type": "display", "qid": "QID4", "kind": "choice", "text": "Fourth question", "choices": [["1", "Yes"], ["2", "No"]]},
+        {"type": "response", "qid": "QID4", "value": "2"},
+        {"type": "submit", "page": 2},
+        {"type": "end", "reason": "flow_end", "finished": true}
+      ],
+      "not_displayed": ["QID3"],
+      "not_in_transcript": ["Third question"],
+      "history_at_response": {"QID2": ["QID2"], "QID4": ["QID2", "QID4"]},
+      "branches": [["FL_3", true], ["FL_5", false], ["FL_6", true]],
+      "embedded_sets": [["x", "1", "FL_2"], ["x", "2", "FL_4"]]
+    }
+  ]
+}

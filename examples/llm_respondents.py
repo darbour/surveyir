@@ -78,13 +78,34 @@ def conversation(ctx: ResponseContext) -> list[dict]:
             shown = []
         else:
             shown.append(ob)
-    messages.append({"role": "user", "content": _turn(shown, ctx.view.qid)})
+    messages.append({"role": "user", "content": _turn(shown, ctx.view.qid, ctx.view)})
     return messages
 
 
-def _turn(shown: list[Any], qid: str) -> str:
+def requirements(view: Display) -> str:
+    """The question's validation, as the respondent is told it (Qualtrics would
+    reject an answer that breaks it)."""
+    v, out = view.validation, []
+    if "min_chars" in v:
+        out.append(f"Write at least {v['min_chars']} characters.")
+    if "max_chars" in v:
+        out.append(f"Write at most {v['max_chars']} characters.")
+    if v.get("content_type") == "ValidNumber" or "number_min" in v or "number_max" in v:
+        bounds = [f"from {v['number_min']:g}" if "number_min" in v else "",
+                  f"to {v['number_max']:g}" if "number_max" in v else ""]
+        out.append(" ".join(["Enter a number", *filter(None, bounds)]) + ".")
+    if "min_choices" in v:
+        out.append(f"Select at least {v['min_choices']}.")
+    if "max_choices" in v:
+        out.append(f"Select at most {v['max_choices']}.")
+    return " ".join(out)
+
+
+def _turn(shown: list[Any], qid: str, view: Display | None = None) -> str:
     seen = transcript(shown)
     ask = f"Answer question {qid}."
+    if view is not None and (rules := requirements(view)):
+        ask += f" {rules}"
     return f"{seen}\n\n{ask}" if seen else ask
 
 
@@ -140,7 +161,10 @@ def main(path: str = "tests/fixtures/qualtrics/hiring_algorithms.qsf") -> None:
 
     client = anthropic.Anthropic()
     survey = surveyir.load(path)
-    sim = Simulator(survey, seed=1)
+    # strict (the default): the run stops at anything surveyir cannot administer
+    # exactly. A model's answer that breaks a question's validation is recorded and
+    # accepted (Qualtrics would have asked again); see `surveyir check`.
+    sim = Simulator(survey, seed=1, allow={"answer.invalid"})
     columns = [c.name for c in surveyir.response_columns(survey)]
     writer = csv.writer(sys.stdout)
     writer.writerow(columns)

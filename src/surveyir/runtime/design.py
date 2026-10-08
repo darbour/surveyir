@@ -17,6 +17,11 @@ with ``design(survey, annotations=...)``.
 
 Randomization the .qsf cannot describe (JavaScript, web services, library
 blocks) is listed in ``Design.opaque`` so a simulation can flag it.
+
+``exposures(run, survey)`` is the per-respondent counterpart: what one simulated
+respondent was actually shown, in order, and which randomizer arms it came from.
+It is derived from the run's trace and audit, and kept separate from the
+recorded assignment fields (``run.embedded``), which can differ from it.
 """
 
 from __future__ import annotations
@@ -26,8 +31,9 @@ import itertools
 import json
 import re
 from collections.abc import Mapping
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field
 
@@ -43,6 +49,10 @@ from ..model import (
     WebServiceNode,
     walk,
 )
+from .trace import INVISIBLE_KINDS, Display, RandomizerDecision
+
+if TYPE_CHECKING:
+    from .walker import RespondentRun
 
 JS_RANDOM = re.compile(r"Math\.random|shuffle\s*\(|setEmbeddedData", re.I)
 
@@ -83,8 +93,10 @@ class FactorAnnotation(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    contrast: Literal["exposure", "order"] | None = Field(
-        default=None, description="The intended contrast: exclusive exposure or order."
+    contrast: Literal["exposure", "order", "assignment"] | None = Field(
+        default=None,
+        description="The intended contrast: exclusive exposure, order, or an assignment "
+        "recorded in a field that later logic acts on.",
     )
     treatment: str | None = Field(default=None, description="What the arms manipulate.")
     note: str | None = None
@@ -110,8 +122,9 @@ class Factor(BaseModel):
     last_shown_assigns: list[str] = Field(
         default_factory=list,
         description="Fields every arm sets when all arms are shown: the last arm shown "
-        "wins, so each value is recorded with nominal share 1/n. Everyone still saw every "
-        "arm; see recorded_field and contrast.",
+        "wins, so each value is recorded with nominal share 1/n. Every arm was still run for "
+        "every respondent (its blocks shown, if it has any); see recorded_field, contrast and "
+        "exposures().",
     )
     annotation: FactorAnnotation | None = Field(
         default=None, description="The contrast a researcher declared via design(annotations=)."
@@ -125,16 +138,24 @@ class Factor(BaseModel):
 
     @computed_field(
         description="'exposure' when k < n (each respondent sees an exclusive subset of the "
-        "arms); 'order' when every arm is shown, so only the order differs between respondents."
+        "arms). When every arm is run: 'assignment' if the arms display nothing and a field "
+        "records the last one (the randomizer only assigns; later logic on the field decides "
+        "what is shown), otherwise 'order' (respondents see every arm; only the order differs)."
     )
     @property
-    def contrast(self) -> Literal["exposure", "order"]:
-        return "exposure" if self.k < self.n else "order"
+    def contrast(self) -> Literal["exposure", "order", "assignment"]:
+        if self.k < self.n:
+            return "exposure"
+        if self.last_shown_assigns and not any(a.blocks for a in self.arms):
+            return "assignment"
+        return "order"
 
     @computed_field(
-        description="For last-shown factors: every respondent saw every stimulus, and these "
-        "fields hold the value set by the last one shown. The contrast is order (which arm "
-        "came last), not exclusive exposure. Same content as last_shown_assigns."
+        description="For last-shown factors: every arm is run for every respondent, and these "
+        "fields hold the value set by the last one. Within the factor the contrast is order "
+        "(which arm came last), not exclusive exposure. If the arms only set the field and "
+        "later branches read it, what a respondent is shown depends on the field, so check "
+        "exposures(run, survey). Same content as last_shown_assigns."
     )
     @property
     def recorded_field(self) -> list[str]:
@@ -213,12 +234,16 @@ class Design(BaseModel):
     def summary(self) -> str:
         lines = []
         for f in self.factors:
-            kind = f"{f.contrast} contrast"
-            if f.recorded_field:
-                kind += (
-                    f"; field {', '.join(f.recorded_field)} records the last arm shown "
-                    f"(each value with nominal share 1/{f.n})"
-                )
+            fields = ", ".join(f.recorded_field)
+            if f.contrast == "assignment":
+                kind = (f"assignment recorded in {fields}: the arms display nothing, the last "
+                        f"one sets {fields} (each value with nominal share 1/{f.n}), and later "
+                        "logic on it decides what is shown")
+            else:
+                kind = f"{f.contrast} contrast"
+                if f.recorded_field:
+                    kind += (f"; field {fields} records the last arm shown "
+                             f"(each value with nominal share 1/{f.n})")
             even = ", evenly presented" if f.even_presentation else ""
             where = f" within {' > '.join(f.within)}" if f.within else ""
             cond = f" if {f.condition}" if f.condition else ""
@@ -454,3 +479,110 @@ def design(survey: Survey, annotations: Annotations | str | Path | None = None) 
                 Opaque(kind="javascript", location=q.id, detail=f"question JavaScript {what}")
             )
     return d
+
+
+# --------------------------------------------------------------------------- exposure history
+
+
+@dataclass(frozen=True)
+class ArmExposure:
+    """One arm of a flow randomizer as a respondent went through it."""
+
+    key: str  # as in RandomizerDecision.shown and the FL_<id>_DO export columns
+    flow_id: str
+    #: what the respondent was shown inside this arm, in order (text-only screens included);
+    #: empty when the arm only sets embedded data, or everything in it was hidden
+    displays: tuple[Display, ...]
+
+
+@dataclass(frozen=True)
+class Exposure:
+    """What a respondent was shown under one flow randomizer (a design factor)."""
+
+    factor_id: str
+    arms_shown_in_order: tuple[str, ...]  # arm keys, in presentation order
+    arms: tuple[ArmExposure, ...]  # the same arms, with their displays
+    p_nominal: Mapping[str, float]
+    p_given_history: Mapping[str, float] | None = None
+
+    @property
+    def displays(self) -> tuple[Display, ...]:
+        """Everything shown inside the factor's arms, in order."""
+        return tuple(d for a in self.arms for d in a.displays)
+
+
+@dataclass(frozen=True)
+class ExposureHistory:
+    """A respondent's exposure history, derived from a run's trace and audit.
+
+    ``displays`` is every screen the respondent could perceive, in order: text-only
+    screens and questions (page timers and browser metadata are left out).
+    ``factors`` attributes those displays to the flow randomizer arms they came
+    from. Recorded assignment fields are deliberately not part of this record: a
+    field can hold the last of several arms shown, or be set by an arm that showed
+    nothing, so compare it with the exposure history rather than assume it.
+    """
+
+    displays: tuple[Display, ...]
+    factors: tuple[Exposure, ...]
+
+    @property
+    def blocks(self) -> tuple[tuple[str, str | None], ...]:
+        """(block id, loop id) in the order first shown."""
+        return tuple(dict.fromkeys((d.block_id, d.loop_id) for d in self.displays))
+
+    @property
+    def screens(self) -> tuple[Display, ...]:
+        """Text-only screens (vignettes, instructions): shown, never answered."""
+        return tuple(d for d in self.displays if not d.responds)
+
+    def factor(self, factor_id: str) -> Exposure:
+        return next(f for f in self.factors if f.factor_id == factor_id)
+
+
+def exposures(run: RespondentRun, survey: Survey | Design) -> ExposureHistory:
+    """The respondent's exposure history: displays in order, attributed to randomizer arms.
+
+    Arms come from the audit's ``RandomizerDecision`` for each flow randomizer;
+    each arm's blocks from the survey's design. Within one randomizer the shown
+    arms run one after another, so each arm is given the contiguous run of
+    displays from its blocks, after the previous arm's. Limitation: if a block of
+    the first arm with displays is also shown *before* the randomizer, that
+    earlier display is attributed to the arm.
+    """
+    d = design(survey) if isinstance(survey, Survey) else survey
+    arms = {f.id: {a.key: a for a in f.arms} for f in d.factors}
+    shown = tuple(
+        o for o in run.trace if isinstance(o, Display) and o.kind not in INVISIBLE_KINDS
+    )
+    factors = []
+    for decision in run.audit:
+        if not isinstance(decision, RandomizerDecision) or decision.kind != "flow":
+            continue
+        by_key = arms.get(decision.node_id, {})
+        cursor: int | None = None  # where the previous arm's displays ended
+        out = []
+        for key in decision.shown:
+            arm = by_key.get(key)
+            blocks = set(arm.blocks) if arm else set()
+            start = (
+                next((i for i, o in enumerate(shown) if o.block_id in blocks), len(shown))
+                if cursor is None
+                else cursor
+            )
+            end = start
+            while end < len(shown) and shown[end].block_id in blocks:
+                end += 1
+            if end > start:
+                cursor = end
+            out.append(ArmExposure(key, arm.flow_id if arm else key, shown[start:end]))
+        factors.append(
+            Exposure(
+                decision.node_id,
+                decision.shown,
+                tuple(out),
+                decision.p_nominal,
+                decision.p_given_history,
+            )
+        )
+    return ExposureHistory(shown, tuple(factors))
