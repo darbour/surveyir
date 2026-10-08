@@ -1,4 +1,4 @@
-"""Validate the runtime (design, logic, simulator) against real Qualtrics responses.
+"""Consistency checks of the runtime (design, logic) against observed Qualtrics responses.
 
     uv run python scripts/validate_runtime.py ~/path/to/Twin-2K-500-Mega-Study/.dat
 
@@ -8,9 +8,26 @@ aggregates to tests/fixtures/validation/twin.json:
 * per flow randomizer: how often each arm was shown, among respondents who
   reached it (from the FL_<id>_DO_<arm> columns);
 * per block with randomized question order: how many questions each respondent saw;
-* branch / display-logic replay: each finished respondent's recorded embedded data
-  and answers are fed to the logic evaluator, which predicts which questions they
-  could see. A question predicted hidden but answered is a violation.
+* ``consistency``: each finished respondent's recorded embedded data and answers
+  are fed to the logic evaluator, which predicts which questions they could see
+  (display logic) and which branches they took. Both directions are counted:
+
+  - ``violations``: answered, but predicted hidden (or the branch predicted not
+    taken). The recorded response contradicts the evaluator.
+  - ``unknown``: predicted shown (or taken), but unanswered. A blank field cannot
+    tell a hidden question from a skipped one, so this is not a violation.
+  - ``unverifiable``: the condition reads a field the export lacks, or a
+    comparison the evaluator cannot decide (it records an approximation).
+
+These are consistency checks against observed responses. They do not validate
+what a respondent experienced, and they are not a replay. In particular, the
+state is rebuilt from *final* embedded values and completed responses, not
+replayed at each decision point: a field changed later in the flow, or an
+answer given after the condition was evaluated, is visible to every check.
+Checks whose condition reads an embedded field set inside the flow (by an
+embedded-data element or a web service) are marked ``final_state_dependent``
+and counted separately as well as in the totals; the others read only answers
+and fields supplied from outside the survey (URL parameters, panels).
 """
 
 from __future__ import annotations
@@ -29,9 +46,12 @@ from surveyir.model import (  # noqa: E402
     BlockNode,
     BranchNode,
     ChoiceQuestion,
+    EmbeddedDataNode,
     MatrixQuestion,
     RandomizerNode,
     Survey,
+    WebServiceNode,
+    iter_comparisons,
     walk,
 )
 from surveyir.runtime import Answer, RespondentState, evaluate  # noqa: E402
@@ -155,17 +175,75 @@ def respondent_state(survey: Survey, row: dict[str, str], columns) -> Respondent
     return state
 
 
+def _embedded_read(condition) -> set[str]:
+    return {
+        c.left.name
+        for c in iter_comparisons(condition)
+        if c.left.kind == "embedded_data" and c.left.name
+    }
+
+
 def _unknowable(condition, exported_fields: set[str]) -> bool:
     """True if the condition reads embedded data the export does not contain."""
-    from surveyir.model import iter_comparisons
-
-    return any(
-        c.left.kind == "embedded_data" and c.left.name not in exported_fields
-        for c in iter_comparisons(condition)
-    )
+    return bool(_embedded_read(condition) - exported_fields)
 
 
-def replay(survey: Survey, header: list[str], rows: list[dict]) -> dict:
+def flow_set_fields(survey: Survey) -> set[str]:
+    """Embedded fields the flow itself sets: their exported value is the final one, which
+    may differ from the value at the point a condition was evaluated."""
+    out: set[str] = set()
+    for node in survey.walk_flow():
+        if isinstance(node, EmbeddedDataNode):
+            out.update(
+                f.name
+                for f in node.fields
+                if f.source in ("custom", "random") and f.value is not None
+            )
+        elif isinstance(node, WebServiceNode):
+            out.update(node.sets_fields)
+    return out
+
+
+def _predict(condition, state: RespondentState, survey: Survey) -> bool | None:
+    """The evaluator's verdict, or None if it hit a comparison it cannot evaluate
+    (recorded as an approximation; the runtime treats it as false)."""
+    hit: list = []
+    state.on_approximation = hit.append
+    try:
+        result = evaluate(condition, state, survey)
+    finally:
+        state.on_approximation = None
+    return None if hit else bool(result)
+
+
+def _tally() -> dict:
+    return {
+        "checks": 0,
+        "violations": 0,
+        "unknown": 0,
+        "unverifiable": 0,
+        "final_state_dependent": {"checks": 0, "violations": 0, "unknown": 0},
+    }
+
+
+def _record(tally: dict, *, predicted: bool, answered: bool, final_state: bool) -> None:
+    """One check. ``predicted``: the evaluator says shown (display) or taken (branch)."""
+    outcome = None
+    if answered and not predicted:
+        outcome = "violations"
+    elif predicted and not answered:
+        outcome = "unknown"
+    for t in (tally, tally["final_state_dependent"]) if final_state else (tally,):
+        t["checks"] += 1
+        if outcome:
+            t[outcome] += 1
+
+
+def consistency(survey: Survey, header: list[str], rows: list[dict]) -> dict:
+    """Compare the evaluator's predictions with what each finished respondent answered.
+
+    Uses final embedded values and completed responses, not the state at each
+    decision point (see the module docstring)."""
     present = set(header)
     columns = [c for c in response_columns(survey) if col_key(c) in present]
     has_data: dict[str, list[str]] = {}
@@ -192,31 +270,49 @@ def replay(survey: Survey, header: list[str], rows: list[dict]) -> dict:
             if qids:
                 branch_blocks.append((node, qids))
     exported_fields = {c.name for c in columns if c.part == "embedded_data"}
-    result = Counter()
+    in_flow = flow_set_fields(survey)
+    display, branch = _tally(), _tally()
     finished = [r for r in rows if r.get(_canon({"ImportId": "finished"})) == "1"]
     for row in finished:
         state = respondent_state(survey, row, columns)
         for q in logic_qs:
-            if _unknowable(q.display_logic, exported_fields):
-                result["display_unverifiable"] += 1
+            shown = None
+            if not _unknowable(q.display_logic, exported_fields):
+                shown = _predict(q.display_logic, state, survey)
+            if shown is None:
+                display["unverifiable"] += 1
                 continue
-            answered = any(row.get(c) for c in has_data[q.id])
-            shown = evaluate(q.display_logic, state, survey)
-            result["display_checks"] += 1
-            if answered and not shown:
-                result["display_violations"] += 1
+            _record(
+                display,
+                predicted=shown,
+                answered=any(row.get(c) for c in has_data[q.id]),
+                final_state=bool(_embedded_read(q.display_logic) & in_flow),
+            )
         for node, qids in branch_blocks:
-            if _unknowable(node.condition, exported_fields):
-                result["branch_unverifiable"] += 1
+            taken = None
+            if not _unknowable(node.condition, exported_fields):
+                taken = _predict(node.condition, state, survey)
+            if taken is None:
+                branch["unverifiable"] += 1
                 continue
-            answered = any(row.get(c) for q in qids for c in has_data[q])
-            taken = evaluate(node.condition, state, survey)
-            result["branch_checks"] += 1
-            if answered and not taken:
-                result["branch_violations"] += 1
-            if taken and not answered:
-                result["branch_taken_unanswered"] += 1
-    return {"finished": len(finished), **result}
+            _record(
+                branch,
+                predicted=taken,
+                answered=any(row.get(c) for q in qids for c in has_data[q]),
+                final_state=bool(_embedded_read(node.condition) & in_flow),
+            )
+    return {"finished": len(finished), "display": display, "branch": branch}
+
+
+def _line(kind: str, t: dict) -> str:
+    if not t["checks"] and not t["unverifiable"]:
+        return ""
+    fs = t["final_state_dependent"]
+    return (
+        f"{kind}: {t['violations']} answered-but-predicted-hidden of {t['checks']} checks,"
+        f" {t['unknown']} unknown, {t['unverifiable']} unverifiable"
+        f" (final-state-dependent: {fs['violations']} of {fs['checks']}, {fs['unknown']} unknown)"
+    )
 
 
 def main(dat: Path) -> None:
@@ -231,15 +327,11 @@ def main(dat: Path) -> None:
             "respondents": len(rows),
             "randomizers": randomizer_counts(survey, header, rows),
             "blocks": block_counts(survey, header, rows),
-            "replay": replay(survey, header, rows),
+            "consistency": consistency(survey, header, rows),
         }
-        r = report[qsf.stem]["replay"]
-        print(
-            f"{qsf.stem:28s} display {r.get('display_violations', 0)}/{r.get('display_checks', 0)}"
-            f"  branch {r.get('branch_violations', 0)}/{r.get('branch_checks', 0)}"
-            f" (taken but unanswered {r.get('branch_taken_unanswered', 0)},"
-            f" unverifiable {r.get('branch_unverifiable', 0) + r.get('display_unverifiable', 0)})"
-        )
+        c = report[qsf.stem]["consistency"]
+        lines = [x for x in (_line(k, c[k]) for k in ("display", "branch")) if x]
+        print(f"{qsf.stem:28s} " + ("; ".join(lines) or "no logic checks"))
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(report, indent=1, sort_keys=True))
     print(f"wrote {OUT}")

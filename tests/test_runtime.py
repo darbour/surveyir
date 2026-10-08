@@ -270,6 +270,7 @@ def test_skip_logic_display_logic_and_end_survey():
                 }
             ],
         },
+        {"Type": "Page Break"},  # display logic reads answers from earlier pages
         {"Type": "Question", "QuestionID": "QID2"},
         {"Type": "Page Break"},
         {"Type": "Question", "QuestionID": "QID3"},
@@ -320,7 +321,12 @@ def test_carry_forward_uses_previous_answer():
             "Locator": "q://QID1/ChoiceGroup/SelectedChoices",
         },
     )
-    survey = load_qsf(minimal_qsf([src, dst]))
+    elements = [  # choices are carried forward from an earlier page
+        {"Type": "Question", "QuestionID": "QID1"},
+        {"Type": "Page Break"},
+        {"Type": "Question", "QuestionID": "QID2"},
+    ]
+    survey = load_qsf(minimal_qsf([src, dst], block_elements=elements))
     views = {}
 
     def answer(view, state):

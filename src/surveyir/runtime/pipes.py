@@ -7,6 +7,7 @@ import re
 from datetime import date
 
 from ..model import Pipe, Survey, Text
+from ..model.text import PIPE_PATTERN
 from .state import RespondentState
 
 
@@ -77,3 +78,30 @@ def render(
     """``text`` with every resolvable reference filled in."""
     rng = rng or random.Random()
     return text.render(lambda p: resolve_pipe(p, state, survey, rng))
+
+
+def render_display(
+    text: Text, state: RespondentState, survey: Survey | None, rng: random.Random
+) -> tuple[str, str]:
+    """``text`` as shown, plain and HTML, resolving each reference once.
+
+    Both renderings share the resolved values (a ``rand://`` reference draws once),
+    and neither keeps a resolvable reference, so field names stay out of the
+    output. References that cannot be resolved are left as written.
+    """
+    cache: dict[str, str | None] = {}
+
+    def resolve(pipe: Pipe) -> str | None:
+        if pipe.raw not in cache:
+            cache[pipe.raw] = resolve_pipe(pipe, state, survey, rng)
+        return cache[pipe.raw]
+
+    plain = text.render(resolve)
+    by_raw = {p.raw: p for p in text.pipes}
+
+    def sub(match: re.Match[str]) -> str:
+        pipe = by_raw.get(match.group(0))
+        value = resolve(pipe) if pipe is not None else None
+        return match.group(0) if value is None else value
+
+    return plain, PIPE_PATTERN.sub(sub, text.html)

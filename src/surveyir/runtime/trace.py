@@ -17,7 +17,7 @@ not re-deriving them from the instrument.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
@@ -42,6 +42,16 @@ class MediaRef:
     kind: str
     url: str | None = None
     id: str | None = None
+    description: str | None = None  # alt text or the platform's graphic description
+
+
+@dataclass(frozen=True)
+class SubQuestionShown:
+    """One column group of a side-by-side question."""
+
+    id: str
+    text: str
+    columns: tuple[ChoiceShown, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -74,6 +84,12 @@ class Display:
     revealed_in_page: bool = False  # shown by in-page display logic after an answer
     #: answer constraints the respondent is told about (e.g. min/max selections)
     validation: Mapping[str, Any] = field(default_factory=dict)
+    #: presentation mode, e.g. "single"/"multiple"/"text" (matrix), "form" (text entry)
+    mode: str | None = None
+    #: scale points for matrix rows whose scale differs from ``columns``, in source order
+    row_columns: Mapping[str, tuple[ChoiceShown, ...]] = field(default_factory=dict)
+    bounds: tuple[float, float] | None = None  # slider range
+    subquestions: tuple[SubQuestionShown, ...] = ()  # side-by-side column groups
 
     @property
     def responds(self) -> bool:
@@ -185,3 +201,76 @@ class Allowed:
 
 AuditEvent = (RandomizerDecision | BranchEval | Hidden | ChoiceHidden | EmbeddedSet | SkipTaken
               | Approximation | Allowed)
+
+
+# --------------------------------------------------------------------------- transcript
+
+#: displays a respondent never perceives (page timers and browser metadata)
+INVISIBLE_KINDS = frozenset({"timing", "meta_info"})
+
+
+def transcript(history: Sequence[Observation], *, include_ids: bool = True) -> str:
+    """The observations as plain text, in the order they happened.
+
+    Pages, screens (text, choices, scales), the respondent's own answers and the
+    end of the survey; nothing the respondent did not see. ``include_ids`` labels
+    questions and options with their ids, which answers refer to.
+    """
+    shown: dict[tuple[str, str | None], Display] = {}
+    lines: list[str] = []
+    for ob in history:
+        if isinstance(ob, PageStart):
+            lines += ["", f"--- Page {ob.page} ---"]
+        elif isinstance(ob, Display) and ob.kind not in INVISIBLE_KINDS:
+            shown[ob.qid, ob.loop_id] = ob
+            lines += _display_lines(ob, include_ids)
+        elif isinstance(ob, Response):
+            display = shown.get((ob.qid, ob.loop_id))
+            label = f"Answer ({ob.qid})" if include_ids else "Answer"
+            lines.append(f"{label}: {_value_text(ob.value, ob.text, display, include_ids)}")
+        elif isinstance(ob, End):
+            lines += ["", "--- End of survey ---"]
+    return "\n".join(lines).strip("\n")
+
+
+def _option(c: ChoiceShown, include_ids: bool) -> str:
+    return f"[{c.id}] {c.text}" if include_ids else c.text
+
+
+def _display_lines(d: Display, include_ids: bool) -> list[str]:
+    head = f"({d.qid}) {d.text}" if include_ids else d.text
+    lines = [head]
+    lines += [f"  [image: {m.description}]" for m in d.media if m.description]
+    lines += ["  " + _option(c, include_ids) for c in d.choices]
+    if d.columns:
+        lines.append("  Scale: " + "; ".join(_option(c, include_ids) for c in d.columns))
+    for s in d.subquestions:
+        cols = "; ".join(_option(c, include_ids) for c in s.columns)
+        lines.append(f"  {_option(ChoiceShown(s.id, s.text), include_ids)}: {cols}")
+    return lines
+
+
+def _value_text(
+    value: Any, text: Mapping[str, str], d: Display | None, include_ids: bool
+) -> str:
+    """An answer in the respondent's terms: option labels, "row: column" for grids."""
+    rows = {c.id: c for c in d.choices} if d else {}
+    cols = {c.id: c for c in d.columns} if d else {}
+
+    def label(v: Any, table: Mapping[str, ChoiceShown]) -> str:
+        c = table.get(str(v))
+        out = _option(c, include_ids) if c else str(v)
+        return f"{out} ({text[str(v)]})" if str(v) in text else out
+
+    def cell(v: Any) -> str:
+        if isinstance(v, list):
+            return ", ".join(label(x, cols) for x in v)
+        if isinstance(v, dict):
+            return ", ".join(f"{label(k, cols)}: {x}" for k, x in v.items())
+        return label(v, cols)
+
+    if isinstance(value, dict):
+        return "; ".join(f"{label(k, rows)}: {cell(v)}" for k, v in value.items())
+    if isinstance(value, list):
+        return "; ".join(label(v, rows) for v in value)
+    return label(value, rows)

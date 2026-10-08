@@ -7,17 +7,77 @@ real response data (branch replay in tests/test_runtime_validation.py):
   (case-sensitive unless ``ignore_case``).
 * "Selected" on a matrix cell (``choice_id`` row, ``answer_id`` column) means
   that column was picked in that row.
-* Anything the state cannot answer (unknown operator, GeoIP, missing question)
-  evaluates False and leaves a note on the state; evaluation never raises.
+* An unanswered or missing question is unanswered, not unknown: ``not_selected``,
+  ``not_displayed``, ``empty`` and ``not_equal`` hold for it, as in Qualtrics, and
+  ordering comparisons on it are false.
+* A comparison the runtime cannot evaluate (GeoIP without a supplied location,
+  scoring, a quota tested with anything but met/not met, an unknown operand or
+  operator) is ``UNKNOWN``: the comparison itself is false, whatever its
+  operator, and ``state.approximate`` records it (``logic.*`` codes, see
+  ``runtime.execution.APPROXIMATIONS``). So are invalid regular expressions and
+  ordering comparisons against a value that is present but not a number. In a
+  strict run the state's ``on_approximation`` hook raises instead.
 """
 
 from __future__ import annotations
 
 import re
-from typing import Any
+from collections.abc import Callable
+from typing import Any, Final
 
-from ..model import And, Comparison, Condition, Or, Survey
+from ..model import And, Comparison, Condition, Operand, Or, Survey
 from .state import RespondentState
+
+
+class _Unknown:
+    """A value the runtime cannot know. Distinct from ``None`` (unanswered)."""
+
+    def __repr__(self) -> str:
+        return "UNKNOWN"
+
+    def __bool__(self) -> bool:
+        return False
+
+
+UNKNOWN: Final = _Unknown()
+
+_Record = Callable[[str, str], None]  # (code, detail) -> None; location is bound
+
+
+def operand_location(left: Operand) -> str:
+    """Where a ``logic.*`` approximation is reported: the question id, else the raw locator."""
+    return left.question_id or left.raw or left.name or left.kind
+
+
+def unevaluable(c: Comparison, location: dict[str, str] | None = None) -> tuple[str, str] | None:
+    """``(code, detail)`` if the runtime cannot evaluate ``c``, else None.
+
+    Static: it depends only on the comparison (and, for GeoIP, on whether a
+    respondent location is supplied), never on answers. ``executability`` uses it
+    to predict exactly the approximations ``evaluate`` will record.
+    """
+    left, op = c.left, c.operator
+    if op == "other":
+        return "logic.other_operator", (
+            f"cannot evaluate operator {c.source_operator!r} on {left.raw!r}; treated as false"
+        )
+    if op in ("quota_met", "quota_not_met"):
+        return None
+    kind = left.kind
+    if kind in ("embedded_data", "loop_field", "device", "constant"):
+        return None
+    if kind == "question" and left.question_id:
+        return None
+    if kind == "geo_ip" and location is not None and _geo_name(left) in location:
+        return None
+    code = {"geo_ip": "logic.geo_ip", "scoring": "logic.scoring", "quota": "logic.quota"}.get(
+        kind, "logic.other_operand"
+    )
+    return code, f"cannot evaluate {kind} operand {left.raw!r}; treated as false"
+
+
+def _geo_name(left: Operand) -> str:
+    return (left.name or left.raw or "").removeprefix("loc://")
 
 
 def _num(value: Any) -> float | None:
@@ -38,6 +98,7 @@ def _as_list(value: Any) -> list:
 
 
 def _operand_value(c: Comparison, state: RespondentState, survey: Survey | None) -> Any:
+    """The operand's value; ``None`` if unanswered, ``UNKNOWN`` if it cannot be known."""
     left = c.left
     if left.kind == "embedded_data":
         return state.embedded.get(left.name or "", "")
@@ -48,9 +109,10 @@ def _operand_value(c: Comparison, state: RespondentState, survey: Survey | None)
         return state.loop.fields.get(name, "")
     if left.kind == "device":
         return state.device
+    if left.kind == "geo_ip" and _geo_name(left) in state.location:
+        return state.location[_geo_name(left)]
     if left.kind != "question" or not left.question_id:
-        state.note(f"cannot evaluate {left.kind} operand {left.raw!r}; treated as false")
-        return None
+        return UNKNOWN
     answer = state.answer(left.question_id, left.loop_iteration)
     value = answer.value if answer else None
     sel = left.selector or ""
@@ -101,13 +163,21 @@ def _displayed(c: Comparison, state: RespondentState) -> bool:
     return state.was_displayed(qid, left.loop_iteration)
 
 
-def _compare(op: str, value: Any, right: str | None, ignore_case: bool) -> bool:
+def _present(value: Any) -> bool:
+    return not (value is None or value == "" or value == [] or value == {})
+
+
+def _compare(op: str, value: Any, right: str | None, ignore_case: bool, record: _Record) -> bool:
     if op in ("empty", "not_empty"):
-        empty = value is None or value == "" or value == [] or value == {}
-        return empty if op == "empty" else not empty
+        return _present(value) is (op == "not_empty")
     a, b = _num(value), _num(right)
     if op in ("greater_than", "greater_than_or_equal", "less_than", "less_than_or_equal"):
         if a is None or b is None:
+            if _present(value) or b is None:  # unanswered is simply false, not unknown
+                record(
+                    "logic.non_numeric",
+                    f"{op} compares {value!r} with {right!r}, not both numbers; treated as false",
+                )
             return False
         return {
             "greater_than": a > b,
@@ -129,7 +199,8 @@ def _compare(op: str, value: Any, right: str | None, ignore_case: bool) -> bool:
     if op == "matches_regex":
         try:
             return re.search(target, text) is not None
-        except re.error:
+        except re.error as e:
+            record("logic.regex_invalid", f"invalid regular expression {target!r} ({e}); false")
             return False
     return False
 
@@ -146,6 +217,14 @@ def evaluate(
         return any(evaluate(t, state, survey) for t in condition.terms)
     c = condition
     op = c.operator
+
+    def record(code: str, detail: str) -> None:
+        state.approximate(code, operand_location(c.left), "routing", detail)
+
+    reason = unevaluable(c, state.location)
+    if reason is not None:  # UNKNOWN: the comparison is false whatever its operator
+        record(*reason)
+        return False
     if op in ("selected", "not_selected"):
         hit = _selected(c, state)
         return hit if op == "selected" else not hit
@@ -155,9 +234,10 @@ def evaluate(
     if op in ("quota_met", "quota_not_met"):
         met = (c.left.name or c.left.raw) in state.quotas_met
         return met if op == "quota_met" else not met
-    if op == "other":
-        state.note(f"cannot evaluate operator {c.source_operator!r}; treated as false")
-        return False
     if c.left.kind == "constant":
-        return _compare(op, c.left.name or c.left.raw, c.right, c.ignore_case)
-    return _compare(op, _operand_value(c, state, survey), c.right, c.ignore_case)
+        return _compare(op, c.left.name or c.left.raw, c.right, c.ignore_case, record)
+    value = _operand_value(c, state, survey)
+    if value is UNKNOWN:  # defensive: unevaluable() should have caught it
+        record("logic.other_operand", f"cannot evaluate operand {c.left.raw!r}; treated as false")
+        return False
+    return _compare(op, value, c.right, c.ignore_case, record)

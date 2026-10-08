@@ -2,15 +2,19 @@
 
 tests/fixtures/validation/twin.json holds aggregates computed from the studies'
 response files by scripts/validate_runtime.py (the response rows themselves are
-not in this repository). These tests check that simulated respondents reproduce
-what real Qualtrics respondents experienced:
+not in this repository). These are consistency checks against observed
+responses, not a validation of what respondents experienced:
 
 * each flow randomizer shows the same number of arms per respondent, the arms
   carry the same names as the real FL_<id>_DO_<arm> columns, and arm frequencies
   match (within sampling error);
 * blocks with randomized question order show the same number of questions;
-* replaying real respondents' embedded data and answers through the logic
+* feeding real respondents' final embedded data and answers to the logic
   evaluator never predicts a question or branch was hidden when it was answered.
+  The recorded result also counts the other direction (predicted shown but
+  unanswered), which is unknown rather than a violation, and the checks that
+  depend on fields set inside the flow, whose final value may not be the value
+  at the decision point. See the script's docstring.
 
 Set SURVEYIR_TWIN_DAT to the Twin-2K-500-Mega-Study ``.dat`` directory to also
 recompute the aggregates from the raw responses and compare them to the fixture.
@@ -94,10 +98,34 @@ def test_randomized_blocks_show_same_number_of_questions(study, simulations):
 
 
 @pytest.mark.parametrize("study", STUDIES)
-def test_logic_replay_has_no_violations(study):
-    replay = DATA[study]["replay"]
-    assert replay.get("display_violations", 0) == 0
-    assert replay.get("branch_violations", 0) == 0
+def test_recorded_consistency_checks_have_no_violations(study):
+    """Reads the recorded result in twin.json; recomputing it needs the raw data (below)."""
+    checks = DATA[study]["consistency"]
+    for kind in ("display", "branch"):
+        t = checks[kind]
+        assert t["violations"] == 0, kind
+        fs = t["final_state_dependent"]
+        assert fs["violations"] == 0 and fs["checks"] <= t["checks"], kind
+        assert t["unknown"] <= t["checks"] and fs["unknown"] <= t["unknown"]
+
+
+def test_recorded_consistency_checks_cover_both_directions():
+    """The recorded checks are not vacuous, and both directions and the final-state
+    subset are reported."""
+    totals = {
+        kind: {
+            k: sum(DATA[s]["consistency"][kind][k] for s in STUDIES) for k in ("checks", "unknown")
+        }
+        for kind in ("display", "branch")
+    }
+    assert totals["display"]["checks"] > 10_000 and totals["branch"]["checks"] > 20_000
+    assert totals["branch"]["unknown"] > 0  # taken but unanswered: reported, not a violation
+    final_state = sum(
+        DATA[s]["consistency"][k]["final_state_dependent"]["checks"]
+        for s in STUDIES
+        for k in ("display", "branch")
+    )
+    assert 0 < final_state < totals["display"]["checks"] + totals["branch"]["checks"]
 
 
 @pytest.mark.skipif(not os.environ.get("SURVEYIR_TWIN_DAT"), reason="raw responses not available")
@@ -107,6 +135,7 @@ def test_aggregates_are_reproducible_from_raw_responses(tmp_path, monkeypatch):
     spec = importlib.util.spec_from_file_location(
         "validate_runtime", ROOT / "scripts" / "validate_runtime.py"
     )
+    assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     out = tmp_path / "twin.json"

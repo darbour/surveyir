@@ -62,15 +62,26 @@ def test_llm_example_with_a_fake_client():
     sys.path.insert(0, str(ROOT))
     import surveyir
     from examples.llm_respondents import MODEL, claude_answerer
-    from surveyir.runtime import Simulator
+    from surveyir.runtime import Display, Simulator
+    from surveyir.runtime.trace import Response
 
     survey = surveyir.load(ROOT / "tests/fixtures/qualtrics/obedient_twins.qsf")
     client = FakeClient()
     run = Simulator(survey, seed=1).respondent(claude_answerer(client, "You are a test persona."))
-    assert run.answers and len(run.displayed) > 2
-    first = client.requests[0]
+    assert run.answers and len(run.displayed) > 2 and not run.privileged
+    first, last = client.requests[0], client.requests[-1]
     assert first["model"] == MODEL and first["fallbacks"] == "default"
     assert "You are a test persona." in first["system"]
+    # one conversation: every earlier answer is an assistant turn, and the screens
+    # shown before (text-only ones included) are in the user turns
+    roles = [m["role"] for m in last["messages"]]
+    assert roles == ["user", "assistant"] * (len(client.requests) - 1) + ["user"]
+    said = "\n".join(m["content"] for m in last["messages"] if m["role"] == "user")
+    asked = [o.seq for o in run.trace if isinstance(o, Response)][-1]  # the last request
+    screens = [o for o in run.trace if isinstance(o, Display) and o.kind == "descriptive"]
+    assert screens and all(d.text in said for d in screens if d.seq < asked)
+    assert "s_1" not in said and "FL_" not in said  # no assignment fields or flow ids
 
     refused = Simulator(survey, seed=1).respondent(claude_answerer(FakeClient(refuse=True), "x"))
     assert refused.answers == {}
+

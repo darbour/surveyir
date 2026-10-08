@@ -2,11 +2,17 @@
 
     ANTHROPIC_API_KEY=... uv run --with anthropic python examples/llm_respondents.py
 
-Each simulated respondent gets a persona. For every question the survey shows
-them, Claude sees the question as displayed (piped text filled in, choices in
-the order shown) and answers in a JSON shape constrained to the valid choice
-ids, so every answer can be recorded. The survey's own randomization, branches
-and display logic decide which questions each persona sees.
+Each simulated respondent gets a persona and one conversation that grows as they
+move through the survey. Every request carries everything this respondent has
+been shown so far: text-only screens such as consent forms and treatment
+vignettes, earlier questions and their own answers, and the whole current page.
+Each answer is a JSON object constrained to the valid choice ids, so it can be
+recorded. The survey's own randomization, branches and display logic decide
+what each persona sees.
+
+Claude is given only what the respondent saw (``ctx.history``, see
+``surveyir.runtime.transcript``): never the assigned condition, embedded data,
+or the survey's logic.
 
 Requests opt in to server-side refusal fallbacks (``fallbacks="default"``): if a
 request is declined, the API retries it on a fallback model inside the same
@@ -22,22 +28,21 @@ import sys
 from typing import Any
 
 import surveyir
-from surveyir.model import ChoiceQuestion, MatrixQuestion, TextEntryQuestion
-from surveyir.runtime import QuestionView, RespondentState, Simulator
+from surveyir.runtime import Display, ResponseContext, Simulator, transcript
+from surveyir.runtime.trace import Response
 
 MODEL = "claude-opus-5-5"
 
 
-def answer_schema(view: QuestionView) -> dict | None:
+def answer_schema(view: Display) -> dict | None:
     """JSON schema for a valid answer to ``view``, or None for unsupported kinds."""
-    q = view.question
     ids = [c.id for c in view.choices]
-    if isinstance(q, ChoiceQuestion) and ids:
-        if q.multiple:
+    if view.kind == "choice" and ids:
+        if view.multiple:
             answer = {"type": "array", "items": {"type": "string", "enum": ids}}
         else:
             answer = {"type": "string", "enum": ids}
-    elif isinstance(q, MatrixQuestion) and q.mode in ("single", "bipolar", "dropdown") and ids:
+    elif view.kind == "matrix" and view.mode in ("single", "bipolar", "dropdown") and ids:
         cols = [c.id for c in view.columns]
         answer = {
             "type": "object",
@@ -45,7 +50,7 @@ def answer_schema(view: QuestionView) -> dict | None:
             "required": ids,
             "additionalProperties": False,
         }
-    elif isinstance(q, TextEntryQuestion) and q.mode != "form":
+    elif view.kind == "text_entry" and view.mode != "form":
         answer = {"type": "string"}
     else:
         return None  # sliders, rank order, forms, ...: not covered by this example
@@ -57,39 +62,57 @@ def answer_schema(view: QuestionView) -> dict | None:
     }
 
 
-def render_question(view: QuestionView) -> str:
-    """The question as the respondent sees it, with choice ids to answer with."""
-    lines = [view.text]
-    if isinstance(view.question, MatrixQuestion):
-        lines.append("Rate each statement:")
-        lines += [f"  [{c.id}] {c.text}" for c in view.choices]
-        lines.append("Scale: " + "; ".join(f"[{c.id}] {c.text}" for c in view.columns))
-    else:
-        lines += [f"  [{c.id}] {c.text}" for c in view.choices]
-    return "\n".join(lines)
+def conversation(ctx: ResponseContext) -> list[dict]:
+    """The respondent's survey so far as alternating turns.
+
+    What was shown goes in user turns (as ``transcript`` renders it), each earlier
+    answer in the assistant turn that gave it, and the last user turn asks for
+    the current question, whose page is already in the history.
+    """
+    messages: list[dict] = []
+    shown: list[Any] = []
+    for ob in ctx.history:
+        if isinstance(ob, Response):
+            messages.append({"role": "user", "content": _turn(shown, ob.qid)})
+            messages.append({"role": "assistant", "content": json.dumps({"answer": ob.value})})
+            shown = []
+        else:
+            shown.append(ob)
+    messages.append({"role": "user", "content": _turn(shown, ctx.view.qid)})
+    return messages
 
 
-def claude_answerer(client: Any, persona: str, model: str = MODEL):
-    """An answerer for ``Simulator`` that asks Claude to respond as ``persona``.
+def _turn(shown: list[Any], qid: str) -> str:
+    seen = transcript(shown)
+    ask = f"Answer question {qid}."
+    return f"{seen}\n\n{ask}" if seen else ask
+
+
+class ClaudeRespondent:
+    """A ``Respondent`` for ``Simulator`` that asks Claude to answer as ``persona``.
 
     ``client`` is an ``anthropic.Anthropic()`` instance (or anything with the same
     ``beta.messages.create`` method, which keeps this testable offline).
     """
-    system = (
-        f"You are taking part in a survey. {persona} Answer every question as this "
-        "person would, honestly and in character. Use the bracketed ids to pick "
-        "choices; for text questions, write what this person would type."
-    )
 
-    def answer(view: QuestionView, state: RespondentState) -> Any:
-        schema = answer_schema(view)
+    def __init__(self, client: Any, persona: str, model: str = MODEL) -> None:
+        self.client, self.model = client, model
+        self.system = (
+            f"You are taking part in a survey. {persona} You will see each screen of the "
+            "survey as it is shown to you, including your earlier answers. Answer every "
+            "question as this person would, honestly and in character. Use the bracketed "
+            "ids to pick choices; for text questions, write what this person would type."
+        )
+
+    def answer(self, ctx: ResponseContext) -> Any:
+        schema = answer_schema(ctx.view)
         if schema is None:
             return None
-        response = client.beta.messages.create(
-            model=model,
+        response = self.client.beta.messages.create(
+            model=self.model,
             max_tokens=1024,  # answers are short JSON objects
-            system=system,
-            messages=[{"role": "user", "content": render_question(view)}],
+            system=self.system,
+            messages=conversation(ctx),
             output_config={"format": {"type": "json_schema", "schema": schema}},
             betas=["server-side-fallback-2026-07-01"],
             fallbacks="default",
@@ -99,7 +122,10 @@ def claude_answerer(client: Any, persona: str, model: str = MODEL):
         text = next(b.text for b in response.content if b.type == "text")
         return json.loads(text)["answer"]
 
-    return answer
+
+def claude_answerer(client: Any, persona: str, model: str = MODEL) -> ClaudeRespondent:
+    """A ``ClaudeRespondent`` (kept under this name for existing callers)."""
+    return ClaudeRespondent(client, persona, model)
 
 
 PERSONAS = [
@@ -119,7 +145,7 @@ def main(path: str = "tests/fixtures/qualtrics/hiring_algorithms.qsf") -> None:
     writer = csv.writer(sys.stdout)
     writer.writerow(columns)
     for persona in PERSONAS:
-        run = sim.respondent(claude_answerer(client, persona))
+        run = sim.respondent(ClaudeRespondent(client, persona))
         writer.writerow([value for _, value in run.cells(survey)])
 
 

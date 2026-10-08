@@ -2,10 +2,18 @@
 
 ``design(survey)`` lists every randomization point without enumerating cells
 (designs combine quickly: six 1-of-3 randomizers in random order is already
-3^6 x 6! paths). Each between-subjects randomizer becomes a ``Factor`` whose
-arms carry their inclusion probability and the embedded-data values they
-assign, which is usually how the condition is recorded in the data. Factors
-at the same level of the flow are crossed; factors inside an arm are nested.
+3^6 x 6! paths). Each flow randomizer becomes a ``Factor`` whose arms carry
+their nominal share (k/n) and the embedded-data values they assign, which is
+usually how the condition is recorded in the data. Factors at the same level of
+the flow are crossed; factors inside an arm are nested.
+
+The shares are nominal: they describe the randomizer, not what a particular
+respondent was exposed to. They ignore branch conditions, and under Qualtrics'
+"evenly present" (least-filled) balancing the next draw depends on earlier
+respondents' counts, so a given draw can be forced. ``Factor.contrast`` says
+whether a factor is an exclusive exposure (k < n) or only an order contrast
+(every arm shown). A researcher can declare the intended scientific contrast
+with ``design(survey, annotations=...)``.
 
 Randomization the .qsf cannot describe (JavaScript, web services, library
 blocks) is listed in ``Design.opaque`` so a simulation can flag it.
@@ -13,11 +21,15 @@ blocks) is listed in ``Design.opaque`` so a simulation can flag it.
 
 from __future__ import annotations
 
+import importlib
 import itertools
+import json
 import re
-from typing import Literal
+from collections.abc import Mapping
+from pathlib import Path
+from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, computed_field
 
 from ..describe import describe_condition
 from ..model import (
@@ -39,21 +51,47 @@ class Arm(BaseModel):
     key: str = Field(description="Key used in the FL_<id>_DO export columns.")
     flow_id: str
     label: str
-    probability: float = Field(
-        description="Chance this arm is shown, given the respondent reaches the factor (k/n)."
+    nominal_share: float = Field(
+        description="k/n: the share of respondents reaching the factor that the randomizer "
+        "nominally assigns this arm. It is not an exposure probability, and it is not "
+        "conditional on the balancing history: under even (least-filled) presentation the "
+        "next draw can be forced by earlier respondents' counts."
     )
-    marginal_probability: float = Field(
-        description="Chance a respondent sees this arm at all: probability times the "
-        "probabilities of the enclosing arms. Branch conditions are not included."
+    nominal_marginal: float = Field(
+        description="Product of nominal_share and the nominal shares of the enclosing arms. "
+        "Branch conditions are explicitly excluded, so this is neither the chance that a "
+        "respondent sees the arm nor conditional on the balancing history."
     )
     assignments: dict[str, str] = Field(
         default_factory=dict, description="Embedded data set inside this arm (field -> value)."
     )
     blocks: list[str] = Field(default_factory=list, description="Block ids inside this arm.")
 
+    @computed_field(description="Deprecated alias of nominal_share (same value).")
+    @property
+    def probability(self) -> float:
+        return self.nominal_share
+
+    @computed_field(description="Deprecated alias of nominal_marginal (same value).")
+    @property
+    def marginal_probability(self) -> float:
+        return self.nominal_marginal
+
+
+class FactorAnnotation(BaseModel):
+    """A researcher's declaration of the scientific contrast a factor is meant to carry."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    contrast: Literal["exposure", "order"] | None = Field(
+        default=None, description="The intended contrast: exclusive exposure or order."
+    )
+    treatment: str | None = Field(default=None, description="What the arms manipulate.")
+    note: str | None = None
+
 
 class Factor(BaseModel):
-    """A flow randomizer: a between-subjects (k < n) or order (k = n) manipulation."""
+    """A flow randomizer: an exposure (k < n) or order (k = n) manipulation."""
 
     id: str
     description: str | None = None
@@ -72,12 +110,35 @@ class Factor(BaseModel):
     last_shown_assigns: list[str] = Field(
         default_factory=list,
         description="Fields every arm sets when all arms are shown: the last arm shown "
-        "wins, so this is effectively a 1-of-n assignment (each value with p = 1/n).",
+        "wins, so each value is recorded with nominal share 1/n. Everyone still saw every "
+        "arm; see recorded_field and contrast.",
+    )
+    annotation: FactorAnnotation | None = Field(
+        default=None, description="The contrast a researcher declared via design(annotations=)."
     )
 
     @property
     def between_subjects(self) -> bool:
+        """k < n, or every arm shown but a field records the last one (doublecast relies on
+        this including last-shown factors). See ``contrast`` for what was compared."""
         return self.k < self.n or bool(self.last_shown_assigns)
+
+    @computed_field(
+        description="'exposure' when k < n (each respondent sees an exclusive subset of the "
+        "arms); 'order' when every arm is shown, so only the order differs between respondents."
+    )
+    @property
+    def contrast(self) -> Literal["exposure", "order"]:
+        return "exposure" if self.k < self.n else "order"
+
+    @computed_field(
+        description="For last-shown factors: every respondent saw every stimulus, and these "
+        "fields hold the value set by the last one shown. The contrast is order (which arm "
+        "came last), not exclusive exposure. Same content as last_shown_assigns."
+    )
+    @property
+    def recorded_field(self) -> list[str]:
+        return list(self.last_shown_assigns)
 
     @property
     def treatment_fields(self) -> list[str]:
@@ -152,22 +213,25 @@ class Design(BaseModel):
     def summary(self) -> str:
         lines = []
         for f in self.factors:
-            kind = "between-subjects" if f.between_subjects else "order"
-            if f.last_shown_assigns:
-                kind += f" (all shown; last arm sets {', '.join(f.last_shown_assigns)})"
+            kind = f"{f.contrast} contrast"
+            if f.recorded_field:
+                kind += (
+                    f"; field {', '.join(f.recorded_field)} records the last arm shown "
+                    f"(each value with nominal share 1/{f.n})"
+                )
             even = ", evenly presented" if f.even_presentation else ""
             where = f" within {' > '.join(f.within)}" if f.within else ""
             cond = f" if {f.condition}" if f.condition else ""
             lines.append(f"{f.id}: {kind}, {f.k} of {f.n}{even}{where}{cond}")
+            if f.annotation is not None:
+                lines.append(f"  declared: {_describe_annotation(f)}")
             for a in f.arms:
                 assign = ", ".join(
                     f"{k}={v if len(v) <= 40 else v[:39] + '…'!r}" for k, v in a.assignments.items()
                 )
-                p = f"p={a.probability:.3g}"
-                if f.last_shown_assigns:
-                    p += f", assigned {1 / f.n:.3g}"
-                if abs(a.marginal_probability - a.probability) > 1e-9:
-                    p += f", overall {a.marginal_probability:.3g}"
+                p = f"nominal share {a.nominal_share:.3g}"
+                if abs(a.nominal_marginal - a.nominal_share) > 1e-9:
+                    p += f", nominal marginal {a.nominal_marginal:.3g}"
                 lines.append(f"  - {a.label} ({p}){': ' + assign if assign else ''}")
         for o in self.order:
             lines.append(f"{o.kind} randomized at {o.location} ({o.mode})")
@@ -175,7 +239,54 @@ class Design(BaseModel):
             lines.append(f"random value {r.field} = {r.expression}")
         for o in self.opaque:
             lines.append(f"NOT REPRODUCIBLE: {o.kind} at {o.location}: {o.detail}")
+        if self.factors:
+            lines.append(
+                "Nominal shares are k/n, ignoring branches; not exposure probabilities, "
+                "nor conditional on balancing history."
+            )
         return "\n".join(lines)
+
+
+def _describe_annotation(f: Factor) -> str:
+    a = f.annotation
+    assert a is not None
+    parts = []
+    if a.contrast is not None:
+        parts.append(f"{a.contrast} contrast")
+        if a.contrast != f.contrast:
+            parts[-1] += f" (the structure gives {f.contrast})"
+    if a.treatment:
+        parts.append(f"treatment: {a.treatment}")
+    if a.note:
+        parts.append(f"note: {a.note}")
+    return "; ".join(parts) or "(empty annotation)"
+
+
+Annotations = Mapping[str, Mapping[str, Any] | FactorAnnotation]
+
+
+def _load_annotations(annotations: Annotations | str | Path) -> dict[str, FactorAnnotation]:
+    """Annotations from a mapping, or from a JSON or YAML file (YAML needs PyYAML)."""
+    if isinstance(annotations, (str, Path)):
+        path = Path(annotations)
+        text = path.read_text(encoding="utf-8")
+        if path.suffix.lower() == ".json":
+            raw = json.loads(text)
+        else:
+            try:
+                yaml = importlib.import_module("yaml")
+            except ImportError as e:
+                raise ImportError(
+                    f"reading {path.name} needs PyYAML (pip install pyyaml), or use a .json file"
+                ) from e
+            raw = yaml.safe_load(text) or {}
+        if not isinstance(raw, dict):
+            raise ValueError(f"{path}: annotations must be a mapping of factor id -> fields")
+        annotations = raw
+    return {
+        str(fid): a if isinstance(a, FactorAnnotation) else FactorAnnotation.model_validate(a)
+        for fid, a in annotations.items()
+    }
 
 
 def _children(node: FlowNode) -> list[FlowNode]:
@@ -199,7 +310,14 @@ def _blocks(node: FlowNode) -> list[str]:
     return [n.block_id for n in walk([node]) if isinstance(n, BlockNode)]
 
 
-def design(survey: Survey) -> Design:
+def design(survey: Survey, annotations: Annotations | str | Path | None = None) -> Design:
+    """The survey's randomization points.
+
+    ``annotations`` maps factor ids to a declared contrast, e.g.
+    ``{"FL_5": {"contrast": "exposure", "treatment": "loss frame", "note": "..."}}``; it may
+    also be a path to a JSON or YAML file holding that mapping. Unknown factor ids raise
+    ``ValueError``.
+    """
     d = Design()
 
     def visit(nodes: list[FlowNode], path: list[str], conds: list[str], reach: float = 1.0) -> None:
@@ -220,8 +338,8 @@ def design(survey: Survey) -> Design:
                             key=key,
                             flow_id=child.id,
                             label=label,
-                            probability=k / n if n else 0.0,
-                            marginal_probability=reach * (k / n if n else 0.0),
+                            nominal_share=k / n if n else 0.0,
+                            nominal_marginal=reach * (k / n if n else 0.0),
                             assignments=_assignments(children if children is not None else [child]),
                             blocks=_blocks(child),
                         )
@@ -250,7 +368,7 @@ def design(survey: Survey) -> Design:
                         _children(child) if hasattr(child, "children") else [child],
                         [*path, f"{node.id}:{arm.key}"],
                         conds,
-                        arm.marginal_probability,
+                        arm.nominal_marginal,
                     )
             elif isinstance(node, BranchNode):
                 cond = describe_condition(node.condition, survey)
@@ -284,6 +402,16 @@ def design(survey: Survey) -> Design:
                 visit(children, path, conds, reach)
 
     visit(survey.flow, [], [])
+    if annotations is not None:
+        declared = _load_annotations(annotations)
+        by_id = {f.id: f for f in d.factors}
+        unknown = sorted(set(declared) - set(by_id))
+        if unknown:
+            raise ValueError(
+                f"annotations name unknown factors {unknown}; factors are {sorted(by_id)}"
+            )
+        for fid, a in declared.items():
+            by_id[fid].annotation = a
     for block in survey.blocks.values():
         r = block.randomization
         if r is not None and r.mode != "none":

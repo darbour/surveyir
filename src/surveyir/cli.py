@@ -1,4 +1,4 @@
-"""Command-line interface: ``surveyir convert|inspect|formats|schema``."""
+"""Command-line interface: ``surveyir convert|inspect|design|check|simulate|formats|schema``."""
 
 from __future__ import annotations
 
@@ -145,6 +145,56 @@ def cmd_design(args: argparse.Namespace) -> int:
     return 0
 
 
+def _policy(args: argparse.Namespace) -> Any:
+    """The ``ExecutionPolicy`` from ``--strict/--permissive`` and ``--allow``."""
+    from .runtime.execution import ExecutionPolicy
+
+    try:
+        return ExecutionPolicy.from_args(args.strict, args.allow)
+    except ValueError as e:
+        raise SystemExit(f"surveyir: {e}") from None
+
+
+def cmd_check(args: argparse.Namespace) -> int:
+    from .runtime.executability import executability
+
+    survey = load(args.input, format=args.source_format)
+    policy = _policy(args)
+    report = executability(survey)
+    blocking = report.blocking(policy) if args.strict else []
+    if args.json:
+        print(json.dumps(report.to_dict(policy if args.strict else None), indent=2))
+    else:
+        print(report.summary())
+        if blocking:
+            print(f"\nBlocking under strict execution ({len(blocking)}):")
+            for f in blocking:
+                print(f"  {f.code} at {f.location} ({f.affects}): {f.detail}")
+                print(f"    resolve: {f.resolution()}")
+            print("\nOr run permissively (--permissive / strict=False); gaps are then recorded.")
+    return 1 if blocking else 0
+
+
+def _simulator_execution(args: argparse.Namespace, simulator: Any) -> dict[str, Any]:
+    """Keyword arguments that apply ``args.policy`` to ``simulator``, if it supports them."""
+    import inspect
+
+    params = inspect.signature(simulator).parameters
+    policy = args.policy
+    if "policy" in params:
+        return {"policy": policy}
+    if "strict" in params:
+        kw: dict[str, Any] = {"strict": policy.strict}
+        if "allow" in params:
+            kw["allow"] = set(policy.allow)
+        return kw
+    if args.strict or args.allow:
+        raise NotImplementedError(
+            "strict execution is not available from Simulator yet; omit --strict/--allow"
+        )
+    return {}
+
+
 def cmd_simulate(args: argparse.Namespace) -> int:
     import csv
 
@@ -153,7 +203,7 @@ def cmd_simulate(args: argparse.Namespace) -> int:
 
     survey = load(args.input, format=args.source_format)
     options = ColumnOptions(include_metadata=True)
-    sim = Simulator(survey, seed=args.seed)
+    sim = Simulator(survey, seed=args.seed, **_simulator_execution(args, Simulator))
     answerer = ScreenerAwareAnswerer(survey, seed=args.seed)
     names = [c.name for c in response_columns(survey, options=options)]
 
@@ -169,6 +219,22 @@ def cmd_simulate(args: argparse.Namespace) -> int:
     else:
         write(sys.stdout)
     return 0
+
+
+def _execution_flags(p: argparse.ArgumentParser, *, strict_default: bool | None = None) -> None:
+    g = p.add_mutually_exclusive_group()
+    g.add_argument(
+        "--strict", dest="strict", action="store_true", default=strict_default,
+        help="Stop at anything that cannot be administered exactly (check: exit 1 if any).",
+    )
+    g.add_argument(
+        "--permissive", dest="strict", action="store_false",
+        help="Approximate gaps and record them instead of stopping.",
+    )
+    p.add_argument(
+        "--allow", action="append", default=[], metavar="CODE[:LOCATION]",
+        help="Accept an approximation by code, or code:location; repeatable.",
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -215,7 +281,17 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--seed", type=int, default=None)
     p.add_argument("-o", "--output", help="CSV path (default: stdout).")
     p.add_argument("-f", "--from", dest="source_format")
+    _execution_flags(p)
     p.set_defaults(func=cmd_simulate)
+
+    p = sub.add_parser(
+        "check", help="List what the runtime can and cannot administer exactly."
+    )
+    p.add_argument("input")
+    p.add_argument("-f", "--from", dest="source_format")
+    _execution_flags(p, strict_default=False)
+    p.add_argument("--json", action="store_true", help="Machine-readable report.")
+    p.set_defaults(func=cmd_check)
 
     p = sub.add_parser("formats", help="List input and output formats.")
     p.set_defaults(func=cmd_formats)
@@ -225,6 +301,8 @@ def main(argv: list[str] | None = None) -> int:
     p.set_defaults(func=cmd_schema)
 
     args = parser.parse_args(argv)
+    if hasattr(args, "allow"):
+        args.policy = _policy(args)
     return args.func(args)
 
 

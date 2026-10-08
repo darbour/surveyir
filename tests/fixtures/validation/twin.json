@@ -9,6 +9,31 @@
     }
    }
   },
+  "consistency": {
+   "branch": {
+    "checks": 6018,
+    "final_state_dependent": {
+     "checks": 6018,
+     "unknown": 498,
+     "violations": 0
+    },
+    "unknown": 498,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "display": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "finished": 1003
+  },
   "randomizers": {
    "FL_1027": {
     "arms": {
@@ -97,15 +122,35 @@
     }
    }
   },
-  "replay": {
-   "branch_checks": 6018,
-   "branch_taken_unanswered": 498,
-   "finished": 1003
-  },
   "respondents": 1003
  },
  "affective_priming": {
   "blocks": {},
+  "consistency": {
+   "branch": {
+    "checks": 2000,
+    "final_state_dependent": {
+     "checks": 2000,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "display": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "finished": 1000
+  },
   "randomizers": {
    "FL_37": {
     "arms": {
@@ -140,10 +185,6 @@
     }
    }
   },
-  "replay": {
-   "branch_checks": 2000,
-   "finished": 1000
-  },
   "respondents": 1000
  },
  "consumer_minimalism": {
@@ -155,6 +196,31 @@
      "1": 200
     }
    }
+  },
+  "consistency": {
+   "branch": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "display": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "finished": 200
   },
   "randomizers": {
    "FL_13": {
@@ -192,13 +258,35 @@
     }
    }
   },
-  "replay": {
-   "finished": 200
-  },
   "respondents": 200
  },
  "context_effects": {
   "blocks": {},
+  "consistency": {
+   "branch": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "display": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "finished": 501
+  },
   "randomizers": {
    "FL_213": {
     "arms": {
@@ -281,13 +369,35 @@
     }
    }
   },
-  "replay": {
-   "finished": 501
-  },
   "respondents": 501
  },
  "default_eric": {
   "blocks": {},
+  "consistency": {
+   "branch": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "display": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "finished": 600
+  },
   "randomizers": {
    "FL_212": {
     "arms": {
@@ -340,13 +450,35 @@
     }
    }
   },
-  "replay": {
-   "finished": 600
-  },
   "respondents": 600
  },
  "digital_certification": {
   "blocks": {},
+  "consistency": {
+   "branch": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "display": {
+    "checks": 1200,
+    "final_state_dependent": {
+     "checks": 1200,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "finished": 600
+  },
   "randomizers": {
    "FL_86": {
     "arms": {
@@ -369,14 +501,35 @@
     }
    }
   },
-  "replay": {
-   "display_checks": 1200,
-   "finished": 600
-  },
   "respondents": 655
  },
  "hiring_algorithms": {
   "blocks": {},
+  "consistency": {
+   "branch": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "display": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "finished": 999
+  },
   "randomizers": {
    "FL_7": {
     "arms": {
@@ -389,13 +542,35 @@
     }
    }
   },
-  "replay": {
-   "finished": 999
-  },
   "respondents": 999
  },
  "idea_evaluation": {
   "blocks": {},
+  "consistency": {
+   "branch": {
+    "checks": 10566,
+    "final_state_dependent": {
+     "checks": 10566,
+     "unknown": 2348,
+     "violations": 0
+    },
+    "unknown": 2348,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "display": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "finished": 1174
+  },
   "randomizers": {
    "FL_38": {
     "arms": {
@@ -419,15 +594,35 @@
     }
    }
   },
-  "replay": {
-   "branch_checks": 10566,
-   "branch_taken_unanswered": 2348,
-   "finished": 1174
-  },
   "respondents": 1174
  },
  "idea_generation": {
   "blocks": {},
+  "consistency": {
+   "branch": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "display": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "finished": 200
+  },
   "randomizers": {
    "FL_16": {
     "arms": {
@@ -440,21 +635,65 @@
     }
    }
   },
-  "replay": {
-   "finished": 200
-  },
   "respondents": 200
  },
  "infotainment": {
   "blocks": {},
-  "randomizers": {},
-  "replay": {
+  "consistency": {
+   "branch": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "display": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
    "finished": 300
   },
+  "randomizers": {},
   "respondents": 300
  },
  "junk_fees": {
   "blocks": {},
+  "consistency": {
+   "branch": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "display": {
+    "checks": 11200,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "finished": 400
+  },
   "randomizers": {
    "FL_107": {
     "arms": {
@@ -567,10 +806,6 @@
     }
    }
   },
-  "replay": {
-   "display_checks": 11200,
-   "finished": 400
-  },
   "respondents": 400
  },
  "obedient_twins": {
@@ -596,6 +831,31 @@
      "3": 1001
     }
    }
+  },
+  "consistency": {
+   "branch": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 1001,
+    "violations": 0
+   },
+   "display": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "finished": 1001
   },
   "randomizers": {
    "FL_12": {
@@ -669,22 +929,65 @@
     }
    }
   },
-  "replay": {
-   "branch_unverifiable": 1001,
-   "finished": 1001
-  },
   "respondents": 1009
  },
  "preference_redistribution": {
   "blocks": {},
-  "randomizers": {},
-  "replay": {
+  "consistency": {
+   "branch": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "display": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
    "finished": 1198
   },
+  "randomizers": {},
   "respondents": 1198
  },
  "privacy": {
   "blocks": {},
+  "consistency": {
+   "branch": {
+    "checks": 7200,
+    "final_state_dependent": {
+     "checks": 7200,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "display": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "finished": 1200
+  },
   "randomizers": {
    "FL_4": {
     "arms": {
@@ -701,39 +1004,125 @@
     }
    }
   },
-  "replay": {
-   "branch_checks": 7200,
-   "finished": 1200
-  },
   "respondents": 1200
  },
  "promiscuous_donors": {
   "blocks": {},
-  "randomizers": {},
-  "replay": {
-   "display_checks": 2397,
+  "consistency": {
+   "branch": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "display": {
+    "checks": 2397,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
    "finished": 799
   },
+  "randomizers": {},
   "respondents": 799
  },
  "quantitative_intuition": {
   "blocks": {},
-  "randomizers": {},
-  "replay": {
+  "consistency": {
+   "branch": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "display": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
    "finished": 1435
   },
+  "randomizers": {},
   "respondents": 1435
  },
  "recommendation_algorithms": {
   "blocks": {},
-  "randomizers": {},
-  "replay": {
+  "consistency": {
+   "branch": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "display": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
    "finished": 598
   },
+  "randomizers": {},
   "respondents": 598
  },
  "story_beliefs": {
   "blocks": {},
+  "consistency": {
+   "branch": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "display": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "finished": 251
+  },
   "randomizers": {
    "FL_100": {
     "arms": {
@@ -1046,13 +1435,35 @@
     }
    }
   },
-  "replay": {
-   "finished": 251
-  },
   "respondents": 251
  },
  "targeting_fairness": {
   "blocks": {},
+  "consistency": {
+   "branch": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "display": {
+    "checks": 0,
+    "final_state_dependent": {
+     "checks": 0,
+     "unknown": 0,
+     "violations": 0
+    },
+    "unknown": 0,
+    "unverifiable": 0,
+    "violations": 0
+   },
+   "finished": 357
+  },
   "randomizers": {
    "FL_491": {
     "arms": {
@@ -1064,9 +1475,6 @@
      "1": 357
     }
    }
-  },
-  "replay": {
-   "finished": 357
   },
   "respondents": 357
  }

@@ -76,10 +76,10 @@ _26 questions in 6 blocks · source: qualtrics.qsf_
 
 ## Experimental design
 
-    FL_7: between-subjects, 1 of 2, evenly presented
-      - Algorithmic Hiring (p=0.5)
-      - Hiring Team (p=0.5)
-
+    FL_7: exposure contrast, 1 of 2, evenly presented
+      - Algorithmic Hiring (nominal share 0.5)
+      - Hiring Team (nominal share 0.5)
+    Nominal shares are k/n, ignoring branches; not exposure probabilities, nor conditional on balancing history.
 ```
 
 Write to a file with `-o`. Pass exporter options with `--opt key=value`; values
@@ -97,21 +97,22 @@ surveyir convert study.qsf -t markdown --opt language='"ES"' -o study_es.md
 
 ```console
 $ surveyir design tests/fixtures/qualtrics/default_eric.qsf
-FL_344: between-subjects, 1 of 2, evenly presented
-  - Green_Organ (p=0.5)
-  - Organ_Green (p=0.5)
-FL_212: between-subjects, 1 of 2, evenly presented within FL_344:FL_345
-  - OPTOUT_Green (p=0.5, overall 0.25)
-  - OPTIN_Green (p=0.5, overall 0.25)
-FL_338: between-subjects, 1 of 2, evenly presented within FL_344:FL_345
-  - OPTIN_Organ (p=0.5, overall 0.25)
-  - OPTOUT_Organ (p=0.5, overall 0.25)
-FL_353: between-subjects, 1 of 2, evenly presented within FL_344:FL_348
-  - OPTIN_Organ (p=0.5, overall 0.25)
-  - OPTOUT_Organ (p=0.5, overall 0.25)
-FL_349: between-subjects, 1 of 2, evenly presented within FL_344:FL_348
-  - OPTOUT_Green (p=0.5, overall 0.25)
-  - OPTIN_Green (p=0.5, overall 0.25)
+FL_344: exposure contrast, 1 of 2, evenly presented
+  - Green_Organ (nominal share 0.5)
+  - Organ_Green (nominal share 0.5)
+FL_212: exposure contrast, 1 of 2, evenly presented within FL_344:FL_345
+  - OPTOUT_Green (nominal share 0.5, nominal marginal 0.25)
+  - OPTIN_Green (nominal share 0.5, nominal marginal 0.25)
+FL_338: exposure contrast, 1 of 2, evenly presented within FL_344:FL_345
+  - OPTIN_Organ (nominal share 0.5, nominal marginal 0.25)
+  - OPTOUT_Organ (nominal share 0.5, nominal marginal 0.25)
+FL_353: exposure contrast, 1 of 2, evenly presented within FL_344:FL_348
+  - OPTIN_Organ (nominal share 0.5, nominal marginal 0.25)
+  - OPTOUT_Organ (nominal share 0.5, nominal marginal 0.25)
+FL_349: exposure contrast, 1 of 2, evenly presented within FL_344:FL_348
+  - OPTOUT_Green (nominal share 0.5, nominal marginal 0.25)
+  - OPTIN_Green (nominal share 0.5, nominal marginal 0.25)
+Nominal shares are k/n, ignoring branches; not exposure probabilities, nor conditional on balancing history.
 ```
 
 `--json` writes the full design (factors, arms, assignments, order randomization,

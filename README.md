@@ -96,7 +96,7 @@ q.text.render(lambda pipe: respondent.embedded.get(pipe.name))
 ## Experiments and simulation
 
 `surveyir.design(survey)` describes the experiment: every flow randomizer as a
-factor with its arms, each arm's probability, the embedded-data values it
+factor with its arms, each arm's nominal share, the embedded-data values it
 assigns (usually how the condition is recorded), and which factors are crossed
 or nested. It also covers question, choice and loop order randomization,
 random values, and any randomization a .qsf cannot capture (JavaScript, web
@@ -105,9 +105,9 @@ services, library blocks).
 ```python
 d = surveyir.design(survey)
 print(d.summary())
-# FL_6: between-subjects, 1 of 2, evenly presented
-#   - FL_7 (p=0.5): absurd_1='A'
-#   - FL_8 (p=0.5): absurd_1='B'
+# FL_6: exposure contrast, 1 of 2, evenly presented
+#   - FL_7 (nominal share 0.5): absurd_1='A'
+#   - FL_8 (nominal share 0.5): absurd_1='B'
 cells, complete = d.cells()
 ```
 
