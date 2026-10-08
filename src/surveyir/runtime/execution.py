@@ -27,6 +27,8 @@ quota.action_ignored,           quota id
 quota.snapshot
 pipe.*                          the reference path (``CountryName`` for
                                 ``${loc://CountryName}``)
+replay.gap                      ``kind:node_id`` (``flow:FL_3``, ``block:BL_x``),
+                                with ``#loop_id`` inside a loop
 logic.*                         the operand's question id, else its raw locator
                                 (``loc://CountryName``); see ``logic.operand_location``
 ==============================  ============================================
@@ -89,6 +91,9 @@ APPROXIMATIONS: dict[str, tuple[Affects, str]] = {
     "logic.other_operator": ("routing", "condition with an unknown or invalid operator; false"),
     "logic.regex_invalid": ("routing", "invalid regular expression; the condition is false"),
     "logic.non_numeric": ("routing", "ordering comparison on a non-numeric value; false"),
+    # replay
+    "replay.gap": ("exposure", "a replay has no recorded decision for a randomization point; "
+                   "drawn by the fallback chooser (assignment for flow randomizers)"),
 }
 
 #: approximation code -> the ``implementations`` key that removes it

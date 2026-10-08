@@ -80,8 +80,8 @@ A respondent is any object with an `answer(ctx)` method. `ctx` is a
 | `ResponseContext` field | contents |
 |---|---|
 | `view` | the question to answer, as a `Display` |
-| `page` | every `Display` visible on the current page |
-| `history` | the trace so far: pages, every screen shown (text-only ones included) and the respondent's own answers |
+| `page` | every `Display` visible on the current page (a convenience: these are already in `history`) |
+| `history` | the trace so far, current page included: pages, every screen shown (text-only ones included) and the respondent's own answers |
 | `respondent_index` | which respondent this is |
 
 A `Display` has the rendered `text` (piped values filled in), `choices` and
@@ -204,6 +204,71 @@ A run is reproducible: the same seed and the same balancer state give the same
 assignments, orders and (with a seeded answerer) answers. Seed the `Simulator`,
 not `run`: `sim.run(n, seed=...)` would give every respondent the same random
 stream, so strict runs reject it.
+
+## Choosers and replay
+
+Every randomization decision goes through a *chooser*: which arms of a flow
+randomizer are shown, the order of a block's questions, of a question's choices
+or matrix columns, of loop iterations, and the respondent's scale flip. The
+chooser gets a `ChoiceRequest` (`kind`, `node_id`, the `options`, how many to
+present `k`, the `loop_id`, ...) and returns the presented options in order,
+optionally with `p_given_history` for the audit. The walker keeps everything
+else: fixed positions, display logic, what follows from the assignment. The
+default, `DefaultChooser`, draws as Qualtrics does. Pass your own with
+`Simulator(..., chooser=...)`, for example to assign arms from an external
+system:
+
+```python
+from surveyir.runtime import DefaultChooser
+
+class SecondArm(DefaultChooser):
+    """Always the second arm of FL_6; everything else drawn as usual."""
+
+    def choose(self, req, rng, balancer):
+        if req.kind == "flow" and req.node_id == "FL_6":
+            return ("FL_8",), None
+        return super().choose(req, rng, balancer)
+
+forced = Simulator(survey, seed=7, chooser=SecondArm())
+runs = forced.run(20, ScreenerAwareAnswerer(survey, seed=8))
+print(Counter(r.embedded["absurd_1"] for r in runs))
+```
+
+```text
+Counter({'B': 20})
+```
+
+A chooser that does not call `balancer.choose` leaves the counterbalancing
+counts as they were.
+
+*Replay* re-administers a recorded respondent: `ReplayChooser` forces recorded
+decisions, keyed `(kind, node_id, loop_id)` and listed as presented, and
+`ReplayAnswerer` gives each displayed question its recorded answer. Display
+logic, branches and embedded data are evaluated as the respondent goes, with
+the state at each point. `record(run)` takes what a replay needs from a
+simulated run, and replaying it reproduces the run:
+
+```python
+from surveyir.runtime import record, replay
+
+rec = record(runs[0])
+again = replay(survey, rec.orders, rec.answers, embedded=rec.embedded, seed=rec.seed)
+print(again.trace == runs[0].trace, rec.orders[("flow", "FL_6", None)])
+```
+
+```text
+True ('FL_8',)
+```
+
+To replay a real response, build the orders from its `_DO` columns
+(`FL_<id>_DO` for flow randomizers), its answers keyed `(qid, loop_id)`, and
+its panel or URL fields as `embedded=`. A replay is strict: a decision the
+record does not hold raises `ReplayGap` (an `ExecutionError`), unless you pass
+`allow={"replay.gap"}` or `strict=False`, in which case the default chooser
+draws it and the gap is recorded in the audit. `fallback_kinds={"columns"}`
+draws orders the export never records without counting them as gaps.
+`scripts/validate_runtime.py` replays the real respondents of the 19 fixture
+studies this way (see `tests/test_runtime_validation.py`).
 
 ## Rows like a Qualtrics export
 

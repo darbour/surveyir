@@ -177,10 +177,17 @@ The runtime was compared with 13,879 real respondents in 19 studies
   answer cannot tell a hidden question from a skipped one, so 2,846 branch
   checks where the evaluator predicts the branch taken but nothing was answered
   count as unknown, not as agreement, and 1,001 branch checks could not be
-  evaluated (a field the export lacks, or an undecidable comparison). All 25,784 branch checks (and 1,200 display checks) depend on
-  final embedded values rather than the values at the moment of the decision:
-  this is not a replay of each session, and it cannot show that a respondent
-  saw what the runtime would have shown.
+  evaluated (a field the export lacks, or an undecidable comparison). These
+  checks read final embedded values, not the values at each decision.
+- **Replay of real respondents:** each finished respondent is re-administered
+  through the simulator with their recorded randomizer and display orders,
+  answers and panel fields (`surveyir.runtime.replay`), so every condition is
+  evaluated with the state at that point. 12,815 of 13,816 respondents were
+  replayed: 0 of 219,853 answered questions went undisplayed, the recorded
+  block display orders were reproduced exactly, 1,973 displayed questions were
+  left blank (mostly optional comment boxes), and all 16,246 embedded values set
+  by the flow match the export. The 1,001 `obedient_twins` respondents were not
+  replayed: their answers show the fielded flow differed from this QSF.
 
 Simulated rows leave timing and meta-info columns blank. Because export tags can
 repeat, `run.cells(survey)` gives the exact column layout; `run.row()` is a

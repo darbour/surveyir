@@ -578,6 +578,88 @@ def _public(ob: _Ob) -> _Ob:
     return ob
 
 
+# --------------------------------------------------------------------------- choosers
+
+ChoiceKind = Literal["flow", "block", "choices", "columns", "loop", "flip"]
+#: "subset": select ``k`` options (least-filled first when ``even``), then order them;
+#: "permutation": order every option, then keep the first ``k``
+DrawMode = Literal["subset", "permutation"]
+#: ``ChoiceRequest.options`` of the scale-flip decision (``kind="flip"``)
+FLIP_OPTIONS: tuple[str, str] = ("normal", "flipped")
+
+
+@dataclass(frozen=True)
+class ChoiceRequest:
+    """One randomization decision the walker needs made.
+
+    ``kind`` and ``node_id`` say where: a flow randomizer (flow id; options are its
+    arm keys, as in the ``FL_<id>_DO`` columns), a block's question order (block
+    id; question ids), a question's choice or matrix column order (question id;
+    choice, row or column ids), a loop's order (block id; loop ids), or the
+    respondent's scale flip (``"flip"``, node ``"scale"``; options
+    ``FLIP_OPTIONS``, answer one of them). The chooser decides the random part
+    only: which ``k`` options are presented, in what order. Fixed positions,
+    undisplayed options and display logic stay with the walker.
+
+    ``even`` means the default draw is balanced across respondents (least-filled
+    first, under ``balance_key``). ``reverse`` means the walker reverses the
+    returned order afterwards (a flipped scale): a chooser that must produce a
+    given presented order returns it reversed.
+    """
+
+    kind: ChoiceKind
+    node_id: str
+    options: tuple[str, ...]
+    k: int  # how many to present
+    mode: DrawMode = "permutation"
+    even: bool = False
+    balance_key: str = ""
+    reverse: bool = False
+    loop_id: str | None = None
+    respondent_index: int = 0
+
+
+class Chooser(Protocol):
+    """Makes every randomization decision of a run (see ``ChoiceRequest``).
+
+    Returns the presented options in order (at most ``req.k``, each one of
+    ``req.options``), and optionally each option's inclusion probability given
+    the balancing history, which is recorded as
+    ``RandomizerDecision.p_given_history``. ``rng`` is the respondent's random
+    stream; ``balancer`` the counts shared across respondents. A chooser that
+    does not call ``balancer.choose`` leaves those counts unchanged.
+    """
+
+    def choose(
+        self, req: ChoiceRequest, rng: random.Random, balancer: Counterbalancer
+    ) -> tuple[Sequence[str], Mapping[str, float] | None]: ...
+
+
+class DefaultChooser:
+    """Qualtrics' draws: uniform at random, least-filled first for evenly presented
+    subsets, and a fair coin for the scale flip."""
+
+    def choose(
+        self, req: ChoiceRequest, rng: random.Random, balancer: Counterbalancer
+    ) -> tuple[Sequence[str], Mapping[str, float] | None]:
+        options = list(req.options)
+        if req.kind == "flip":
+            return (options[1] if rng.random() < 0.5 else options[0],), None
+        if req.mode == "permutation":
+            return rng.sample(options, len(options))[: req.k], None
+        p: dict[str, float] | None = None
+        if req.even:
+            counts = balancer.counts.get(req.balance_key, {})
+            p = _given_history({o: counts.get(o, 0) for o in options}, req.k)
+            chosen = balancer.choose(req.balance_key, options, req.k, rng)
+        else:
+            chosen = rng.sample(options, req.k)
+        return rng.sample(chosen, len(chosen)), p
+
+
+default_chooser = DefaultChooser()
+
+
 # --------------------------------------------------------------------------- ordering helpers
 
 
@@ -590,25 +672,38 @@ def arrange(
     key: str = "",
 ) -> list[str]:
     """Order (and possibly subset) ``ids`` as Qualtrics would for one respondent."""
-    ids = list(ids)
     r = randomization
+
+    def pick(options: list[str], k: int, mode: DrawMode) -> list[str]:
+        even = mode == "subset" and r is not None and r.even_presentation and balancer is not None
+        shown, _ = default_chooser.choose(
+            ChoiceRequest("choices", key, tuple(options), k, mode, even, key),
+            rng, balancer or Counterbalancer(),
+        )
+        return list(shown)
+
+    return _layout(ids, r, pick)
+
+
+def _layout(
+    ids: Sequence[str],
+    r: Randomization | None,
+    pick: Callable[[list[str], int, DrawMode], list[str]],
+) -> list[str]:
+    """``ids`` laid out under ``r``; ``pick(options, k, mode)`` makes the random part
+    (which ``k`` options, in what order). Fixed positions and undisplayed ids are
+    decided here."""
+    ids = list(ids)
     if r is None or r.mode == "none":
         return ids
     if r.mode == "all":
-        return rng.sample(ids, len(ids))
+        return pick(ids, len(ids), "permutation")
     if r.mode == "subset":
-        k = min(r.subset_size or len(ids), len(ids))
-        if r.even_presentation and balancer is not None:
-            chosen = balancer.choose(key, ids, k, rng)
-        else:
-            chosen = rng.sample(ids, k)
-        return rng.sample(chosen, len(chosen))
+        return pick(ids, min(r.subset_size or len(ids), len(ids)), "subset")
     # advanced: fixed ids stay put, "*" slots are filled from the shuffled pool
     hidden = set(r.undisplayed)
     pool = [i for i in r.randomized if i in ids and i not in hidden]
-    pool = rng.sample(pool, len(pool))
-    if r.subset_size:
-        pool = pool[: r.subset_size]
+    pool = pick(pool, min(r.subset_size or len(pool), len(pool)), "permutation")
     if not r.slots:
         positions = [n for n, i in enumerate(ids) if i in set(r.randomized)]
         out = list(ids)
@@ -687,6 +782,11 @@ class Simulator:
     * ``"location"``: ``{name: value}`` for ``${loc://...}`` and GeoIP logic.
 
     ``web_service=`` and ``location=`` are shorthands for the first and last.
+
+    ``chooser`` makes every randomization decision: flow randomizers, question,
+    choice, column and loop order, and the scale flip (see ``Chooser``). The
+    default draws as Qualtrics does; ``runtime.replay.ReplayChooser`` forces
+    recorded decisions.
     """
 
     def __init__(
@@ -702,6 +802,7 @@ class Simulator:
         allow: Iterable[str] = (),
         implementations: Mapping[str, Any] | None = None,
         policy: ExecutionPolicy | None = None,
+        chooser: Chooser | None = None,
     ) -> None:
         impl = dict(implementations or {})
         if web_service is not None:
@@ -721,6 +822,7 @@ class Simulator:
         self.survey = survey
         self.seed_rng = random.Random(seed)
         self.balancer = balancer or Counterbalancer()
+        self.chooser: Chooser = chooser or default_chooser
         self.device = device
         supplied = policy.implementations.get("location")
         self.location: dict[str, str] = dict(supplied) if isinstance(supplied, Mapping) else {}
@@ -829,7 +931,12 @@ class _Walk:
     ) -> None:
         self.sim, self.survey, self.run, self.rng = sim, sim.survey, run, rng
         self.state = run.state
-        self.flip = rng.random() < 0.5  # consistent scale reversal across questions
+        self._p: Mapping[str, float] | None = None  # the last decision's p_given_history
+        # one scale reversal for the respondent, applied to every flip-scale question
+        # (the first draw of the stream, unless a chooser decides it)
+        self.flip = self.choose(
+            ChoiceRequest("flip", "scale", FLIP_OPTIONS, 1, respondent_index=run.index)
+        ) == (FLIP_OPTIONS[1],)
         # displayed text draws (``rand://``) from its own stream, so rendering never
         # shifts the main stream's assignments and orders
         self.pipe_rng = random.Random(f"{run.seed}:pipes")
@@ -907,8 +1014,10 @@ class _Walk:
         elif isinstance(node, EmbeddedDataNode):
             for f in node.fields:
                 if f.source == "custom" and f.value is not None:
-                    value = render(f.value, state, self.survey, self.rng,  # rand:// assigns
-                                   self.sim._field_affects(f.name))
+                    # stored as typed (markup and whitespace kept), as Qualtrics exports it;
+                    # rand:// here is an assignment, so it draws from the main rng
+                    value = render(f.value, state, self.survey, self.rng,
+                                   self.sim._field_affects(f.name), as_typed=True)
                     self.set_embedded(f.name, value, node.id)
                 elif f.name not in state.embedded:
                     # a panel / recipient / URL field nobody supplied: empty, and
@@ -973,25 +1082,36 @@ class _Walk:
                              "its children are run")
             self.nodes(node.children)
 
+    def choose(self, req: ChoiceRequest) -> tuple[str, ...]:
+        """Ask the chooser, check its answer, and keep its ``p_given_history``."""
+        shown, self._p = self.sim.chooser.choose(req, self.rng, self.sim.balancer)
+        shown = tuple(shown)
+        if len(shown) > req.k or len(set(shown)) < len(shown) or not set(shown) <= set(req.options):
+            raise ValueError(
+                f"chooser returned {list(shown)} for {req.kind} {req.node_id}: expected at most "
+                f"{req.k} distinct options of {list(req.options)}")
+        return shown
+
+    def _before(self, key: str, options: Sequence[str]) -> dict[str, int]:
+        counts = self.sim.balancer.counts.get(key, {})
+        return {o: counts.get(o, 0) for o in options}
+
     def randomizer(self, node: RandomizerNode) -> None:
         children = node.children
         keys = [self._child_key(c) for c in children]
         n = len(children)
         k = node.subset_size if node.subset_size and node.subset_size < n else n
-        before: dict[str, int] | None = None
-        if node.even_presentation and k < n:
-            counts = self.sim.balancer.counts.get(node.id, {})
-            before = {o: counts.get(o, 0) for o in keys}
-            chosen = self.sim.balancer.choose(node.id, keys, k, self.rng)
-        else:
-            chosen = self.rng.sample(keys, k)
-        order = self.rng.sample(chosen, len(chosen))
+        even = node.even_presentation and k < n
+        before = self._before(node.id, keys) if even else None
+        order = list(self.choose(ChoiceRequest(
+            "flow", node.id, tuple(keys), k, "subset", even, node.id,
+            loop_id=self.loop_id, respondent_index=self.run.index,
+        )))
         self.run.flow_order[node.id] = order
         self.audit.append(RandomizerDecision(
             node.id, "flow", tuple(keys), tuple(order),
             p_nominal={o: k / n for o in keys},
-            p_given_history=_given_history(before, k) if before is not None else None,
-            balancer_before=before, loop_id=self.loop_id,
+            p_given_history=self._p, balancer_before=before, loop_id=self.loop_id,
         ))
         by_key = dict(zip(keys, children, strict=True))
         for key in order:
@@ -1012,22 +1132,31 @@ class _Walk:
         *,
         reverse: bool = False,
     ) -> tuple[list[str], RandomizerDecision | None]:
-        """``arrange`` (balanced under ``key``, if given), and the decision to audit."""
+        """``arrange`` through the chooser (balanced under ``key``, if given), and the
+        decision to audit."""
         before: dict[str, int] | None = None
-        if key is not None and r is not None and r.mode == "subset" and r.even_presentation:
-            counts = self.sim.balancer.counts.get(key, {})
-            before = {i: counts.get(i, 0) for i in ids}
-        balancer = self.sim.balancer if key is not None else None
-        order = arrange(ids, r, self.rng, balancer=balancer, key=key or "")
+        p: Mapping[str, float] | None = None
+
+        def pick(options: list[str], k: int, mode: DrawMode) -> list[str]:
+            nonlocal before, p
+            even = mode == "subset" and key is not None and r is not None and r.even_presentation
+            if even:
+                before = self._before(key or "", options)
+            shown = self.choose(ChoiceRequest(
+                kind, node_id, tuple(options), k, mode, even, key or "", reverse,
+                self.loop_id, self.run.index,
+            ))
+            p = self._p
+            return list(shown)
+
+        order = _layout(ids, r, pick)
         if reverse:
             order.reverse()
         if not ids or ((r is None or r.mode == "none") and not reverse):
             return order, None
-        k = min(r.subset_size or len(ids), len(ids)) if r is not None else len(ids)
         return order, RandomizerDecision(
             node_id, kind, tuple(ids), tuple(order), p_nominal=_nominal(ids, r),
-            p_given_history=_given_history(before, k) if before is not None else None,
-            balancer_before=before, loop_id=self.loop_id,
+            p_given_history=p, balancer_before=before, loop_id=self.loop_id,
         )
 
     # ---------------------------------------------------------------- blocks

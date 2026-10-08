@@ -99,10 +99,13 @@ def render(
     survey: Survey | None = None,
     rng: random.Random | None = None,
     affects: Affects = "exposure",
+    *,
+    as_typed: bool = False,
 ) -> str:
-    """``text`` with every resolvable reference filled in."""
+    """``text`` with every resolvable reference filled in. ``as_typed`` renders the text
+    exactly as entered (markup and whitespace kept), as Qualtrics stores embedded data."""
     rng = rng or random.Random()
-    return text.render(lambda p: resolve_pipe(p, state, survey, rng, affects))
+    return text.render(lambda p: resolve_pipe(p, state, survey, rng, affects), as_typed=as_typed)
 
 
 def render_display(

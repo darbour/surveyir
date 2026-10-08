@@ -15,6 +15,10 @@ responses, not a validation of what respondents experienced:
   unanswered), which is unknown rather than a violation, and the checks that
   depend on fields set inside the flow, whose final value may not be the value
   at the decision point. See the script's docstring.
+* replaying each finished respondent through the simulator with their recorded
+  randomization, answers and inputs (``runtime.replay``), so every branch and
+  display condition sees the state at that point, never displays less than they
+  answered, and the embedded data the flow sets ends as exported.
 
 Set SURVEYIR_TWIN_DAT to the Twin-2K-500-Mega-Study ``.dat`` directory to also
 recompute the aggregates from the raw responses and compare them to the fixture.
@@ -157,3 +161,48 @@ def test_aggregates_are_reproducible_from_raw_responses(tmp_path, monkeypatch):
     monkeypatch.setattr(module, "OUT", out)
     module.main(Path(os.environ["SURVEYIR_TWIN_DAT"]).expanduser())
     assert json.loads(out.read_text()) == DATA
+
+
+#: studies whose respondents the replay cannot administer, and why (see twin.json)
+REPLAY_UNVERIFIABLE = {
+    # The flow shows the "consent for non-twins" block only if embedded field
+    # ``drop`` is "yes"; nothing declares or exports ``drop``, so it came from
+    # outside. Every respondent answered that block's question, and none answered
+    # the unconditional, forced-response "consent" block after it: the fielded
+    # flow evidently differed from this QSF here. Not a runtime discrepancy.
+    "obedient_twins": {"undeclared_field": 1001},
+}
+#: embedded agreement below 100%, and why
+EMBEDDED_DISAGREEMENT: dict[str, tuple[int, int]] = {
+    # study -> (agree, compared) where a disagreement is understood and documented.
+    # Empty: every embedded field the flow sets matches the export. (story_beliefs
+    # disagreed until embedded data was stored as typed, markup and whitespace kept.)
+}
+
+
+@pytest.mark.parametrize("study", STUDIES)
+def test_recorded_replay_has_no_violations(study):
+    """Reads the recorded replay in twin.json (recomputed from raw data below)."""
+    r = DATA[study]["replay"]
+    assert r["violations"] == 0  # nothing answered that the replay did not display
+    assert r["not_in_display_order"] == 0  # nor displayed what the recorded order omits
+    assert r["in_display_order_not_displayed"] == 0  # nor hid what Qualtrics recorded shown
+    assert r["ended_early"] == 0  # every finished respondent finishes the replay
+    assert r["replayed"] + sum(r["unverifiable"].values()) == r["finished"]
+    assert r["unverifiable"] == REPLAY_UNVERIFIABLE.get(study, {})
+    assert r["unknown"] <= r["answered"] or r["replayed"] == 0
+    assert set(r["allowed"]) <= {"javascript"}  # no reconstructed answer is invalid
+    assert not r["order_fallbacks"]  # every order came from the response
+    e = r["embedded"]
+    assert (e["agree"], e["compared"]) == EMBEDDED_DISAGREEMENT.get(
+        study, (e["compared"], e["compared"]))
+
+
+def test_recorded_replay_covers_the_studies():
+    replayed = sum(DATA[s]["replay"]["replayed"] for s in STUDIES)
+    answered = sum(DATA[s]["replay"]["answered"] for s in STUDIES)
+    compared = sum(DATA[s]["replay"]["embedded"]["compared"] for s in STUDIES)
+    finished = sum(DATA[s]["replay"]["finished"] for s in STUDIES)
+    assert replayed >= 0.9 * finished and answered > 200_000 and compared > 15_000
+    # some unknowns (optional comment boxes, choices the export lacks) are reported
+    assert sum(DATA[s]["replay"]["unknown"] for s in STUDIES) > 0

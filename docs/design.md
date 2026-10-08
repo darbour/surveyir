@@ -171,6 +171,31 @@ field changed after the decision would go unnoticed. The checks can reveal a
 contradiction; they cannot show that a respondent saw what the runtime would
 show. The exact-trace benchmark covers that, on synthetic instruments.
 
+**Replay against real responses.** The same script also re-administers each
+finished respondent through the simulator (`runtime.replay`): the recorded
+flow-randomizer, block and choice orders (`_DO` columns) are forced through the
+chooser seam, the recorded answers are given as each question is displayed, and
+panel fields are supplied as inputs, so every branch and display condition is
+evaluated with the state at that point rather than the final state. Of 13,816
+finished respondents, 12,815 were replayed. No answered question went
+undisplayed in 219,853 answered questions (0 violations), and in randomized
+blocks with a recorded display order the replay showed exactly the questions
+Qualtrics recorded as shown; 1,973 questions were
+displayed but left blank (unknown: mostly optional comment boxes, and choices
+present in the QSF but missing from the export). The fields the flow sets
+ended as exported in all 16,246 comparisons. (Replay first found 747
+disagreements, all in `story_beliefs`: the runtime stored embedded values as
+plain text while Qualtrics keeps them as typed, HTML and whitespace included.
+Embedded data is now stored as typed.) (`promiscuous_donors`' 32,759 profile fields
+copy fields its question JavaScript sets, which the export lacks, so they are
+not compared.) Not replayed: the 1,001
+`obedient_twins` respondents, whose flow branches on a field that is neither
+declared nor exported and whose answers contradict the QSF's flow. Where a
+study's export has no display-order column (one block, and the loops of three
+studies), the
+questions or iterations shown are inferred from the answers, so those orders
+cannot produce a violation themselves.
+
 ## What is deliberately out of scope (for now)
 
 - **Executing JavaScript** (`Question.javascript`) and web services. They are

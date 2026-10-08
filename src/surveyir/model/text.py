@@ -57,8 +57,9 @@ class Text(IRModel):
     plain: str = Field(default="", description="Readable plain text; piped references kept as-is.")
     pipes: list[Pipe] = Field(default_factory=list)
 
-    def render(self, resolve: Callable[[Pipe], str | None]) -> str:
-        """Return ``plain`` with each reference replaced by ``resolve(pipe)``.
+    def render(self, resolve: Callable[[Pipe], str | None], *, as_typed: bool = False) -> str:
+        """Return ``plain`` (or, with ``as_typed``, ``html``: the text exactly as entered,
+        markup and whitespace kept) with each reference replaced by ``resolve(pipe)``.
 
         References for which ``resolve`` returns ``None`` are left untouched.
         """
@@ -71,7 +72,7 @@ class Text(IRModel):
             value = resolve(pipe)
             return match.group(0) if value is None else value
 
-        return PIPE_PATTERN.sub(sub, self.plain)
+        return PIPE_PATTERN.sub(sub, self.html if as_typed and self.html else self.plain)
 
     def __str__(self) -> str:
         return self.plain
