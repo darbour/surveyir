@@ -1,0 +1,18 @@
+{
+  "swapped_design": {
+    "n": 357,
+    "passed": false,
+    "failed_checks": {
+      "own_screen": 357,
+      "no_other_screen": 357,
+      "outcome_after": 357
+    }
+  },
+  "legacy_answerer": {
+    "n": 5,
+    "passed": false,
+    "failed_checks": {
+      "not_privileged": 5
+    }
+  }
+}

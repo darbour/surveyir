@@ -1,0 +1,53 @@
+# respondent 0, arm FL_497 (broad); trace as displayed
+
+--- Page 1 ---
+(QID1271) Please complete the CAPTCHA below.
+
+--- Page 2 ---
+(QID1339) Imc
+  [image: Imc]
+(QID1337) Above is a list of numbers. Only one of these numbers is an even number. Please spell that number out in ALL-CAPS below. For example, if the even number were "8" you would write EIGHT
+
+Note that failure to answer this question correctly will result in disqualification. Do not use lower-case letters, and do not add any extra spaces.
+Answer (QID1337): THIRTY
+
+--- Page 3 ---
+(QID1367) Welcome to our Survey!
+
+DESCRIPTION: We are a team at Columbia University. In today's study, you will fill out a survey. Nothing is designed to be experienced as unpleasant or “weird” in any way. In fact, no parts of this survey involves sensitive or invasive information, tasks, or questions. The study will take around 1 minute.
+
+COMPENSATION: You will be paid $0.30 for your participation today.
+
+PLEASE NOTE: This study contains a number of checks to make sure that participants are finishing the tasks honestly and completely. .
+
+SUBJECT’S RIGHTS: Your participation is voluntary. You may stop participating at any time by closing the browser window or the program to withdraw from the study. Partial data will not be analyzed.
+
+For additional questions, you may contact: Elizabeth Friedman (e.friedman@columbia.edu).
+
+Please indicate, in the box below, that you are at least 18 years old, have read and understood this consent form, and agree to participate in this survey. If you choose not to participate, please exit the screen now.
+  [1] Yes, I agree to participate—let's start the survey!
+Answer (QID1367): [1] Yes, I agree to participate—let's start the survey!
+
+--- Page 4 ---
+(QID1460) A snack foods company has developed a new line of snacks. Initial testing showed that, due to the taste and texture profile of the snacks, the snacks are better suited to the preferences of their female customers.
+
+The company is developing a marketing plan to promote the snacks. Even though they believe the snacks are best suited to their female customers, they will advertise the snacks broadly to the general public.
+(QID1396) How fair is this advertising plan?
+  [1] 1:
+Not at all fair
+  [2] 2
+  [3] 3
+  [4] 4
+  [5] 5
+  [6] 6
+  [7] 7
+  [8] 8
+  [9] 9:
+Very fair
+Answer (QID1396): [4] 4
+
+--- Page 5 ---
+(QID1451) Please feel free to write any comments you may have about the survey or scenarios.
+Answer (QID1451): No comments.
+
+--- End of survey ---

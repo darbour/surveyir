@@ -1,0 +1,4 @@
+FL_491: exposure contrast, 1 of 2, evenly presented
+  - FL_493 (nominal share 0.5): Segment='2', target='broad'
+  - FL_497 (nominal share 0.5): Segment='1', target='female'
+Nominal shares are k/n, ignoring branches; not exposure probabilities, nor conditional on balancing history.

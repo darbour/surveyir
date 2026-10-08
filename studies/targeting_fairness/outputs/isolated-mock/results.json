@@ -1,0 +1,124 @@
+{
+  "model": "isolated-mock",
+  "seed": 20250408,
+  "gate": {
+    "n": 357,
+    "passed": true,
+    "arms": {
+      "FL_497": 178,
+      "FL_493": 179
+    },
+    "checks": {
+      "one_arm": {
+        "description": "exactly one arm of FL_491 assigned",
+        "failures": 0,
+        "examples": []
+      },
+      "own_screen": {
+        "description": "the assigned arm's vignette displayed exactly once",
+        "failures": 0,
+        "examples": []
+      },
+      "no_other_screen": {
+        "description": "the other arm's vignette never displayed (by id or by its text)",
+        "failures": 0,
+        "examples": []
+      },
+      "outcome_after": {
+        "description": "outcome displayed and answered after the vignette",
+        "failures": 0,
+        "examples": []
+      },
+      "same_page_or_later": {
+        "description": "vignette on the outcome's page or an earlier one",
+        "failures": 0,
+        "examples": []
+      },
+      "recorded_fields": {
+        "description": "Segment/target recorded as the arm specifies",
+        "failures": 0,
+        "examples": []
+      },
+      "no_unallowed_approximations": {
+        "description": "every execution-affecting approximation in the audit was explicitly allowed by the study (allow set; empty for the mock runs)",
+        "failures": 0,
+        "examples": []
+      },
+      "not_privileged": {
+        "description": "respondent model had no access to hidden state",
+        "failures": 0,
+        "examples": []
+      },
+      "finished": {
+        "description": "reached the end of the survey",
+        "failures": 0,
+        "examples": []
+      }
+    },
+    "approximations": {},
+    "allowed": {},
+    "allow": [],
+    "errors": []
+  },
+  "information_state": {
+    "n": 357,
+    "own_vignette_in_context": 0.0,
+    "other_vignette_in_context": 0.0
+  },
+  "contrast": {
+    "n_broad": 178,
+    "n_targeted": 179,
+    "mean_broad": 4.859550561797753,
+    "mean_targeted": 5.050279329608938,
+    "sd_broad": 1.417184213960598,
+    "sd_targeted": 1.4033416900615177,
+    "diff": -0.1907287678111853,
+    "diff_lo": -0.48331708412509244,
+    "diff_hi": 0.10185954850272183,
+    "d": -0.13524364895087837,
+    "d_lo": -0.34294608377671476,
+    "d_hi": 0.07245878587495802
+  },
+  "marginal": {
+    "n": 357,
+    "mean": 4.955182072829132,
+    "sd": 1.4115125694127906,
+    "counts": {
+      "1": 0,
+      "2": 0,
+      "3": 76,
+      "4": 70,
+      "5": 70,
+      "6": 76,
+      "7": 65,
+      "8": 0,
+      "9": 0
+    }
+  },
+  "original_d": -0.13524364895087837,
+  "original_script": {
+    "effect_size_human": -0.5436183045997864,
+    "effect_size_twin": -0.13524364895087837,
+    "mean_human": 6.92436974789916,
+    "mean_twin": 4.955182072829132,
+    "sample_size": 357
+  },
+  "llm_cost_if_run": {
+    "model": "claude-opus-5-5",
+    "respondents": 357,
+    "requests": 1428,
+    "input_tokens": 338258,
+    "output_tokens": 28560,
+    "usd": 2.41,
+    "assumptions": {
+      "price_usd_per_mtok": {
+        "input": 5.0,
+        "output": 25.0
+      },
+      "chars_per_token": 4.0,
+      "output_tokens_per_request": 20,
+      "prompt_caching": "none assumed"
+    }
+  },
+  "planted_effect": 2.0
+}

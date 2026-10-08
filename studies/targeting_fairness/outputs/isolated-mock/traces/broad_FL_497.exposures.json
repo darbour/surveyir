@@ -1,0 +1,270 @@
+{
+  "displays": [
+    {
+      "page": 1,
+      "seq": 1,
+      "qid": "QID1271",
+      "loop_id": null,
+      "kind": "captcha",
+      "block_id": "BL_cMat41eEEQSMchT",
+      "text": "Please complete the CAPTCHA below.",
+      "html": "Please complete the CAPTCHA below.",
+      "choices": [],
+      "columns": [],
+      "media": [],
+      "flipped": false,
+      "multiple": null,
+      "required": "off",
+      "revealed_in_page": false,
+      "validation": {},
+      "mode": null,
+      "row_columns": {},
+      "bounds": null,
+      "subquestions": []
+    },
+    {
+      "page": 2,
+      "seq": 2,
+      "qid": "QID1339",
+      "loop_id": null,
+      "kind": "descriptive",
+      "block_id": "BL_cMat41eEEQSMchT",
+      "text": "Imc",
+      "html": "Imc",
+      "choices": [],
+      "columns": [],
+      "media": [
+        {
+          "kind": "image",
+          "url": null,
+          "id": "IM_9QTZGg6M9XkalYV",
+          "description": "Imc"
+        }
+      ],
+      "flipped": false,
+      "multiple": null,
+      "required": "off",
+      "revealed_in_page": false,
+      "validation": {},
+      "mode": "graphic",
+      "row_columns": {},
+      "bounds": null,
+      "subquestions": []
+    },
+    {
+      "page": 2,
+      "seq": 3,
+      "qid": "QID1337",
+      "loop_id": null,
+      "kind": "text_entry",
+      "block_id": "BL_cMat41eEEQSMchT",
+      "text": "Above is a list of numbers. Only one of these numbers is an even number. Please spell that number out in ALL-CAPS below. For example, if the even number were \"8\" you would write EIGHT\n\nNote that failure to answer this question correctly will result in disqualification. Do not use lower-case letters, and do not add any extra spaces.",
+      "html": "Above is a list of numbers. Only one of these numbers is an even number. Please spell that number out in ALL-CAPS below. For example, if the even number were \"8\" you would write EIGHT<div><br><div>Note that failure to answer this question correctly will result in disqualification. Do not use lower-case letters, and do not add any extra spaces.</div></div>",
+      "choices": [],
+      "columns": [],
+      "media": [],
+      "flipped": false,
+      "multiple": null,
+      "required": "force",
+      "revealed_in_page": false,
+      "validation": {},
+      "mode": "single_line",
+      "row_columns": {},
+      "bounds": null,
+      "subquestions": []
+    },
+    {
+      "page": 3,
+      "seq": 4,
+      "qid": "QID1367",
+      "loop_id": null,
+      "kind": "choice",
+      "block_id": "BL_dhitHQfHPClP90F",
+      "text": "Welcome to our Survey!\n\nDESCRIPTION: We are a team at Columbia University. In today's study, you will fill out a survey. Nothing is designed to be experienced as unpleasant or \u201cweird\u201d in any way. In fact, no parts of this survey involves sensitive or invasive information, tasks, or questions. The study will take around 1 minute.\n\nCOMPENSATION: You will be paid $0.30 for your participation today.\n\nPLEASE NOTE: This study contains a number of checks to make sure that participants are finishing the tasks honestly and completely. .\n\nSUBJECT\u2019S RIGHTS: Your participation is voluntary. You may stop participating at any time by closing the browser window or the program to withdraw from the study. Partial data will not be analyzed.\n\nFor additional questions, you may contact: Elizabeth Friedman (e.friedman@columbia.edu).\n\nPlease indicate, in the box below, that you are at least 18 years old, have read and understood this consent form, and agree to participate in this survey. If you choose not to participate, please exit the screen now.",
+      "html": "<p><b>Welcome to our Survey!</b></p>\n\n<p>&nbsp;</p>\n\n<p>DESCRIPTION: We are a team at Columbia University. In today's study, you will fill out a survey.&nbsp;Nothing is designed to be experienced as unpleasant or \u201cweird\u201d in any way. In fact, no parts of this survey involves sensitive or invasive information, tasks, or questions. The study will take around 1 minute.</p>\n\n<p>&nbsp;</p>\n\n<p>COMPENSATION: You will be paid $0.30 for your participation today.</p>\n\n<p>&nbsp;</p>\n\n<p><b>PLEASE NOTE: This study contains a number of checks to make sure that participants are finishing the tasks honestly and completely. .</b></p>\n\n<p>&nbsp;</p>\n\n<p>SUBJECT\u2019S RIGHTS: Your participation is voluntary. You may stop participating at any time by closing the browser window or the program to withdraw from the study. Partial data will not be analyzed.</p>\n\n<p>&nbsp;</p>\n\n<p>For additional questions, you may contact: Elizabeth Friedman (e.friedman@columbia.edu).</p>\n\n<p></p>\n\n<p>&nbsp; &nbsp;<br><b>\nPlease indicate, in the box below, that you are at least 18 years old, have read and understood this consent form, and agree to participate in this survey. If you choose not to participate, please exit the screen now.</b></p>",
+      "choices": [
+        {
+          "id": "1",
+          "text": "Yes, I agree to participate\u2014let's start the survey!",
+          "carried_from": null
+        }
+      ],
+      "columns": [],
+      "media": [],
+      "flipped": false,
+      "multiple": false,
+      "required": "force",
+      "revealed_in_page": false,
+      "validation": {},
+      "mode": null,
+      "row_columns": {},
+      "bounds": null,
+      "subquestions": []
+    },
+    {
+      "page": 4,
+      "seq": 5,
+      "qid": "QID1460",
+      "loop_id": null,
+      "kind": "descriptive",
+      "block_id": "BL_5pVyUPVCgtOE6LX",
+      "text": "A snack foods company has developed a new line of snacks. Initial testing showed that, due to the taste and texture profile of the snacks, the snacks are better suited to the preferences of their female customers.\n\nThe company is developing a marketing plan to promote the snacks. Even though they believe the snacks are best suited to their female customers, they will advertise the snacks broadly to the general public.",
+      "html": "A snack foods company has developed a new line of snacks. Initial testing showed that,&nbsp;due to the <strong>taste and texture profile </strong>of the snacks, the snacks are better suited to the<b> preferences of their female customers.&nbsp;</b><br>\n&nbsp;<br>\nThe company is developing a marketing plan to promote the snacks. Even though they believe the snacks are best suited to their female customers, they will advertise the snacks <b>broadly to the general public</b>.",
+      "choices": [],
+      "columns": [],
+      "media": [],
+      "flipped": false,
+      "multiple": null,
+      "required": "off",
+      "revealed_in_page": false,
+      "validation": {},
+      "mode": "text",
+      "row_columns": {},
+      "bounds": null,
+      "subquestions": []
+    },
+    {
+      "page": 4,
+      "seq": 6,
+      "qid": "QID1396",
+      "loop_id": null,
+      "kind": "choice",
+      "block_id": "BL_5pVyUPVCgtOE6LX",
+      "text": "How fair is this advertising plan?",
+      "html": "How <b>fair </b>is this advertising plan?",
+      "choices": [
+        {
+          "id": "1",
+          "text": "1:\nNot at all fair",
+          "carried_from": null
+        },
+        {
+          "id": "2",
+          "text": "2",
+          "carried_from": null
+        },
+        {
+          "id": "3",
+          "text": "3",
+          "carried_from": null
+        },
+        {
+          "id": "4",
+          "text": "4",
+          "carried_from": null
+        },
+        {
+          "id": "5",
+          "text": "5",
+          "carried_from": null
+        },
+        {
+          "id": "6",
+          "text": "6",
+          "carried_from": null
+        },
+        {
+          "id": "7",
+          "text": "7",
+          "carried_from": null
+        },
+        {
+          "id": "8",
+          "text": "8",
+          "carried_from": null
+        },
+        {
+          "id": "9",
+          "text": "9:\nVery fair",
+          "carried_from": null
+        }
+      ],
+      "columns": [],
+      "media": [],
+      "flipped": false,
+      "multiple": false,
+      "required": "force",
+      "revealed_in_page": false,
+      "validation": {},
+      "mode": null,
+      "row_columns": {},
+      "bounds": null,
+      "subquestions": []
+    },
+    {
+      "page": 5,
+      "seq": 8,
+      "qid": "QID1451",
+      "loop_id": null,
+      "kind": "text_entry",
+      "block_id": "BL_0AOrytNwJLf1lVr",
+      "text": "Please feel free to write any comments you may have about the survey or scenarios.",
+      "html": "Please feel free to write any comments you may have about the survey or scenarios.",
+      "choices": [],
+      "columns": [],
+      "media": [],
+      "flipped": false,
+      "multiple": null,
+      "required": "off",
+      "revealed_in_page": false,
+      "validation": {},
+      "mode": "single_line",
+      "row_columns": {},
+      "bounds": null,
+      "subquestions": []
+    }
+  ],
+  "factors": [
+    {
+      "factor_id": "FL_491",
+      "arms_shown_in_order": [
+        "FL_497"
+      ],
+      "arms": [
+        {
+          "key": "FL_497",
+          "flow_id": "FL_497",
+          "displays": []
+        }
+      ],
+      "p_nominal": {
+        "FL_493": 0.5,
+        "FL_497": 0.5
+      },
+      "p_given_history": {
+        "FL_493": 0.5,
+        "FL_497": 0.5
+      }
+    }
+  ],
+  "audit_assignment": [
+    {
+      "node_id": "FL_491",
+      "kind": "flow",
+      "options": [
+        "FL_493",
+        "FL_497"
+      ],
+      "shown": [
+        "FL_497"
+      ],
+      "p_nominal": {
+        "FL_493": 0.5,
+        "FL_497": 0.5
+      },
+      "p_given_history": {
+        "FL_493": 0.5,
+        "FL_497": 0.5
+      },
+      "balancer_before": {
+        "FL_493": 0,
+        "FL_497": 0
+      },
+      "loop_id": null
+    }
+  ],
+  "recorded_fields": {
+    "Segment": "1",
+    "target": "female"
+  }
+}

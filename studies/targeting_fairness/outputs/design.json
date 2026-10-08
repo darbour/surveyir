@@ -1,0 +1,50 @@
+{
+  "factors": [
+    {
+      "id": "FL_491",
+      "description": null,
+      "n": 2,
+      "k": 1,
+      "even_presentation": true,
+      "arms": [
+        {
+          "key": "FL_493",
+          "flow_id": "FL_493",
+          "label": "FL_493",
+          "nominal_share": 0.5,
+          "nominal_marginal": 0.5,
+          "assignments": {
+            "Segment": "2",
+            "target": "broad"
+          },
+          "blocks": [],
+          "probability": 0.5,
+          "marginal_probability": 0.5
+        },
+        {
+          "key": "FL_497",
+          "flow_id": "FL_497",
+          "label": "FL_497",
+          "nominal_share": 0.5,
+          "nominal_marginal": 0.5,
+          "assignments": {
+            "Segment": "1",
+            "target": "female"
+          },
+          "blocks": [],
+          "probability": 0.5,
+          "marginal_probability": 0.5
+        }
+      ],
+      "within": [],
+      "condition": null,
+      "last_shown_assigns": [],
+      "annotation": null,
+      "contrast": "exposure",
+      "recorded_field": []
+    }
+  ],
+  "order": [],
+  "random_values": [],
+  "opaque": []
+}

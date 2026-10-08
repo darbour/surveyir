@@ -1,0 +1,14 @@
+# what the respondent model could read when answering QID1396
+
+How fair is this advertising plan?
+  1:
+Not at all fair
+  2
+  3
+  4
+  5
+  6
+  7
+  8
+  9:
+Very fair

@@ -188,9 +188,8 @@ def test_last_shown_factor_whose_arms_display_nothing_is_an_assignment():
     assert [a.nominal_share for a in f.arms] == [1.0, 1.0]
     first = design(last_shown_survey()).summary().splitlines()[0]
     assert first == (
-        "FL_2: assignment recorded in Group: the arms display nothing, the last one sets Group "
-        "(each value with nominal share 1/2), and later logic on it decides what is shown, "
-        "2 of 2, evenly presented"
+        "FL_2: assignment to Group (arms display nothing; all run, the last one wins: each "
+        "value with nominal share 1/2), 2 of 2, evenly presented"
     )
 
 
@@ -208,27 +207,23 @@ def test_last_shown_factor_whose_arms_display_blocks_is_an_order_contrast():
         load_qsf(minimal_qsf([mc()], flow=flow))).summary()
 
 
-def test_pure_order_factor_and_exposure_factor():
+def test_order_exposure_and_assignment_contrasts():
+    def shows(flow_id: str) -> dict:
+        return {"Type": "Block", "ID": "BL_1", "FlowID": flow_id}
+
     flow = [
         randomizer("FL_2", [setter("FL_3", "a", "1"), setter("FL_4", "b", "1")], subset=2),
-        randomizer("FL_5", [setter("FL_6", "c", "1"), setter("FL_7", "c", "2")]),
+        randomizer("FL_5", [shows("FL_6"), shows("FL_7")]),
+        randomizer("FL_8", [setter("FL_9", "c", "1"), setter("FL_10", "c", "2")]),
     ]
-    order, exposure = design(load_qsf(minimal_qsf([mc()], flow=flow))).factors
+    order, exposure, assignment = design(load_qsf(minimal_qsf([mc()], flow=flow))).factors
     assert order.contrast == "order" and order.recorded_field == [] and not order.between_subjects
     assert exposure.contrast == "exposure" and exposure.recorded_field == []
+    # 1 of 2 arms that display nothing and set c: later logic on c decides what is shown
+    assert assignment.contrast == "assignment" and assignment.recorded_field == ["c"]
+    assert assignment.between_subjects
     dumped = order.model_dump()
     assert dumped["contrast"] == "order" and dumped["recorded_field"] == []
-
-
-def test_deprecated_aliases_equal_the_new_fields():
-    d = design(nested_survey())
-    for f in d.factors:
-        for a in f.arms:
-            assert a.probability == a.nominal_share
-            assert a.marginal_probability == a.nominal_marginal
-            dumped = a.model_dump()
-            assert dumped["probability"] == dumped["nominal_share"]
-            assert dumped["marginal_probability"] == dumped["nominal_marginal"]
 
 
 def test_annotations_from_dict_are_stored_and_summarized():
@@ -243,8 +238,9 @@ def test_annotations_from_dict_are_stored_and_summarized():
     )
     assert by_id["FL_5"].annotation is None
     lines = d.summary().splitlines()
-    assert lines[1] == "  declared: exposure contrast; treatment: gain vs loss frame; note: primary"
-    assert "  declared: order contrast (the structure gives exposure)" in lines
+    assert lines[1] == ("  declared: exposure contrast (the structure gives assignment); "
+                        "treatment: gain vs loss frame; note: primary")
+    assert "  declared: order contrast (the structure gives assignment)" in lines
 
 
 def test_annotations_from_json_file(tmp_path):

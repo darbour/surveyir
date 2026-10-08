@@ -137,29 +137,32 @@ class Factor(BaseModel):
         return self.k < self.n or bool(self.last_shown_assigns)
 
     @computed_field(
-        description="'exposure' when k < n (each respondent sees an exclusive subset of the "
-        "arms). When every arm is run: 'assignment' if the arms display nothing and a field "
-        "records the last one (the randomizer only assigns; later logic on the field decides "
-        "what is shown), otherwise 'order' (respondents see every arm; only the order differs)."
+        description="'assignment' when the arms display nothing and only set fields (the "
+        "randomizer assigns; later logic on the recorded field decides what is shown); otherwise "
+        "'exposure' when k < n (each respondent sees an exclusive subset of the arms) and 'order' "
+        "when every arm is shown (only the order differs)."
     )
     @property
     def contrast(self) -> Literal["exposure", "order", "assignment"]:
-        if self.k < self.n:
-            return "exposure"
-        if self.last_shown_assigns and not any(a.blocks for a in self.arms):
+        if not any(a.blocks for a in self.arms) and self.recorded_field:
             return "assignment"
-        return "order"
+        return "exposure" if self.k < self.n else "order"
 
     @computed_field(
-        description="For last-shown factors: every arm is run for every respondent, and these "
-        "fields hold the value set by the last one. Within the factor the contrast is order "
+        description="Fields that record the assignment. For last-shown factors (k = n): every "
+        "arm is run for every respondent, and these fields hold the value set by the last one. "
+        "For k < n factors whose arms display nothing: the fields the arms set, which later logic "
+        "acts on. Within the factor the contrast is order "
         "(which arm came last), not exclusive exposure. If the arms only set the field and "
         "later branches read it, what a respondent is shown depends on the field, so check "
         "exposures(run, survey). Same content as last_shown_assigns."
     )
     @property
     def recorded_field(self) -> list[str]:
-        return list(self.last_shown_assigns)
+        if self.k == self.n:
+            return list(self.last_shown_assigns)
+        # k < n: when the arms display nothing, the fields they set are the assignment
+        return [] if any(a.blocks for a in self.arms) else self.treatment_fields
 
     @property
     def treatment_fields(self) -> list[str]:
@@ -235,10 +238,11 @@ class Design(BaseModel):
         lines = []
         for f in self.factors:
             fields = ", ".join(f.recorded_field)
-            if f.contrast == "assignment":
-                kind = (f"assignment recorded in {fields}: the arms display nothing, the last "
-                        f"one sets {fields} (each value with nominal share 1/{f.n}), and later "
-                        "logic on it decides what is shown")
+            if f.contrast == "assignment" and f.k == f.n:
+                kind = (f"assignment to {fields} (arms display nothing; all run, the last one "
+                        f"wins: each value with nominal share 1/{f.n})")
+            elif f.contrast == "assignment":
+                kind = f"assignment to {fields} (arms display nothing)"
             else:
                 kind = f"{f.contrast} contrast"
                 if f.recorded_field:
@@ -268,6 +272,11 @@ class Design(BaseModel):
             lines.append(
                 "Nominal shares are k/n, ignoring branches; not exposure probabilities, "
                 "nor conditional on balancing history."
+            )
+        if any(f.contrast == "assignment" for f in self.factors):
+            lines.append(
+                "Assignments only set fields: later branches, display logic or piped text "
+                "decide what each respondent sees (see exposures(run, survey))."
             )
         return "\n".join(lines)
 
@@ -533,8 +542,9 @@ class ExposureHistory:
 
     @property
     def screens(self) -> tuple[Display, ...]:
-        """Text-only screens (vignettes, instructions): shown, never answered."""
-        return tuple(d for d in self.displays if not d.responds)
+        """Text-only screens (vignettes, instructions): shown, never answered. CAPTCHAs are
+        not stimuli and are left out (they remain in ``displays``)."""
+        return tuple(d for d in self.displays if not d.responds and d.kind != "captcha")
 
     def factor(self, factor_id: str) -> Exposure:
         return next(f for f in self.factors if f.factor_id == factor_id)

@@ -13,41 +13,46 @@ print(d.summary())
 ```
 
 ```text
-FL_42: exposure contrast, 1 of 2, evenly presented if attitude value (choice 1) = 50
+FL_42: assignment to side1, side3 (arms display nothing), 1 of 2, evenly presented if attitude value (choice 1) = 50
   - support (nominal share 0.5): side1='a good idea', side 2='supports', side3='in support'
   - against (nominal share 0.5): side1='a bad idea', side2='opposes', side3='against'
-FL_6: exposure contrast, 1 of 2, evenly presented
+FL_6: assignment to absurd_1 (arms display nothing), 1 of 2, evenly presented
   - FL_7 (nominal share 0.5): absurd_1='A'
   - FL_8 (nominal share 0.5): absurd_1='B'
-FL_15: exposure contrast, 1 of 2, evenly presented
+FL_15: assignment to absurd_2 (arms display nothing), 1 of 2, evenly presented
   - FL_16 (nominal share 0.5): absurd_2='A'
   - FL_17 (nominal share 0.5): absurd_2='B'
-FL_12: exposure contrast, 1 of 2, evenly presented
+FL_12: assignment to absurd_3 (arms display nothing), 1 of 2, evenly presented
   - FL_13 (nominal share 0.5): absurd_3='A'
   - FL_14 (nominal share 0.5): absurd_3='B'
-FL_50: exposure contrast, 1 of 2, evenly presented
+FL_50: assignment to s_1 (arms display nothing), 1 of 2, evenly presented
   - FL_51 (nominal share 0.5): s_1='control'
   - FL_52 (nominal share 0.5): s_1='test'
-FL_59: exposure contrast, 1 of 2, evenly presented
+FL_59: assignment to s_2 (arms display nothing), 1 of 2, evenly presented
   - FL_60 (nominal share 0.5): s_2='control'
   - FL_61 (nominal share 0.5): s_2='test'
-FL_56: exposure contrast, 1 of 2, evenly presented
+FL_56: assignment to s_3 (arms display nothing), 1 of 2, evenly presented
   - FL_57 (nominal share 0.5): s_3='control'
   - FL_58 (nominal share 0.5): s_3='test'
 block_questions randomized at BL_cMZntkAHYaNDzEy (advanced)
 block_questions randomized at BL_bJCKlj1xzXLsWUe (advanced)
 block_questions randomized at BL_3RfCDTdyXhIpQJE (advanced)
 Nominal shares are k/n, ignoring branches; not exposure probabilities, nor conditional on balancing history.
+Assignments only set fields: later branches, display logic or piped text decide what each respondent sees (see exposures(run, survey)).
 ```
 
 Reading the summary:
 
-- **Factors.** Each line `FL_…` is a flow randomizer. "exposure contrast, 1 of 2"
-  means each respondent gets one of two arms, and not the other. "order
-  contrast, 4 of 4" would mean every arm is run for everyone, in random order:
-  arms then differ only in their position. What a respondent is *shown* also
-  depends on what the arms display and on later branches (see
-  [below](#a-recorded-field-is-not-an-exposure)).
+- **Factors.** Each line `FL_…` is a flow randomizer, of one of three kinds:
+  - "assignment to `absurd_1` (arms display nothing)": the arms only set a
+    field. Every factor in this study is like that: display logic on `absurd_1`
+    and `s_1` later decides which questions a respondent sees, and the `side`
+    fields are piped into question text. What a respondent is shown is decided
+    after the randomizer (see [below](#a-recorded-field-is-not-an-exposure)).
+  - "exposure contrast, 1 of 2": each respondent is shown one arm's own
+    content, and not the other's.
+  - "order contrast, 4 of 4": every arm is shown to everyone, in random order,
+    so arms differ only in their position.
 - **Assignments.** An arm lists the embedded-data values it sets, which is usually
   how the condition is recorded in the data (`s_1='control'`).
 - **Nominal shares.** "nominal share 0.5" is k/n: the share of respondents
@@ -172,7 +177,7 @@ print(privacy.factors[0].contrast, privacy.factors[0].recorded_field)
 ```
 
 ```text
-FL_4: assignment recorded in Group: the arms display nothing, the last one sets Group (each value with nominal share 1/6), and later logic on it decides what is shown, 6 of 6, evenly presented
+FL_4: assignment to Group (arms display nothing; all run, the last one wins: each value with nominal share 1/6), 6 of 6, evenly presented
 assignment ['Group']
 ```
 

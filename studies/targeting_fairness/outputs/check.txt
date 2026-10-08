@@ -1,0 +1,8 @@
+Segmentation fairness gender - taste - for digital twins 4-8-25: 4 executable
+
+Executable:
+  randomizer x1: FL_491
+  end_survey x1: FL_421
+  display_logic x2: QID1459, QID1460
+
+Blocking under strict execution: 0
