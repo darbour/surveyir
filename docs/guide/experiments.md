@@ -43,7 +43,9 @@ Assignments only set fields: later branches, display logic or piped text decide 
 
 Reading the summary:
 
-- **Factors.** Each line `FL_…` is a flow randomizer, of one of three kinds:
+- **Factors.** Each line `FL_…` is a flow randomizer, of one of three kinds.
+  In Qualtrics studies the first is the most common: arms set a field, and
+  blocks shown later depend on it.
   - "assignment to `absurd_1` (arms display nothing)": the arms only set a
     field. Every factor in this study is like that: display logic on `absurd_1`
     and `s_1` later decides which questions a respondent sees, and the `side`

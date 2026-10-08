@@ -185,9 +185,11 @@ The runtime was compared with 13,879 real respondents in 19 studies
   evaluated with the state at that point. 12,815 of 13,816 respondents were
   replayed: 0 of 219,853 answered questions went undisplayed, the recorded
   block display orders were reproduced exactly, 1,973 displayed questions were
-  left blank (mostly optional comment boxes), and all 16,246 embedded values set
-  by the flow match the export. The 1,001 `obedient_twins` respondents were not
-  replayed: their answers show the fielded flow differed from this QSF.
+  left blank (mostly optional comment boxes), and all 16,246 compared embedded
+  values set by the flow match the export. Not checked: the 1,001
+  `obedient_twins` respondents, whose answers show the fielded flow differed
+  from this QSF, and 32,759 `promiscuous_donors` values copied from fields its
+  question JavaScript sets, which the export lacks.
 
 Simulated rows leave timing and meta-info columns blank. Because export tags can
 repeat, `run.cells(survey)` gives the exact column layout; `run.row()` is a
