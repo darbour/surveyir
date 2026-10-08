@@ -69,8 +69,11 @@ APPROXIMATIONS: dict[str, tuple[Affects, str]] = {
     "quota.snapshot": ("routing", "quota status taken at respondent start, not updated mid-walk"),
     # questions
     "question.unsupported": ("outcome", "unsupported question type: shown but not answered"),
-    "answer.invalid": ("outcome", "answer violates the question's validation, which Qualtrics "
-                       "would not have accepted; recorded as given"),
+    "answer.invalid": (
+        "outcome",
+        "answer violates the question's validation, which Qualtrics "
+        "would not have accepted; recorded as given",
+    ),
     "javascript": ("exposure", "question JavaScript not run"),
     "columns.unbalanced": ("exposure", "evenly presented column subset drawn without balancing"),
     "loop.unknown_mode": ("exposure", "loop source mode not handled; looped over every choice"),
@@ -92,8 +95,11 @@ APPROXIMATIONS: dict[str, tuple[Affects, str]] = {
     "logic.regex_invalid": ("routing", "invalid regular expression; the condition is false"),
     "logic.non_numeric": ("routing", "ordering comparison on a non-numeric value; false"),
     # replay
-    "replay.gap": ("exposure", "a replay has no recorded decision for a randomization point; "
-                   "drawn by the fallback chooser (assignment for flow randomizers)"),
+    "replay.gap": (
+        "exposure",
+        "a replay has no recorded decision for a randomization point; "
+        "drawn by the fallback chooser (assignment for flow randomizers)",
+    ),
 }
 
 #: approximation code -> the ``implementations`` key that removes it
@@ -106,15 +112,30 @@ IMPLEMENTED_BY: dict[str, str] = {
 }
 
 #: question-sourced loop modes the runtime administers exactly (last locator segment)
-LOOP_MODES: frozenset[str] = frozenset({
-    "SelectedChoices", "SelectedChoicesTextEntry", "EnteredChoicesTextEntry",
-    "UnselectedChoices", "DisplayedChoices", "AllChoices", "MergeOnNumericResponse",
-})
+LOOP_MODES: frozenset[str] = frozenset(
+    {
+        "SelectedChoices",
+        "SelectedChoicesTextEntry",
+        "EnteredChoicesTextEntry",
+        "UnselectedChoices",
+        "DisplayedChoices",
+        "AllChoices",
+        "MergeOnNumericResponse",
+    }
+)
 #: carry-forward modes the runtime administers exactly
-CARRY_FORWARD_MODES: frozenset[str] = frozenset({
-    "SelectedChoices", "UnselectedChoices", "NotSelectedChoices", "DisplayedChoices",
-    "NotDisplayedChoices", "SelectedChoicesTextEntry", "EnteredChoicesTextEntry", "AllChoices",
-})
+CARRY_FORWARD_MODES: frozenset[str] = frozenset(
+    {
+        "SelectedChoices",
+        "UnselectedChoices",
+        "NotSelectedChoices",
+        "DisplayedChoices",
+        "NotDisplayedChoices",
+        "SelectedChoicesTextEntry",
+        "EnteredChoicesTextEntry",
+        "AllChoices",
+    }
+)
 
 _JS_NOISE = re.compile(
     r"/\*.*?\*/|(?<!:)//[^\n]*"  # comments, but not the // of e:// or https://
@@ -143,8 +164,9 @@ def javascript_affects(js: str | None) -> Affects | None:
     return "assignment" if JS_RANDOM.search(body) or _JS_ASSIGNS.search(body) else "exposure"
 
 
-def approximation(code: str, location: str, detail: str | None = None,
-                  affects: Affects | None = None) -> Approximation:
+def approximation(
+    code: str, location: str, detail: str | None = None, affects: Affects | None = None
+) -> Approximation:
     """An ``Approximation`` for a known code, with its default ``affects`` and meaning."""
     default, meaning = APPROXIMATIONS[code]
     return Approximation(code, location, affects or default, detail or meaning)
@@ -189,12 +211,19 @@ class ExecutionPolicy:
             raise ValueError(f"unknown approximation code(s) in allow: {sorted(unknown)}")
 
     @classmethod
-    def from_args(cls, strict: bool | None = True, allow: Iterable[str] | None = None,
-                  implementations: Mapping[str, Any] | None = None) -> ExecutionPolicy:
+    def from_args(
+        cls,
+        strict: bool | None = True,
+        allow: Iterable[str] | None = None,
+        implementations: Mapping[str, Any] | None = None,
+    ) -> ExecutionPolicy:
         """Build a policy from CLI-style values (``allow`` may contain comma lists)."""
         entries = {e.strip() for a in allow or () for e in a.split(",") if e.strip()}
-        return cls(strict=True if strict is None else strict, allow=frozenset(entries),
-                   implementations=dict(implementations or {}))
+        return cls(
+            strict=True if strict is None else strict,
+            allow=frozenset(entries),
+            implementations=dict(implementations or {}),
+        )
 
     def allows(self, approx: Approximation) -> bool:
         """Whether ``approx`` was explicitly accepted (by code, or by code and location)."""

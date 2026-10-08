@@ -305,7 +305,8 @@ _ZIP = re.compile(r"^\d{5}(-\d{4})?$")
 
 def _numeric(v: Mapping[str, Any]) -> bool:
     return v.get("content_type") == "ValidNumber" or any(
-        _num(v.get(k)) is not None for k in ("number_min", "number_max"))
+        _num(v.get(k)) is not None for k in ("number_min", "number_max")
+    )
 
 
 def _text_answer(v: Mapping[str, Any], rng: random.Random) -> str:
@@ -377,11 +378,11 @@ def validation_errors(d: Display, value: Any) -> list[str]:
             errors.append(f"{where}{len(s)} characters, more than {hi_c}")
 
     if d.kind == "text_entry":
-        for k, x in (value.items() if isinstance(value, dict) else [("", value)]):
+        for k, x in value.items() if isinstance(value, dict) else [("", value)]:
             text(x, f"{k}: " if k else "")
     elif d.kind == "matrix" and isinstance(value, dict) and d.mode == "text":
         for r, cells in value.items():
-            for c, x in (cells.items() if isinstance(cells, dict) else []):
+            for c, x in cells.items() if isinstance(cells, dict) else []:
                 text(x, f"{r}/{c}: ")
     elif d.kind == "choice" and d.multiple and isinstance(value, (list, tuple)):
         lo, hi = _int(v.get("min_choices")), _int(v.get("max_choices"))
@@ -454,11 +455,22 @@ def _presentation(q: Question, text: Callable[[Text], str]) -> dict[str, Any]:
         return tuple(ChoiceShown(a.id, text(a.text)) for a in points)
 
     v = q.validation
-    rules = {} if v is None else {
-        k: getattr(v, k)
-        for k in ("min_choices", "max_choices", "min_chars", "max_chars", "total", "content_type")
-        if getattr(v, k) is not None
-    }
+    rules = (
+        {}
+        if v is None
+        else {
+            k: getattr(v, k)
+            for k in (
+                "min_choices",
+                "max_choices",
+                "min_chars",
+                "max_chars",
+                "total",
+                "content_type",
+            )
+            if getattr(v, k) is not None
+        }
+    )
     if v is not None and v.number is not None:
         rules.update({f"number_{k}": x for k, x in v.number.model_dump().items() if x is not None})
     mode = getattr(q, "mode", None)
@@ -467,7 +479,8 @@ def _presentation(q: Question, text: Callable[[Text], str]) -> dict[str, Any]:
         "required": v.required if v is not None else "off",
         "validation": rules,
         "mode": mode if isinstance(mode, str) else None,
-        "multiple": q.multiple if isinstance(q, ChoiceQuestion)
+        "multiple": q.multiple
+        if isinstance(q, ChoiceQuestion)
         else (q.mode == "multiple" if isinstance(q, MatrixQuestion) else None),
     }
     if isinstance(q, MatrixQuestion) and q.row_columns:
@@ -487,8 +500,11 @@ def _media(q: Question, choices: Sequence[Choice], html: str) -> tuple[MediaRef,
     image = getattr(q, "image", None)
     if image is not None:
         refs.append(MediaRef("image", id=image.id, description=image.description))
-    refs += [MediaRef("image", id=c.image.id, description=c.image.description)
-             for c in choices if c.image is not None]
+    refs += [
+        MediaRef("image", id=c.image.id, description=c.image.description)
+        for c in choices
+        if c.image is not None
+    ]
     for tag in _IMG.findall(html):
         attrs = {k.lower(): v for k, v in _ATTR.findall(tag)}
         refs.append(MediaRef("image", url=attrs.get("src"), description=attrs.get("alt") or None))
@@ -678,7 +694,8 @@ def arrange(
         even = mode == "subset" and r is not None and r.even_presentation and balancer is not None
         shown, _ = default_chooser.choose(
             ChoiceRequest("choices", key, tuple(options), k, mode, even, key),
-            rng, balancer or Counterbalancer(),
+            rng,
+            balancer or Counterbalancer(),
         )
         return list(shown)
 
@@ -817,7 +834,8 @@ class Simulator:
                 raise ValueError("pass either policy= or strict=/allow=, not both")
             if impl:
                 policy = dataclasses.replace(
-                    policy, implementations={**policy.implementations, **impl})
+                    policy, implementations={**policy.implementations, **impl}
+                )
         self.policy = policy
         self.survey = survey
         self.seed_rng = random.Random(seed)
@@ -854,9 +872,7 @@ class Simulator:
         """
         seed = self.seed_rng.randrange(2**32) if seed is None else seed
         supplied = {**self.embedded, **(embedded or {})}
-        state = RespondentState(
-            embedded=supplied, device=self.device, location=dict(self.location)
-        )
+        state = RespondentState(embedded=supplied, device=self.device, location=dict(self.location))
         state.unsupplied = self._external - set(supplied)
         self._quota_status(state)
         run = RespondentRun(index=self.count, seed=seed, state=state)
@@ -899,7 +915,8 @@ class Simulator:
     def _quota_status(self, state: RespondentState) -> None:
         """Which quotas are full, from the responses recorded so far."""
         state.quotas_met = {
-            q.id for q in self.survey.quotas
+            q.id
+            for q in self.survey.quotas
             if q.limit is not None and self.quota_counts.get(q.id, 0) >= q.limit
         }
 
@@ -966,8 +983,9 @@ class _Walk:
         if allowed is not None and allowed not in self.audit:
             self.audit.append(allowed)
 
-    def approximate(self, code: str, location: str, detail: str | None = None,
-                    affects: Affects | None = None) -> None:
+    def approximate(
+        self, code: str, location: str, detail: str | None = None, affects: Affects | None = None
+    ) -> None:
         """Record ``code`` at ``location``, with its registered ``affects`` and meaning
         unless given (``execution.APPROXIMATIONS``)."""
         default, meaning = APPROXIMATIONS[code]
@@ -1006,9 +1024,12 @@ class _Walk:
         if isinstance(node, BlockNode):
             block = self.survey.blocks.get(node.block_id)
             if block is None:
-                self.approximate("flow.missing_block", node.block_id,
-                                 f"flow element {node.id} references block {node.block_id}, "
-                                 "which is not in the file; skipped")
+                self.approximate(
+                    "flow.missing_block",
+                    node.block_id,
+                    f"flow element {node.id} references block {node.block_id}, "
+                    "which is not in the file; skipped",
+                )
                 return
             self.block(block)
         elif isinstance(node, EmbeddedDataNode):
@@ -1016,8 +1037,14 @@ class _Walk:
                 if f.source == "custom" and f.value is not None:
                     # stored as typed (markup and whitespace kept), as Qualtrics exports it;
                     # rand:// here is an assignment, so it draws from the main rng
-                    value = render(f.value, state, self.survey, self.rng,
-                                   self.sim._field_affects(f.name), as_typed=True)
+                    value = render(
+                        f.value,
+                        state,
+                        self.survey,
+                        self.rng,
+                        self.sim._field_affects(f.name),
+                        as_typed=True,
+                    )
                     self.set_embedded(f.name, value, node.id)
                 elif f.name not in state.embedded:
                     # a panel / recipient / URL field nobody supplied: empty, and
@@ -1051,14 +1078,20 @@ class _Walk:
                     self.set_embedded(k, v, f"web_service:{node.id}")
             else:
                 sets = ", ".join(node.sets_fields) or "no fields"
-                self.approximate("web_service", node.id,
-                                 f"web service {node.id} ({node.method or 'GET'} "
-                                 f"{node.url or ''}) not called; sets {sets}, left empty")
+                self.approximate(
+                    "web_service",
+                    node.id,
+                    f"web service {node.id} ({node.method or 'GET'} "
+                    f"{node.url or ''}) not called; sets {sets}, left empty",
+                )
                 for name in node.sets_fields:
                     state.embedded.setdefault(name, "")
         elif isinstance(node, LibraryBlockNode):
-            self.approximate("library_block", node.id,
-                             f"library block {node.reference_id} is not in the file; skipped")
+            self.approximate(
+                "library_block",
+                node.id,
+                f"library block {node.reference_id} is not in the file; skipped",
+            )
         elif isinstance(node, QuotaNode):
             self.sim._quota_status(state)  # quota status as of now, not at respondent start
             for quota in self.survey.quotas:
@@ -1073,13 +1106,17 @@ class _Walk:
                 elif quota.action not in (None, "ForBranching") and evaluate(
                     quota.condition, state, self.survey
                 ):
-                    self.approximate("quota.action_ignored", quota.id,
-                                     f"quota {quota.id} is met; its action {quota.action!r} "
-                                     "is not simulated")
+                    self.approximate(
+                        "quota.action_ignored",
+                        quota.id,
+                        f"quota {quota.id} is met; its action {quota.action!r} is not simulated",
+                    )
         elif isinstance(node, UnsupportedNode):
-            self.approximate("flow.unsupported", node.id,
-                             f"unsupported flow element {node.source_type} skipped; "
-                             "its children are run")
+            self.approximate(
+                "flow.unsupported",
+                node.id,
+                f"unsupported flow element {node.source_type} skipped; its children are run",
+            )
             self.nodes(node.children)
 
     def choose(self, req: ChoiceRequest) -> tuple[str, ...]:
@@ -1089,7 +1126,8 @@ class _Walk:
         if len(shown) > req.k or len(set(shown)) < len(shown) or not set(shown) <= set(req.options):
             raise ValueError(
                 f"chooser returned {list(shown)} for {req.kind} {req.node_id}: expected at most "
-                f"{req.k} distinct options of {list(req.options)}")
+                f"{req.k} distinct options of {list(req.options)}"
+            )
         return shown
 
     def _before(self, key: str, options: Sequence[str]) -> dict[str, int]:
@@ -1103,16 +1141,34 @@ class _Walk:
         k = node.subset_size if node.subset_size and node.subset_size < n else n
         even = node.even_presentation and k < n
         before = self._before(node.id, keys) if even else None
-        order = list(self.choose(ChoiceRequest(
-            "flow", node.id, tuple(keys), k, "subset", even, node.id,
-            loop_id=self.loop_id, respondent_index=self.run.index,
-        )))
+        order = list(
+            self.choose(
+                ChoiceRequest(
+                    "flow",
+                    node.id,
+                    tuple(keys),
+                    k,
+                    "subset",
+                    even,
+                    node.id,
+                    loop_id=self.loop_id,
+                    respondent_index=self.run.index,
+                )
+            )
+        )
         self.run.flow_order[node.id] = order
-        self.audit.append(RandomizerDecision(
-            node.id, "flow", tuple(keys), tuple(order),
-            p_nominal={o: k / n for o in keys},
-            p_given_history=self._p, balancer_before=before, loop_id=self.loop_id,
-        ))
+        self.audit.append(
+            RandomizerDecision(
+                node.id,
+                "flow",
+                tuple(keys),
+                tuple(order),
+                p_nominal={o: k / n for o in keys},
+                p_given_history=self._p,
+                balancer_before=before,
+                loop_id=self.loop_id,
+            )
+        )
         by_key = dict(zip(keys, children, strict=True))
         for key in order:
             self.node(by_key[key])
@@ -1142,10 +1198,20 @@ class _Walk:
             even = mode == "subset" and key is not None and r is not None and r.even_presentation
             if even:
                 before = self._before(key or "", options)
-            shown = self.choose(ChoiceRequest(
-                kind, node_id, tuple(options), k, mode, even, key or "", reverse,
-                self.loop_id, self.run.index,
-            ))
+            shown = self.choose(
+                ChoiceRequest(
+                    kind,
+                    node_id,
+                    tuple(options),
+                    k,
+                    mode,
+                    even,
+                    key or "",
+                    reverse,
+                    self.loop_id,
+                    self.run.index,
+                )
+            )
             p = self._p
             return list(shown)
 
@@ -1155,8 +1221,14 @@ class _Walk:
         if not ids or ((r is None or r.mode == "none") and not reverse):
             return order, None
         return order, RandomizerDecision(
-            node_id, kind, tuple(ids), tuple(order), p_nominal=_nominal(ids, r),
-            p_given_history=p, balancer_before=before, loop_id=self.loop_id,
+            node_id,
+            kind,
+            tuple(ids),
+            tuple(order),
+            p_nominal=_nominal(ids, r),
+            p_given_history=p,
+            balancer_before=before,
+            loop_id=self.loop_id,
         )
 
     # ---------------------------------------------------------------- blocks
@@ -1182,13 +1254,16 @@ class _Walk:
         ids: list[str]
         if loop.source == "static" or not loop.question_id:
             if loop.source != "static":
-                self.approximate("loop.unknown_mode", block.id,
-                                 f"loop over a missing question in {block.id}; looping over "
-                                 "its static fields")
+                self.approximate(
+                    "loop.unknown_mode",
+                    block.id,
+                    f"loop over a missing question in {block.id}; looping over its static fields",
+                )
             ids = sorted(loop.fields, key=lambda k: (not k.isdigit(), int(k) if k.isdigit() else 0))
         else:
             ids = self._loop_ids_from_question(
-                block.id, loop.question_id, loop.locator or "", loop.fields)
+                block.id, loop.question_id, loop.locator or "", loop.fields
+            )
         ids, decision = self._arrange("loop", block.id, ids, loop.randomization, f"loop:{block.id}")
         if decision is not None:
             self.audit.append(decision)
@@ -1224,12 +1299,18 @@ class _Walk:
         if mode == "DisplayedChoices":
             key = self.state.key(qid)
             if key not in self.state.displayed_choices:
-                self.approximate("loop.no_displayed_choices", block_id,
-                                 f"loop over displayed choices of {qid}, which was not "
-                                 "shown; looping over all choices")
+                self.approximate(
+                    "loop.no_displayed_choices",
+                    block_id,
+                    f"loop over displayed choices of {qid}, which was not "
+                    "shown; looping over all choices",
+                )
             return self.state.displayed_choices.get(key, all_ids)
-        self.approximate("loop.unknown_mode", block_id,
-                         f"loop over {locator!r} not supported; looping over all choices")
+        self.approximate(
+            "loop.unknown_mode",
+            block_id,
+            f"loop over {locator!r} not supported; looping over all choices",
+        )
         return all_ids
 
     def block_once(self, block: Block) -> None:
@@ -1278,7 +1359,7 @@ class _Walk:
                 self._hide(skipped, "skip")
                 if jump_to not in page:
                     continue
-                page, jump_to = page[len(skipped):], None
+                page, jump_to = page[len(skipped) :], None
             items = self._page(block, page, page_no)
             self._submit()
             skip = self._skip(items, refs)
@@ -1319,8 +1400,9 @@ class _Walk:
             item.asked = True
             self._answer(item, items)
             for later in items:
-                if not later.shown and evaluate(later.q.in_page_display_logic, self.state,
-                                                self.survey):
+                if not later.shown and evaluate(
+                    later.q.in_page_display_logic, self.state, self.survey
+                ):
                     self._show(later, block, revealed=True)
         never = [i.q.id for i in items if not i.shown]
         self._hide(never, "in_page_display_logic")
@@ -1338,13 +1420,15 @@ class _Walk:
             for skip in ref.skip_logic:
                 if evaluate(skip.condition, self.state, self.survey):
                     target = skip.target_question_id
-                    self.audit.append(SkipTaken(item.q.id, self.loop_id, target or
-                                                skip.destination))
+                    self.audit.append(
+                        SkipTaken(item.q.id, self.loop_id, target or skip.destination)
+                    )
                     return item.q.id, skip.destination, target
         return None
 
-    def _hide(self, qids: Sequence[str], reason: Literal["skip", "end", "in_page_display_logic"]
-              ) -> None:
+    def _hide(
+        self, qids: Sequence[str], reason: Literal["skip", "end", "in_page_display_logic"]
+    ) -> None:
         self.audit += [Hidden(q, self.loop_id, reason) for q in qids]
 
     def _submit(self) -> None:
@@ -1375,13 +1459,21 @@ class _Walk:
         flipped = bool(r is not None and r.flip_scale and self.flip)
         matrix = isinstance(q, MatrixQuestion)
         order, decision = self._arrange(
-            "choices", q.id, [c.id for c in shown], r, f"choices:{q.id}",
+            "choices",
+            q.id,
+            [c.id for c in shown],
+            r,
+            f"choices:{q.id}",
             reverse=flipped and not matrix,
         )
         columns = list(q.columns) if isinstance(q, MatrixQuestion) else []
         col_r = getattr(q, "column_randomization", None)
         col_ids, col_decision = self._arrange(  # evenly presented subsets are balanced
-            "columns", q.id, [a.id for a in columns], col_r, f"columns:{q.id}",
+            "columns",
+            q.id,
+            [a.id for a in columns],
+            col_r,
+            f"columns:{q.id}",
             reverse=flipped and matrix,
         )
         audit += [d for d in (decision, col_decision) if d is not None]
@@ -1415,10 +1507,15 @@ class _Walk:
             self.page += 1
             self.page_open = True
             loop = state.loop
-            self.observe(PageStart(
-                self.page, block.id, loop.loop_id if loop else None,
-                loop.number if loop else None, loop.total if loop else None,
-            ))
+            self.observe(
+                PageStart(
+                    self.page,
+                    block.id,
+                    loop.loop_id if loop else None,
+                    loop.number if loop else None,
+                    loop.total if loop else None,
+                )
+            )
         self.seq += 1
         item.display = dataclasses.replace(
             item.display, page=self.page, seq=self.seq, revealed_in_page=revealed
@@ -1434,18 +1531,27 @@ class _Walk:
         self.observe(item.display)
         self.audit += item.audit
         if isinstance(q, UnsupportedQuestion):
-            self.approximate("question.unsupported", q.id,
-                             f"question {q.id} is an unsupported type; shown but not answered")
+            self.approximate(
+                "question.unsupported",
+                q.id,
+                f"question {q.id} is an unsupported type; shown but not answered",
+            )
         script = self.sim.policy.implementation("javascript", q.id)
         if script is not None:  # the caller's implementation runs as the question displays
             for name, value in (script(state) or {}).items():
                 self.set_embedded(name, value, f"javascript:{q.id}")
         elif (affects := javascript_affects(q.javascript)) is not None:
-            what = ("randomizes or sets embedded data" if affects == "assignment"
-                    else "may change what is shown")
-            self.approximate("javascript", q.id,
-                             f"question {q.id} has JavaScript, which is not run (it {what})",
-                             affects)
+            what = (
+                "randomizes or sets embedded data"
+                if affects == "assignment"
+                else "may change what is shown"
+            )
+            self.approximate(
+                "javascript",
+                q.id,
+                f"question {q.id} has JavaScript, which is not run (it {what})",
+                affects,
+            )
 
     def _answer(self, item: _Item, page: Sequence[_Item]) -> None:
         """Ask the respondent for ``item`` (never for text-only screens), and record it."""
@@ -1478,12 +1584,14 @@ class _Walk:
         answer = value if isinstance(value, Answer) else Answer(value=value)
         errors = validation_errors(d, answer.value)
         if errors:
-            self.approximate("answer.invalid", d.qid,
-                             f"answer to {d.qid} violates its validation ({'; '.join(errors)}); "
-                             "Qualtrics would not have accepted it")
+            self.approximate(
+                "answer.invalid",
+                d.qid,
+                f"answer to {d.qid} violates its validation ({'; '.join(errors)}); "
+                "Qualtrics would not have accepted it",
+            )
         state.answers[item.key] = answer
-        self.observe(Response(d.page, d.seq, d.qid, d.loop_id, answer.value,
-                              dict(answer.text)))
+        self.observe(Response(d.page, d.seq, d.qid, d.loop_id, answer.value, dict(answer.text)))
 
     def _items(self, q: Question) -> tuple[list[Choice], dict[str, tuple[str, str]]]:
         """Options in source order, and {carried choice id: (source qid, source id)}."""
@@ -1520,13 +1628,19 @@ class _Walk:
         """Carry-forward choices (ids prefixed with "x", as Qualtrics does)."""
         state = self.state
         if cf.source == "reference_list":
-            self.approximate("carry_forward.reference", q.id,
-                             f"{q.id} carries forward from reference list "
-                             f"{cf.list_id or cf.raw}; nothing carried")
+            self.approximate(
+                "carry_forward.reference",
+                q.id,
+                f"{q.id} carries forward from reference list "
+                f"{cf.list_id or cf.raw}; nothing carried",
+            )
             return []
         if cf.source != "question" or not cf.question_id:
-            self.approximate("carry_forward.unsupported_mode", q.id,
-                             f"{q.id} carries forward from {cf.raw}; nothing carried")
+            self.approximate(
+                "carry_forward.unsupported_mode",
+                q.id,
+                f"{q.id} carries forward from {cf.raw}; nothing carried",
+            )
             return []
         source = self.survey.questions.get(cf.question_id)
         items = list(
@@ -1555,8 +1669,11 @@ class _Walk:
         elif mode == "AllChoices":
             keep = items
         else:
-            self.approximate("carry_forward.unsupported_mode", q.id,
-                             f"{q.id} carries forward {mode!r} from {cf.question_id}, which is "
-                             "not supported; carrying all choices")
+            self.approximate(
+                "carry_forward.unsupported_mode",
+                q.id,
+                f"{q.id} carries forward {mode!r} from {cf.question_id}, which is "
+                "not supported; carrying all choices",
+            )
             keep = items
         return [c.model_copy(update={"id": f"x{c.id}", "display_logic": None}) for c in keep]

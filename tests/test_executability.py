@@ -74,7 +74,10 @@ def test_fixture_spot_checks():
         ("QID7", "needs_implementation", "assignment")
     ]
     assert {loc for loc, *_ in rows(executability(load("idea_evaluation")), "javascript")} == {
-        "QID4", "QID9", "QID15", "QID19"
+        "QID4",
+        "QID9",
+        "QID15",
+        "QID19",
     }
     # story_beliefs declares its chapter texts as recipient fields, then sets them
     # in the flow, and never reads the panel fields (PROLIFIC_PID, ...) it declares
@@ -92,11 +95,14 @@ def synthetic():
     survey = load_qsf(minimal_qsf([mc("QID1"), mc("QID2", QuestionJS="jQuery('x').hide();")]))
     geo = Comparison(
         left=Operand(kind="geo_ip", name="loc://CountryName", raw="loc://CountryName"),
-        operator="equal", source_operator="EqualTo", right="US",
+        operator="equal",
+        source_operator="EqualTo",
+        right="US",
     )
     pid = Comparison(
         left=Operand(kind="embedded_data", name="pid", raw="pid"),
-        operator="not_empty", source_operator="NotEmpty",
+        operator="not_empty",
+        source_operator="NotEmpty",
     )
     q1 = survey.questions["QID1"]
     assert isinstance(q1, ChoiceQuestion)
@@ -145,20 +151,30 @@ def test_synthetic_inventory():
     assert len(blocking) == len(got) + 1  # the GeoIP condition is in a branch and a quota
     policy = ExecutionPolicy(
         allow=frozenset({"flow.unsupported", "flow.authenticator:FL_10"}),
-        implementations={"location": {"CountryName": "US", "City": "Paris"},
-                         "web_service": lambda node, state: {}, "embedded": {"pid": "p1"}},
+        implementations={
+            "location": {"CountryName": "US", "City": "Paris"},
+            "web_service": lambda node, state: {},
+            "embedded": {"pid": "p1"},
+        },
     )
     left = {(f.code, f.location) for f in report.blocking(policy)}
     assert left == set(got) - {
-        ("flow.unsupported", "FL_11"), ("flow.authenticator", "FL_10"), ("web_service", "FL_4"),
-        ("logic.geo_ip", "loc://CountryName"), ("pipe.loc", "City"), ("embedded.unset", "pid"),
+        ("flow.unsupported", "FL_11"),
+        ("flow.authenticator", "FL_10"),
+        ("web_service", "FL_4"),
+        ("logic.geo_ip", "loc://CountryName"),
+        ("pipe.loc", "City"),
+        ("embedded.unset", "pid"),
     }
     text = report.summary()
     assert "Needs implementation:" in text and "Approximated:" in text
     data = report.to_dict(policy)
     assert data["counts"]["approximated"] == 9 and len(data["blocking"]) == len(left)
-    assert all(f.resolution().startswith("implementations=") for f in report.features
-               if f.status == "needs_implementation" and f.feature != "library_block")
+    assert all(
+        f.resolution().startswith("implementations=")
+        for f in report.features
+        if f.status == "needs_implementation" and f.feature != "library_block"
+    )
 
 
 @pytest.mark.skipif(not EXTERNAL, reason="external corpus not downloaded")

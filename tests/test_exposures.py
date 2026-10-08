@@ -25,8 +25,12 @@ GROUP_BLOCKS = {  # privacy.qsf: the branch on Group that shows each group's blo
     "NANT": ("FL_41", "BL_6SuXZqrMoRJ9Wf4"),
 }
 #: panel fields, and an empty placeholder field the Qualtrics editor left in two arms
-PANEL = {"PROLIFIC_PID": "p1", "STUDY_ID": "s1", "SESSION_ID": "x1",
-         "Create New Field or Choose From Dropdown...": ""}
+PANEL = {
+    "PROLIFIC_PID": "p1",
+    "STUDY_ID": "s1",
+    "SESSION_ID": "x1",
+    "Create New Field or Choose From Dropdown...": "",
+}
 
 
 def test_privacy_order_factor_assigns_by_last_arm_and_exposes_one_group_block():
@@ -47,8 +51,9 @@ def test_privacy_order_factor_assigns_by_last_arm_and_exposes_one_group_block():
         assert all(a.displays == () for a in fl4.arms)  # the arms show nothing
         group_value = run.embedded["Group"]
         assert group_value == value[fl4.arms_shown_in_order[-1]]  # the last arm wins
-        shown_groups = [g for g, (_, b) in GROUP_BLOCKS.items()
-                        if b in {bid for bid, _ in history.blocks}]
+        shown_groups = [
+            g for g, (_, b) in GROUP_BLOCKS.items() if b in {bid for bid, _ in history.blocks}
+        ]
         assert shown_groups == [group_value]  # exactly one group block is seen
         taken = [e.node_id for e in run.audit if isinstance(e, BranchEval) and e.result]
         assert taken == [GROUP_BLOCKS[group_value][0]]
@@ -79,14 +84,27 @@ def test_exposure_factor_attributes_screens_to_the_assigned_arm():
 def test_order_factor_keeps_the_presentation_order_of_stimuli():
     """Both arms shown (k = n): each arm's screens, in the order the arms came."""
     survey = qsf(
-        [text_screen("QID10", "Story one."), ask("QID11", "Rate story one"),
-         text_screen("QID20", "Story two."), ask("QID21", "Rate story two"),
-         ask("QID1", "Before")],
+        [
+            text_screen("QID10", "Story one."),
+            ask("QID11", "Rate story one"),
+            text_screen("QID20", "Story two."),
+            ask("QID21", "Rate story two"),
+            ask("QID1", "Before"),
+        ],
         {"BL_0": ["QID1"], "BL_one": ["QID10", "|", "QID11"], "BL_two": ["QID20", "QID21"]},
-        [block("FL_2", "BL_0"),
-         {"Type": "BlockRandomizer", "FlowID": "FL_3", "SubSet": 2, "EvenPresentation": False,
-          "Flow": [group("FL_4", block("FL_41", "BL_one")),
-                   group("FL_5", block("FL_51", "BL_two"))]}],
+        [
+            block("FL_2", "BL_0"),
+            {
+                "Type": "BlockRandomizer",
+                "FlowID": "FL_3",
+                "SubSet": 2,
+                "EvenPresentation": False,
+                "Flow": [
+                    group("FL_4", block("FL_41", "BL_one")),
+                    group("FL_5", block("FL_51", "BL_two")),
+                ],
+            },
+        ],
     )
     (factor,) = design(survey).factors
     assert factor.contrast == "order"
@@ -96,8 +114,9 @@ def test_order_factor_keeps_the_presentation_order_of_stimuli():
         history = exposures(sim.respondent(RandomAnswerer(seed=1)), survey)
         fl3 = history.factor("FL_3")
         expected = {"FL_4": ["QID10", "QID11"], "FL_5": ["QID20", "QID21"]}
-        assert [[d.qid for d in a.displays] for a in fl3.arms] == \
-            [expected[k] for k in fl3.arms_shown_in_order]
+        assert [[d.qid for d in a.displays] for a in fl3.arms] == [
+            expected[k] for k in fl3.arms_shown_in_order
+        ]
         assert [d.qid for d in history.displays] == ["QID1", *[d.qid for d in fl3.displays]]
         orders.add(fl3.arms_shown_in_order)
     assert orders == {("FL_4", "FL_5"), ("FL_5", "FL_4")}

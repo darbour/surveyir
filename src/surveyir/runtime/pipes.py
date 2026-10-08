@@ -55,19 +55,30 @@ def resolve_pipe(
         if m:
             lo, hi = sorted((int(m.group(1)), int(m.group(2))))
             return str(rng.randint(lo, hi))
-        state.approximate("pipe.random_unsupported", pipe.path, affects,
-                          f"random reference {pipe.raw} not supported; left as written")
+        state.approximate(
+            "pipe.random_unsupported",
+            pipe.path,
+            affects,
+            f"random reference {pipe.raw} not supported; left as written",
+        )
         return None
     if pipe.scheme == "loc":
         if pipe.path in state.location:
             return state.location[pipe.path]
-        state.approximate("pipe.loc", pipe.path, affects,
-                          f"location reference {pipe.raw} with no supplied location; "
-                          "rendered empty")
+        state.approximate(
+            "pipe.loc",
+            pipe.path,
+            affects,
+            f"location reference {pipe.raw} with no supplied location; rendered empty",
+        )
         return ""
     if pipe.kind == "date":
-        state.approximate("pipe.date", pipe.path, affects,
-                          f"date reference {pipe.raw} rendered as today's ISO date")
+        state.approximate(
+            "pipe.date",
+            pipe.path,
+            affects,
+            f"date reference {pipe.raw} rendered as today's ISO date",
+        )
         return date.today().isoformat()
     if pipe.kind == "question" and pipe.question_id:
         answer = state.answer(pipe.question_id, pipe.loop_iteration)
@@ -88,8 +99,12 @@ def resolve_pipe(
         if isinstance(value, (str, int, float)):
             return _choice_label(survey, pipe.question_id, str(value))
         return ""
-    state.approximate("pipe.unsupported", pipe.path, affects,
-                      f"piped reference {pipe.raw} not supported; left as written")
+    state.approximate(
+        "pipe.unsupported",
+        pipe.path,
+        affects,
+        f"piped reference {pipe.raw} not supported; left as written",
+    )
     return None
 
 

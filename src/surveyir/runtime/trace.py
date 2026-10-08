@@ -199,8 +199,16 @@ class Allowed:
     location: str
 
 
-AuditEvent = (RandomizerDecision | BranchEval | Hidden | ChoiceHidden | EmbeddedSet | SkipTaken
-              | Approximation | Allowed)
+AuditEvent = (
+    RandomizerDecision
+    | BranchEval
+    | Hidden
+    | ChoiceHidden
+    | EmbeddedSet
+    | SkipTaken
+    | Approximation
+    | Allowed
+)
 
 
 # --------------------------------------------------------------------------- transcript
@@ -250,9 +258,7 @@ def _display_lines(d: Display, include_ids: bool) -> list[str]:
     return lines
 
 
-def _value_text(
-    value: Any, text: Mapping[str, str], d: Display | None, include_ids: bool
-) -> str:
+def _value_text(value: Any, text: Mapping[str, str], d: Display | None, include_ids: bool) -> str:
     """An answer in the respondent's terms: option labels, "row: column" for grids."""
     rows = {c.id: c for c in d.choices} if d else {}
     cols = {c.id: c for c in d.columns} if d else {}

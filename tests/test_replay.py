@@ -35,16 +35,34 @@ def test_replaying_a_simulated_run_reproduces_it(path):
     runs = Simulator(survey, seed=11, strict=False).run(6, RandomAnswerer(seed=3))
     for run in runs:
         rec = record(run)
-        again = replay(survey, rec.orders, rec.answers, embedded=rec.embedded, seed=rec.seed,
-                       strict=False)
+        again = replay(
+            survey, rec.orders, rec.answers, embedded=rec.embedded, seed=rec.seed, strict=False
+        )
         assert again.trace == run.trace
-        assert (again.displayed, again.flow_order, again.choice_order, again.column_order,
-                again.block_order, again.loops, again.embedded, again.answers,
-                again.finished, again.ended_by) == (
-            run.displayed, run.flow_order, run.choice_order, run.column_order,
-            run.block_order, run.loops, run.embedded, run.answers, run.finished, run.ended_by)
-        assert not any(isinstance(e, Approximation) and e.code == "replay.gap"
-                       for e in again.audit)
+        assert (
+            again.displayed,
+            again.flow_order,
+            again.choice_order,
+            again.column_order,
+            again.block_order,
+            again.loops,
+            again.embedded,
+            again.answers,
+            again.finished,
+            again.ended_by,
+        ) == (
+            run.displayed,
+            run.flow_order,
+            run.choice_order,
+            run.column_order,
+            run.block_order,
+            run.loops,
+            run.embedded,
+            run.answers,
+            run.finished,
+            run.ended_by,
+        )
+        assert not any(isinstance(e, Approximation) and e.code == "replay.gap" for e in again.audit)
 
 
 def test_replay_forces_orders_whatever_the_seed():
@@ -61,11 +79,16 @@ def test_forced_answers_drive_display_logic():
     from tests.test_runtime import logic, qx
 
     q2 = mc("QID2", DisplayLogic=logic(qx("q://QID1/SelectableChoice/2")))
-    survey = load_qsf(minimal_qsf(
-        [mc("QID1"), q2],
-        block_elements=[{"Type": "Question", "QuestionID": "QID1"}, {"Type": "Page Break"},
-                        {"Type": "Question", "QuestionID": "QID2"}],
-    ))
+    survey = load_qsf(
+        minimal_qsf(
+            [mc("QID1"), q2],
+            block_elements=[
+                {"Type": "Question", "QuestionID": "QID1"},
+                {"Type": "Page Break"},
+                {"Type": "Question", "QuestionID": "QID2"},
+            ],
+        )
+    )
     yes = replay(survey, {}, {("QID1", None): "1", ("QID2", None): "1"})
     no = replay(survey, {}, {("QID1", None): Answer("2")})
     assert yes.displayed == [("QID1", None)] and yes.answers[("QID1", None)].value == "1"
@@ -76,8 +99,11 @@ def test_forced_answers_drive_display_logic():
 def test_forced_arm_drives_embedded_data_and_branch():
     survey = randomizer_survey()
     for arm, value in (("FL_3", "A"), ("FL_4", "B"), ("FL_5", "C")):
-        run = replay(survey, {("flow", "FL_2", None): [arm], ("choices", "QID1", None): "21"},
-                     {("QID1", None): "1"})
+        run = replay(
+            survey,
+            {("flow", "FL_2", None): [arm], ("choices", "QID1", None): "21"},
+            {("QID1", None): "1"},
+        )
         assert run.embedded["arm"] == value
         assert (("QID1", None) in run.answers) == (value == "B")
 
@@ -113,8 +139,9 @@ def test_fallback_kinds_are_not_gaps():
 
 def test_partial_orders_are_completed_when_everything_is_presented():
     choices = {str(i): {"Display": f"c{i}"} for i in range(1, 5)}
-    survey = load_qsf(minimal_qsf([mc(Randomization={"Type": "All"}, Choices=choices,
-                                      ChoiceOrder=[1, 2, 3, 4])]))
+    survey = load_qsf(
+        minimal_qsf([mc(Randomization={"Type": "All"}, Choices=choices, ChoiceOrder=[1, 2, 3, 4])])
+    )
     run = replay(survey, {("choices", "QID1", None): ["4", "9", "2"]}, {})
     assert run.choice_order[("QID1", None)] == ["4", "2", "1", "3"]
 
@@ -123,7 +150,8 @@ def test_replay_answerer_and_chooser_work_with_a_simulator():
     survey = randomizer_survey()
     chooser = ReplayChooser({("flow", "FL_2", None): ["FL_4"]}, fallback_kinds={"choices"})
     run = Simulator(survey, chooser=chooser).respondent(
-        ReplayAnswerer({("QID1", None): Answer("2", {"2": "why"})}))
+        ReplayAnswerer({("QID1", None): Answer("2", {"2": "why"})})
+    )
     assert run.answers[("QID1", None)] == Answer("2", {"2": "why"})
     shown = [o.qid for o in run.trace if isinstance(o, Display)]
     assert shown == ["QID1"] and not run.privileged

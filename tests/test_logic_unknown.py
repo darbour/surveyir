@@ -54,7 +54,9 @@ def test_question_without_id_is_unknown():
 
 def test_unanswered_is_not_unknown():
     state = RespondentState()
-    q1 = Operand(kind="question", question_id="QID1", choice_id="1", raw="q://QID1/SelectableChoice/1")
+    q1 = Operand(
+        kind="question", question_id="QID1", choice_id="1", raw="q://QID1/SelectableChoice/1"
+    )
     assert evaluate(comparison(q1, "not_selected"), state) is True
     assert evaluate(comparison(q1, "not_displayed"), state) is True
     assert evaluate(comparison(q1, "empty"), state) is True
@@ -65,8 +67,10 @@ def test_unanswered_is_not_unknown():
 def test_unknown_inside_or_does_not_poison_other_terms():
     state = RespondentState(embedded={"x": "1"})
     known = Comparison(
-        left=Operand(kind="embedded_data", name="x", raw="x"), operator="equal",
-        source_operator="EqualTo", right="1",
+        left=Operand(kind="embedded_data", name="x", raw="x"),
+        operator="equal",
+        source_operator="EqualTo",
+        right="1",
     )
     cond = Or(terms=[comparison(UNKNOWN_OPERANDS["logic.geo_ip"], "not_equal"), known])
     assert evaluate(cond, state) is True

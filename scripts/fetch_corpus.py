@@ -21,6 +21,7 @@ import io
 import json
 import os
 import sys
+import time
 import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
@@ -32,16 +33,23 @@ QSF_DIR = ROOT / "corpus" / "external"
 COLUMNS_DIR = ROOT / "corpus" / "external_columns"
 
 
-def _blob(entry: dict, token: str | None) -> bytes | None:
+def _blob(entry: dict, token: str | None, attempts: int = 4) -> bytes | None:
+    """The blob's bytes, retrying transient errors; None if it can't be fetched."""
     url = f"https://api.github.com/repos/{entry['repo']}/git/blobs/{entry['sha']}"
     req = urllib.request.Request(url, headers={"Accept": "application/vnd.github+json"})
     if token:
         req.add_header("Authorization", f"Bearer {token}")
-    try:
-        with urllib.request.urlopen(req, timeout=120) as resp:
-            return base64.b64decode(json.load(resp)["content"])
-    except (urllib.error.HTTPError, urllib.error.URLError, KeyError):
-        return None
+    for attempt in range(attempts):
+        try:
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                return base64.b64decode(json.load(resp)["content"])
+        except urllib.error.HTTPError as exc:
+            if exc.code in (404, 409, 410, 451):  # gone upstream: retrying won't help
+                return None
+        except (urllib.error.URLError, TimeoutError, KeyError, json.JSONDecodeError):
+            pass
+        time.sleep(2**attempt)
+    return None
 
 
 def export_header(data: bytes) -> list[dict] | None:
@@ -95,6 +103,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--jobs", type=int, default=8)
     parser.add_argument("--no-exports", action="store_true", help="Only fetch .qsf files.")
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Fail if any .qsf can't be fetched (default: tolerate up to 1%%, e.g. files "
+        "deleted upstream; the corpus tests run on what was fetched).",
+    )
     args = parser.parse_args()
     manifest = json.loads(MANIFEST.read_text())
     QSF_DIR.mkdir(parents=True, exist_ok=True)
@@ -109,9 +123,15 @@ def main() -> int:
     for r in results:
         summary[r] = summary.get(r, 0) + 1
     print(", ".join(f"{n} {k}" for k, n in sorted(summary.items())))
-    # Export headers are a recall oracle; only missing .qsf files are fatal.
-    qsf_failed = any(r == "failed" for r in results[: len(manifest["files"])])
-    return 1 if qsf_failed else 0
+    for (_, entry), r in zip(jobs, results, strict=True):
+        if r == "failed":
+            print(f"failed: {entry['repo']} {entry.get('path', '')} ({entry['sha']})")
+    # Export headers are a recall oracle; only missing .qsf files can fail the run.
+    n_qsf = len(manifest["files"])
+    qsf_failed = sum(r == "failed" for r in results[:n_qsf])
+    if qsf_failed and (args.strict or qsf_failed > n_qsf // 100):
+        return 1
+    return 0
 
 
 if __name__ == "__main__":

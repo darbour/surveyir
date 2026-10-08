@@ -86,38 +86,59 @@ TRACES = Path(__file__).parent / "fixtures" / "traces"
 # ------------------------------------------------------------------ instruments
 
 
-def qsf(questions: list[dict], blocks: dict[str, list], flow: list[dict],
-        options: dict[str, dict] | None = None) -> Survey:
+def qsf(
+    questions: list[dict],
+    blocks: dict[str, list],
+    flow: list[dict],
+    options: dict[str, dict] | None = None,
+) -> Survey:
     """A QSF with several blocks. ``blocks`` maps block id -> elements: a qid, ``"|"``
     for a page break, or a raw block element dict (for skip logic)."""
+
     def element(e: Any) -> dict:
         if isinstance(e, dict):
             return e
         return {"Type": "Page Break"} if e == "|" else {"Type": "Question", "QuestionID": e}
 
     payload = [
-        {"Type": "Default" if n == 0 else "Standard", "ID": bid, "Description": bid,
-         "BlockElements": [element(e) for e in elements], "Options": (options or {}).get(bid, {})}
+        {
+            "Type": "Default" if n == 0 else "Standard",
+            "ID": bid,
+            "Description": bid,
+            "BlockElements": [element(e) for e in elements],
+            "Options": (options or {}).get(bid, {}),
+        }
         for n, (bid, elements) in enumerate(blocks.items())
     ]
-    return load_qsf({
-        "SurveyEntry": {"SurveyID": "SV_trace", "SurveyName": "Trace", "SurveyLanguage": "EN"},
-        "SurveyElements": [
-            {"Element": "BL", "Payload": payload},
-            {"Element": "FL", "Payload": {"Type": "Root", "FlowID": "FL_1", "Flow": flow}},
-            *[{"Element": "SQ", "Payload": q} for q in questions],
-        ],
-    })
+    return load_qsf(
+        {
+            "SurveyEntry": {"SurveyID": "SV_trace", "SurveyName": "Trace", "SurveyLanguage": "EN"},
+            "SurveyElements": [
+                {"Element": "BL", "Payload": payload},
+                {"Element": "FL", "Payload": {"Type": "Root", "FlowID": "FL_1", "Flow": flow}},
+                *[{"Element": "SQ", "Payload": q} for q in questions],
+            ],
+        }
+    )
 
 
 def text_screen(qid: str, text: str) -> dict:
-    return {"QuestionID": qid, "QuestionType": "DB", "Selector": "TB",
-            "DataExportTag": qid.replace("QID", "D"), "QuestionText": f"<p>{text}</p>"}
+    return {
+        "QuestionID": qid,
+        "QuestionType": "DB",
+        "Selector": "TB",
+        "DataExportTag": qid.replace("QID", "D"),
+        "QuestionText": f"<p>{text}</p>",
+    }
 
 
 def ask(qid: str, text: str, choices: tuple[str, str] = ("Yes", "No"), **extra: Any) -> dict:
-    return mc(qid, QuestionText=f"<p>{text}</p>",
-              Choices={"1": {"Display": choices[0]}, "2": {"Display": choices[1]}}, **extra)
+    return mc(
+        qid,
+        QuestionText=f"<p>{text}</p>",
+        Choices={"1": {"Display": choices[0]}, "2": {"Display": choices[1]}},
+        **extra,
+    )
 
 
 def block(fid: str, bid: str) -> dict:
@@ -125,18 +146,30 @@ def block(fid: str, bid: str) -> dict:
 
 
 def embedded(fid: str, **fields: str) -> dict:
-    return {"Type": "EmbeddedData", "FlowID": fid, "EmbeddedData": [
-        {"Field": k, "Type": "Custom", "Value": v} for k, v in fields.items()]}
+    return {
+        "Type": "EmbeddedData",
+        "FlowID": fid,
+        "EmbeddedData": [{"Field": k, "Type": "Custom", "Value": v} for k, v in fields.items()],
+    }
 
 
 def branch(fid: str, condition: dict, *children: dict) -> dict:
-    return {"Type": "Branch", "FlowID": fid, "BranchLogic": logic(condition),
-            "Flow": list(children)}
+    return {
+        "Type": "Branch",
+        "FlowID": fid,
+        "BranchLogic": logic(condition),
+        "Flow": list(children),
+    }
 
 
 def randomizer(fid: str, *arms: dict) -> dict:
-    return {"Type": "BlockRandomizer", "FlowID": fid, "SubSet": 1, "EvenPresentation": True,
-            "Flow": list(arms)}
+    return {
+        "Type": "BlockRandomizer",
+        "FlowID": fid,
+        "SubSet": 1,
+        "EvenPresentation": True,
+        "Flow": list(arms),
+    }
 
 
 def group(fid: str, *children: dict) -> dict:
@@ -145,47 +178,71 @@ def group(fid: str, *children: dict) -> dict:
 
 def a_treatment_screens() -> Survey:
     return qsf(
-        [ask("QID1", "How much do you trust people around you?"),
-         text_screen("QID10", "A neighbour returns your lost wallet with every banknote inside."),
-         text_screen("QID11", "A stranger keeps the wallet you dropped on the train.")],
+        [
+            ask("QID1", "How much do you trust people around you?"),
+            text_screen(
+                "QID10", "A neighbour returns your lost wallet with every banknote inside."
+            ),
+            text_screen("QID11", "A stranger keeps the wallet you dropped on the train."),
+        ],
         {"BL_1": ["QID1"], "BL_alpha": ["QID10"], "BL_beta": ["QID11"]},
-        [randomizer("FL_2", group("FL_3", block("FL_31", "BL_alpha")),
-                    group("FL_4", block("FL_41", "BL_beta"))),
-         block("FL_5", "BL_1")],
+        [
+            randomizer(
+                "FL_2",
+                group("FL_3", block("FL_31", "BL_alpha")),
+                group("FL_4", block("FL_41", "BL_beta")),
+            ),
+            block("FL_5", "BL_1"),
+        ],
     )
 
 
 def b_branch_sides() -> Survey:
     return qsf(
-        [ask("QID1", "Do you own a car?"),
-         ask("QID2", "How often do you drive?", ("Daily", "Weekly")),
-         ask("QID3", "How do you commute?", ("Bus", "Bicycle"))],
+        [
+            ask("QID1", "Do you own a car?"),
+            ask("QID2", "How often do you drive?", ("Daily", "Weekly")),
+            ask("QID3", "How do you commute?", ("Bus", "Bicycle")),
+        ],
         {"BL_1": ["QID1"], "BL_X": ["QID2"], "BL_Y": ["QID3"]},
-        [block("FL_2", "BL_1"),
-         branch("FL_3", qx("q://QID1/SelectableChoice/1"), block("FL_4", "BL_X")),
-         branch("FL_5", qx("q://QID1/SelectableChoice/2"), block("FL_6", "BL_Y"))],
+        [
+            block("FL_2", "BL_1"),
+            branch("FL_3", qx("q://QID1/SelectableChoice/1"), block("FL_4", "BL_X")),
+            branch("FL_5", qx("q://QID1/SelectableChoice/2"), block("FL_6", "BL_Y")),
+        ],
     )
 
 
 def c_field_changed() -> Survey:
     return qsf(
-        [ask("QID2", "Second question"), ask("QID3", "Third question"),
-         ask("QID4", "Fourth question")],
+        [
+            ask("QID2", "Second question"),
+            ask("QID3", "Third question"),
+            ask("QID4", "Fourth question"),
+        ],
         {"BL_2": ["QID2"], "BL_3": ["QID3"], "BL_4": ["QID4"]},
-        [embedded("FL_2", x="1"),
-         branch("FL_3", ed("x", "EqualTo", "1"), block("FL_31", "BL_2")),
-         embedded("FL_4", x="2"),
-         branch("FL_5", ed("x", "EqualTo", "1"), block("FL_51", "BL_3")),
-         branch("FL_6", ed("x", "EqualTo", "2"), block("FL_61", "BL_4"))],
+        [
+            embedded("FL_2", x="1"),
+            branch("FL_3", ed("x", "EqualTo", "1"), block("FL_31", "BL_2")),
+            embedded("FL_4", x="2"),
+            branch("FL_5", ed("x", "EqualTo", "1"), block("FL_51", "BL_3")),
+            branch("FL_6", ed("x", "EqualTo", "2"), block("FL_61", "BL_4")),
+        ],
     )
 
 
 def d_loop() -> Survey:
-    loop = {"Looping": "Static", "LoopingOptions": {"Static": {
-        "1": {"1": "apples"}, "2": {"1": "bananas"}, "3": {"1": "cherries"}}}}
+    loop = {
+        "Looping": "Static",
+        "LoopingOptions": {
+            "Static": {"1": {"1": "apples"}, "2": {"1": "bananas"}, "3": {"1": "cherries"}}
+        },
+    }
     return qsf(
         [ask("QID1", "How much do you like ${lm://Field/1}?", ("A lot", "A little"))],
-        {"BL_1": ["QID1"]}, [block("FL_2", "BL_1")], options={"BL_1": loop},
+        {"BL_1": ["QID1"]},
+        [block("FL_2", "BL_1")],
+        options={"BL_1": loop},
     )
 
 
@@ -193,23 +250,45 @@ def e_web_service() -> Survey:
     return qsf(
         [ask("QID1", "Any comments?"), ask("QID2", "Would you like the premium offer?")],
         {"BL_1": ["QID1"], "BL_2": ["QID2"]},
-        [{"Type": "WebService", "FlowID": "FL_2", "URL": "https://example.org/tier",
-          "Method": "GET", "ResponseMap": [{"key": "tier", "value": "segment"}]},
-         branch("FL_3", ed("segment", "EqualTo", "premium"), block("FL_31", "BL_2")),
-         block("FL_4", "BL_1")],
+        [
+            {
+                "Type": "WebService",
+                "FlowID": "FL_2",
+                "URL": "https://example.org/tier",
+                "Method": "GET",
+                "ResponseMap": [{"key": "tier", "value": "segment"}],
+            },
+            branch("FL_3", ed("segment", "EqualTo", "premium"), block("FL_31", "BL_2")),
+            block("FL_4", "BL_1"),
+        ],
     )
 
 
 def f_in_page() -> Survey:
-    skip = {"Type": "Question", "QuestionID": "QID2", "SkipLogic": [{
-        "ChoiceLocator": "q://QID2/SelectableChoice/1", "Condition": "Selected",
-        "QuestionID": "QID2", "SkipToDestination": "ENDOFBLOCK"}]}
+    skip = {
+        "Type": "Question",
+        "QuestionID": "QID2",
+        "SkipLogic": [
+            {
+                "ChoiceLocator": "q://QID2/SelectableChoice/1",
+                "Condition": "Selected",
+                "QuestionID": "QID2",
+                "SkipToDestination": "ENDOFBLOCK",
+            }
+        ],
+    }
     return qsf(
-        [ask("QID1", "Do you exercise?"),
-         ask("QID2", "Would you like tips on starting?",
-             InPageDisplayLogic=logic(qx("q://QID1/SelectableChoice/2"))),
-         ask("QID3", "Do you sleep well?"), ask("QID4", "How many days a week?"),
-         ask("QID5", "Any last thoughts?")],
+        [
+            ask("QID1", "Do you exercise?"),
+            ask(
+                "QID2",
+                "Would you like tips on starting?",
+                InPageDisplayLogic=logic(qx("q://QID1/SelectableChoice/2")),
+            ),
+            ask("QID3", "Do you sleep well?"),
+            ask("QID4", "How many days a week?"),
+            ask("QID5", "Any last thoughts?"),
+        ],
         {"BL_1": ["QID1", skip, "QID3", "|", "QID4"], "BL_2": ["QID5"]},
         [block("FL_2", "BL_1"), block("FL_3", "BL_2")],
     )
@@ -219,15 +298,28 @@ def g_hidden_fields() -> Survey:
     return qsf(
         [ask("QID1", "Hello ${e://Field/shown_name}, are you ready?")],
         {"BL_1": ["QID1"]},
-        [randomizer("FL_2", embedded("FL_3", cond_secret="ZK9"),
-                    embedded("FL_4", cond_secret="QX7")),
-         embedded("FL_5", shown_name="Avery"),
-         block("FL_6", "BL_1")],
+        [
+            randomizer(
+                "FL_2", embedded("FL_3", cond_secret="ZK9"), embedded("FL_4", cond_secret="QX7")
+            ),
+            embedded("FL_5", shown_name="Avery"),
+            block("FL_6", "BL_1"),
+        ],
     )
 
 
-INSTRUMENTS = {f.__name__: f for f in (a_treatment_screens, b_branch_sides, c_field_changed,
-                                       d_loop, e_web_service, f_in_page, g_hidden_fields)}
+INSTRUMENTS = {
+    f.__name__: f
+    for f in (
+        a_treatment_screens,
+        b_branch_sides,
+        c_field_changed,
+        d_loop,
+        e_web_service,
+        f_in_page,
+        g_hidden_fields,
+    )
+}
 
 
 def tier_service(node: Any, state: Any) -> dict[str, str]:
@@ -267,8 +359,7 @@ def normal(ob: Any) -> dict[str, Any]:
     if isinstance(ob, PageStart):
         out: dict[str, Any] = {"type": "page_start", "page": ob.page, "block": ob.block_id}
         if ob.loop_id is not None:
-            out |= {"loop": ob.loop_id, "loop_number": ob.loop_number,
-                    "loop_total": ob.loop_total}
+            out |= {"loop": ob.loop_id, "loop_number": ob.loop_number, "loop_total": ob.loop_total}
         return out
     if isinstance(ob, Display):
         out = {"type": "display", "qid": ob.qid}
@@ -305,8 +396,11 @@ def public(ob: Any) -> Any:
 
 
 def flow_decisions(run: Any) -> dict[str, list[str]]:
-    return {e.node_id: list(e.shown) for e in run.audit
-            if isinstance(e, RandomizerDecision) and e.kind == "flow"}
+    return {
+        e.node_id: list(e.shown)
+        for e in run.audit
+        if isinstance(e, RandomizerDecision) and e.kind == "flow"
+    }
 
 
 def administer(survey: Survey, spec: dict) -> tuple[Any, Scripted]:
@@ -339,8 +433,9 @@ def check_invariants(run: Any, who: Scripted) -> None:
     assert isinstance(run.trace[-1], End)
     for k, ctx in who.contexts.items():
         n = len(ctx.history)
-        assert ctx.history == tuple(public(o) for o in run.trace[:n]), \
+        assert ctx.history == tuple(public(o) for o in run.trace[:n]), (
             f"history of {k} is not the respondent's view of a prefix of the trace"
+        )
         assert ctx.view == public(displays[k]) and ctx.view in ctx.history
         assert ctx.view in ctx.page and ctx.respondent_index == run.index
     assert not run.privileged
@@ -385,19 +480,22 @@ def test_exact_trace(case: str, spec: dict) -> None:
 
     audit = run.audit
     if "branches" in spec:
-        assert [[e.node_id, e.result] for e in audit if isinstance(e, BranchEval)] == \
-            spec["branches"]
+        assert [[e.node_id, e.result] for e in audit if isinstance(e, BranchEval)] == spec[
+            "branches"
+        ]
         assert not [e for e in audit if isinstance(e, BranchEval) and e.unknown]
     if "embedded_sets" in spec:
-        assert [[e.name, e.value, e.source] for e in audit if isinstance(e, EmbeddedSet)] == \
-            spec["embedded_sets"]
+        assert [[e.name, e.value, e.source] for e in audit if isinstance(e, EmbeddedSet)] == spec[
+            "embedded_sets"
+        ]
     if "skips" in spec:
-        assert [[e.qid, e.destination] for e in audit if isinstance(e, SkipTaken)] == \
-            spec["skips"]
-    assert [[e.code, e.location, e.affects] for e in audit if isinstance(e, Approximation)] == \
-        spec.get("approximations", [])
-    assert [[e.code, e.location] for e in audit if isinstance(e, Allowed)] == \
-        spec.get("allowed", [])
+        assert [[e.qid, e.destination] for e in audit if isinstance(e, SkipTaken)] == spec["skips"]
+    assert [
+        [e.code, e.location, e.affects] for e in audit if isinstance(e, Approximation)
+    ] == spec.get("approximations", [])
+    assert [[e.code, e.location] for e in audit if isinstance(e, Allowed)] == spec.get(
+        "allowed", []
+    )
 
     text = transcript(run.trace)
     for s in spec.get("not_in_transcript", []):

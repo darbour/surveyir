@@ -195,16 +195,25 @@ def test_last_shown_factor_whose_arms_display_nothing_is_an_assignment():
 
 def test_last_shown_factor_whose_arms_display_blocks_is_an_order_contrast():
     """Every respondent sees both stimuli; Group only records which came last."""
+
     def arm(flow_id: str, value: str) -> dict:
-        return {"Type": "Group", "FlowID": flow_id, "Description": value, "Flow": [
-            setter(f"{flow_id}a", "Group", value),
-            {"Type": "Block", "ID": "BL_1", "FlowID": f"{flow_id}b"}]}
+        return {
+            "Type": "Group",
+            "FlowID": flow_id,
+            "Description": value,
+            "Flow": [
+                setter(f"{flow_id}a", "Group", value),
+                {"Type": "Block", "ID": "BL_1", "FlowID": f"{flow_id}b"},
+            ],
+        }
 
     flow = [randomizer("FL_2", [arm("FL_3", "A"), arm("FL_4", "B")], subset=2)]
     (f,) = design(load_qsf(minimal_qsf([mc()], flow=flow))).factors
     assert f.contrast == "order" and f.recorded_field == ["Group"]
-    assert "order contrast; field Group records the last arm shown" in design(
-        load_qsf(minimal_qsf([mc()], flow=flow))).summary()
+    assert (
+        "order contrast; field Group records the last arm shown"
+        in design(load_qsf(minimal_qsf([mc()], flow=flow))).summary()
+    )
 
 
 def test_order_exposure_and_assignment_contrasts():
@@ -238,8 +247,10 @@ def test_annotations_from_dict_are_stored_and_summarized():
     )
     assert by_id["FL_5"].annotation is None
     lines = d.summary().splitlines()
-    assert lines[1] == ("  declared: exposure contrast (the structure gives assignment); "
-                        "treatment: gain vs loss frame; note: primary")
+    assert lines[1] == (
+        "  declared: exposure contrast (the structure gives assignment); "
+        "treatment: gain vs loss frame; note: primary"
+    )
     assert "  declared: order contrast (the structure gives assignment)" in lines
 
 

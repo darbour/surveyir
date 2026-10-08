@@ -81,12 +81,14 @@ def test_implementations():
     def script(state):
         return {"arm": "A"}
 
-    policy = ExecutionPolicy(implementations={
-        "web_service": service,
-        "javascript": {"QID7": script},
-        "embedded": {"PROLIFIC_PID": "p1"},
-        "location": {"CountryName": "Australia"},
-    })
+    policy = ExecutionPolicy(
+        implementations={
+            "web_service": service,
+            "javascript": {"QID7": script},
+            "embedded": {"PROLIFIC_PID": "p1"},
+            "location": {"CountryName": "Australia"},
+        }
+    )
     assert policy.implementation("web_service", "FL_3") is service
     assert policy.implementation("javascript", "QID7") is script
     assert policy.implementation("javascript", "QID8") is None

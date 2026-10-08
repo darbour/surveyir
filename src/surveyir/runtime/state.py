@@ -66,7 +66,8 @@ class RespondentState:
     approximations: list[Approximation] = field(default_factory=list)
     #: called with every approximation before it is recorded (strict mode raises here)
     on_approximation: Callable[[Approximation], None] | None = field(
-        default=None, repr=False, compare=False)
+        default=None, repr=False, compare=False
+    )
 
     # ------------------------------------------------------------------ lookups
 
@@ -96,9 +97,13 @@ class RespondentState:
         """An embedded field's value, recording ``embedded.unset`` if it was never supplied."""
         if name in self.unsupplied:
             how = "read by logic" if affects == "routing" else "piped into text"
-            self.approximate("embedded.unset", name, affects,
-                             f"embedded field {name} was not supplied (panel, recipient or "
-                             f"URL field), {how}; read as empty")
+            self.approximate(
+                "embedded.unset",
+                name,
+                affects,
+                f"embedded field {name} was not supplied (panel, recipient or "
+                f"URL field), {how}; read as empty",
+            )
         return self.embedded.get(name, "")
 
     def note(self, message: str) -> None:

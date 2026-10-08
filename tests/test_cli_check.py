@@ -56,7 +56,10 @@ def test_simulate_flags(capsys):
     assert main(["simulate", DONORS, "-n", "2", "--seed", "1"]) == 1
     err = capsys.readouterr().err
     assert "javascript at QID481" in err and "surveyir check --strict" in err
-    for flags in (["--permissive"], ["--allow", "javascript:QID481"], ["--strict", "--allow",
-                                                                         "javascript"]):
+    for flags in (
+        ["--permissive"],
+        ["--allow", "javascript:QID481"],
+        ["--strict", "--allow", "javascript"],
+    ):
         assert main(["simulate", DONORS, "-n", "2", "--seed", "1", *flags]) == 0
         assert capsys.readouterr().out.startswith("StartDate,")

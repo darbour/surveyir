@@ -34,16 +34,26 @@ def js_survey(js: str = JS):
     """QID1 runs JavaScript that sets ``arm``; a branch on ``arm`` shows QID2."""
     flow = [
         {"Type": "Block", "ID": "BL_1", "FlowID": "FL_2"},
-        {"Type": "Branch", "FlowID": "FL_3", "Description": "b",
-         "BranchLogic": logic(ed("arm", "EqualTo", "A")),
-         "Flow": [{"Type": "Block", "ID": "BL_2", "FlowID": "FL_4"}]},
+        {
+            "Type": "Branch",
+            "FlowID": "FL_3",
+            "Description": "b",
+            "BranchLogic": logic(ed("arm", "EqualTo", "A")),
+            "Flow": [{"Type": "Block", "ID": "BL_2", "FlowID": "FL_4"}],
+        },
     ]
     doc = minimal_qsf([mc("QID1", QuestionJS=js), mc("QID2")], flow=flow)
     doc["SurveyElements"][0]["Payload"][0]["BlockElements"] = [
-        {"Type": "Question", "QuestionID": "QID1"}]
-    doc["SurveyElements"][0]["Payload"].append({"Type": "Standard", "ID": "BL_2",
-                                                "Description": "Arm A", "BlockElements": [
-                                                    {"Type": "Question", "QuestionID": "QID2"}]})
+        {"Type": "Question", "QuestionID": "QID1"}
+    ]
+    doc["SurveyElements"][0]["Payload"].append(
+        {
+            "Type": "Standard",
+            "ID": "BL_2",
+            "Description": "Arm A",
+            "BlockElements": [{"Type": "Question", "QuestionID": "QID2"}],
+        }
+    )
     return load_qsf(doc)
 
 
@@ -69,8 +79,7 @@ def test_allow_records_allowed_once_per_respondent():
 
 def test_permissive_and_policy():
     run = Simulator(js_survey(), strict=False).respondent()
-    assert [(a.code, a.affects) for a in run.state.approximations] == [
-        ("javascript", "assignment")]
+    assert [(a.code, a.affects) for a in run.state.approximations] == [("javascript", "assignment")]
     assert not of(run, Allowed)
     policy = ExecutionPolicy(allow=frozenset({"javascript"}))
     assert Simulator(js_survey(), policy=policy).respondent().finished
@@ -87,8 +96,9 @@ def test_strict_rejects_one_seed_for_every_respondent():
 
 
 def test_comment_only_javascript_is_not_a_gap():
-    template = ("Qualtrics.SurveyEngine.addOnload(function()\n{\n"
-                "\t/*Place your JavaScript here*/\n});")
+    template = (
+        "Qualtrics.SurveyEngine.addOnload(function()\n{\n\t/*Place your JavaScript here*/\n});"
+    )
     run = Simulator(js_survey(template)).respondent()
     assert not run.state.approximations
 
@@ -104,7 +114,8 @@ def test_javascript_implementation_runs_when_displayed():
         return {"arm": "A"}
 
     run = Simulator(js_survey(), implementations={"javascript": {"QID1": script}}).respondent(
-        RandomAnswerer(seed=1))
+        RandomAnswerer(seed=1)
+    )
     assert calls == [[]]  # at display, before QID1 is answered
     assert EmbeddedSet("arm", "A", "javascript:QID1") in run.audit
     assert run.embedded["arm"] == "A" and ("QID2", None) in run.displayed
@@ -112,29 +123,52 @@ def test_javascript_implementation_runs_when_displayed():
 
 
 def test_location_feeds_pipes_and_geoip():
-    geo = {"LogicType": "GeoIP", "LeftOperand": "CountryName", "Operator": "EqualTo",
-           "RightOperand": "Australia", "Type": "Expression"}
-    flow = [{"Type": "Branch", "FlowID": "FL_3", "Description": "b", "BranchLogic": logic(geo),
-             "Flow": [{"Type": "Block", "ID": "BL_1", "FlowID": "FL_4"}]}]
+    geo = {
+        "LogicType": "GeoIP",
+        "LeftOperand": "CountryName",
+        "Operator": "EqualTo",
+        "RightOperand": "Australia",
+        "Type": "Expression",
+    }
+    flow = [
+        {
+            "Type": "Branch",
+            "FlowID": "FL_3",
+            "Description": "b",
+            "BranchLogic": logic(geo),
+            "Flow": [{"Type": "Block", "ID": "BL_1", "FlowID": "FL_4"}],
+        }
+    ]
     survey = load_qsf(minimal_qsf([mc(QuestionText="Hello from ${loc://City}")], flow=flow))
     report = executability(survey)
     assert {f.code for f in report.blocking(ExecutionPolicy())} == {"logic.geo_ip", "pipe.loc"}
     with pytest.raises(ExecutionError, match="logic.geo_ip"):
         Simulator(survey).respondent()
     where = {"CountryName": "Australia", "City": "Perth"}
-    for sim in (Simulator(survey, location=where),
-                Simulator(survey, implementations={"location": where})):
+    for sim in (
+        Simulator(survey, location=where),
+        Simulator(survey, implementations={"location": where}),
+    ):
         run = sim.respondent()
         assert of(run, Display)[0].text == "Hello from Perth" and not run.state.approximations
     assert report.blocking(ExecutionPolicy(implementations={"location": where})) == []
 
 
 def test_embedded_implementation_merges_with_respondent_fields():
-    flow = [{"Type": "EmbeddedData", "FlowID": "FL_2", "EmbeddedData": [
-                {"Field": "pid", "Type": "Recipient"}, {"Field": "src", "Type": "Recipient"}]},
-            {"Type": "Block", "ID": "BL_1", "FlowID": "FL_3"}]
-    survey = load_qsf(minimal_qsf([mc(QuestionText="${e://Field/pid} ${e://Field/src}")],
-                                  flow=flow))
+    flow = [
+        {
+            "Type": "EmbeddedData",
+            "FlowID": "FL_2",
+            "EmbeddedData": [
+                {"Field": "pid", "Type": "Recipient"},
+                {"Field": "src", "Type": "Recipient"},
+            ],
+        },
+        {"Type": "Block", "ID": "BL_1", "FlowID": "FL_3"},
+    ]
+    survey = load_qsf(
+        minimal_qsf([mc(QuestionText="${e://Field/pid} ${e://Field/src}")], flow=flow)
+    )
     sim = Simulator(survey, implementations={"embedded": {"pid": "p0", "src": "panel"}})
     run = sim.respondent(embedded={"pid": "p1"})
     assert of(run, Display)[0].text == "p1 panel" and not run.state.approximations
@@ -143,13 +177,27 @@ def test_embedded_implementation_merges_with_respondent_fields():
 
 def test_unset_field_piped_into_another_field_affects_what_that_field_affects():
     def survey(read_by_branch: bool):
-        flow = [{"Type": "EmbeddedData", "FlowID": "FL_2", "EmbeddedData": [
+        flow = [
+            {
+                "Type": "EmbeddedData",
+                "FlowID": "FL_2",
+                "EmbeddedData": [
                     {"Field": "pid", "Type": "Recipient"},
-                    {"Field": "tag", "Type": "Custom", "Value": "id-${e://Field/pid}"}]},
-                {"Type": "Block", "ID": "BL_1", "FlowID": "FL_3"}]
+                    {"Field": "tag", "Type": "Custom", "Value": "id-${e://Field/pid}"},
+                ],
+            },
+            {"Type": "Block", "ID": "BL_1", "FlowID": "FL_3"},
+        ]
         if read_by_branch:
-            flow.append({"Type": "Branch", "FlowID": "FL_4", "Description": "b",
-                         "BranchLogic": logic(ed("tag", "EqualTo", "id-")), "Flow": []})
+            flow.append(
+                {
+                    "Type": "Branch",
+                    "FlowID": "FL_4",
+                    "Description": "b",
+                    "BranchLogic": logic(ed("tag", "EqualTo", "id-")),
+                    "Flow": [],
+                }
+            )
         return load_qsf(minimal_qsf([mc()], flow=flow))
 
     unread = survey(False)
@@ -161,8 +209,7 @@ def test_unset_field_piped_into_another_field_affects_what_that_field_affects():
     assert (row.code, row.location, row.affects) == ("embedded.unset", "pid", "routing")
     with pytest.raises(ExecutionError) as err:
         Simulator(branched).respondent()
-    assert (err.value.approximation.location, err.value.approximation.affects) == (
-        "pid", "routing")
+    assert (err.value.approximation.location, err.value.approximation.affects) == ("pid", "routing")
 
 
 # ------------------------------------------------------------------ check agrees with runs
@@ -188,7 +235,8 @@ def test_check_strict_agrees_with_strict_runs(path):
         sim.run(20, ScreenerAwareAnswerer(survey, seed=2))
     except ExecutionError as e:
         assert (e.approximation.code, e.approximation.location) in {
-            (f.code, f.location) for f in blocking}
+            (f.code, f.location) for f in blocking
+        }
     else:
         assert blocking == []
     allow = {f"{f.code}:{f.location}" for f in blocking}
@@ -199,18 +247,26 @@ def test_check_strict_agrees_with_strict_runs(path):
 
 
 def test_evenly_presented_columns_are_balanced():
-    matrix = {"QuestionID": "QID1", "QuestionType": "Matrix", "Selector": "Likert",
-              "SubSelector": "SingleAnswer", "DataExportTag": "Q1", "QuestionText": "Rate",
-              "Choices": {"1": {"Display": "Row"}}, "ChoiceOrder": [1],
-              "Answers": {str(i): {"Display": f"C{i}"} for i in range(1, 5)},
-              "AnswerOrder": [1, 2, 3, 4]}
+    matrix = {
+        "QuestionID": "QID1",
+        "QuestionType": "Matrix",
+        "Selector": "Likert",
+        "SubSelector": "SingleAnswer",
+        "DataExportTag": "Q1",
+        "QuestionText": "Rate",
+        "Choices": {"1": {"Display": "Row"}},
+        "ChoiceOrder": [1],
+        "Answers": {str(i): {"Display": f"C{i}"} for i in range(1, 5)},
+        "AnswerOrder": [1, 2, 3, 4],
+    }
     survey = load_qsf(minimal_qsf([matrix]))
     q = survey.questions["QID1"]
     assert isinstance(q, MatrixQuestion)
     q.column_randomization = Randomization(mode="subset", subset_size=1, even_presentation=True)
     runs = Simulator(survey, seed=3).run(40)
     assert Counter(r.column_order[("QID1", None)][0] for r in runs) == dict.fromkeys(
-        ["1", "2", "3", "4"], 10)
+        ["1", "2", "3", "4"], 10
+    )
     assert not any(r.state.approximations for r in runs)
     assert "columns.unbalanced" not in {f.code for f in executability(survey).features}
 
@@ -219,14 +275,32 @@ def test_quota_status_is_current_at_each_quota_check():
     """A respondent counts toward a quota when their response is recorded (as in
     Qualtrics), so the one who fills it is not screened out by it; the next is, and
     is not counted."""
-    doc = minimal_qsf([mc("QID1"), mc("QID2")], flow=[
-        {"Type": "Block", "ID": "BL_1", "FlowID": "FL_2"},
-        {"Type": "Quota", "FlowID": "FL_3", "Description": "check"},
-    ])
-    doc["SurveyElements"].append({"Element": "QO", "Payload": {
-        "ID": "QO_1", "Name": "yes", "Occurrences": 1, "QuotaAction": "EndCurrentSurvey",
-        "Logic": logic({"LogicType": "Question", "LeftOperand": "q://QID1/SelectableChoice/1",
-                        "Operator": "Selected", "Type": "Expression"})}})
+    doc = minimal_qsf(
+        [mc("QID1"), mc("QID2")],
+        flow=[
+            {"Type": "Block", "ID": "BL_1", "FlowID": "FL_2"},
+            {"Type": "Quota", "FlowID": "FL_3", "Description": "check"},
+        ],
+    )
+    doc["SurveyElements"].append(
+        {
+            "Element": "QO",
+            "Payload": {
+                "ID": "QO_1",
+                "Name": "yes",
+                "Occurrences": 1,
+                "QuotaAction": "EndCurrentSurvey",
+                "Logic": logic(
+                    {
+                        "LogicType": "Question",
+                        "LeftOperand": "q://QID1/SelectableChoice/1",
+                        "Operator": "Selected",
+                        "Type": "Expression",
+                    }
+                ),
+            },
+        }
+    )
     survey = load_qsf(doc)
     assert any(isinstance(n, QuotaNode) for n in survey.flow)
     sim = Simulator(survey, seed=0)
@@ -240,27 +314,58 @@ def test_quota_status_is_current_at_each_quota_check():
 
 
 def te(qid: str, **settings):
-    return {"QuestionID": qid, "QuestionType": "TE", "Selector": "SL",
-            "DataExportTag": qid.replace("QID", "T"), "QuestionText": "Type",
-            "Validation": {"Settings": {"ForceResponse": "ON", **settings}}}
+    return {
+        "QuestionID": qid,
+        "QuestionType": "TE",
+        "Selector": "SL",
+        "DataExportTag": qid.replace("QID", "T"),
+        "QuestionText": "Type",
+        "Validation": {"Settings": {"ForceResponse": "ON", **settings}},
+    }
 
 
 def validated_survey():
-    age = te("QID1", Type="ContentType", ContentType="ValidNumber",
-             ValidNumber={"Min": "18", "Max": "99", "NumDecimals": ""})
+    age = te(
+        "QID1",
+        Type="ContentType",
+        ContentType="ValidNumber",
+        ValidNumber={"Min": "18", "Max": "99", "NumDecimals": ""},
+    )
     count = te("QID2", Type="ContentType", ContentType="ValidNumber", ValidNumber={})
     essay = te("QID3", Type="MinChar", MinChars="30")
     email = te("QID4", Type="ContentType", ContentType="ValidEmail")
-    pick = mc("QID5", selector="MAVR",
-              Choices={str(i): {"Display": f"c{i}"} for i in range(1, 7)},
-              ChoiceOrder=list(range(1, 7)),
-              Validation={"Settings": {"ForceResponse": "ON", "Type": "ChoiceRange",
-                                       "MinChoices": "2", "MaxChoices": "3"}})
-    flow = [{"Type": "Block", "ID": "BL_1", "FlowID": "FL_2"},
-            {"Type": "Branch", "FlowID": "FL_3", "Description": "adult", "BranchLogic": logic(
-                {"LogicType": "Question", "LeftOperand": "q://QID1/ChoiceTextEntryValue",
-                 "Operator": "GreaterThanOrEqual", "RightOperand": "18",
-                 "Type": "Expression"}), "Flow": []}]
+    pick = mc(
+        "QID5",
+        selector="MAVR",
+        Choices={str(i): {"Display": f"c{i}"} for i in range(1, 7)},
+        ChoiceOrder=list(range(1, 7)),
+        Validation={
+            "Settings": {
+                "ForceResponse": "ON",
+                "Type": "ChoiceRange",
+                "MinChoices": "2",
+                "MaxChoices": "3",
+            }
+        },
+    )
+    flow = [
+        {"Type": "Block", "ID": "BL_1", "FlowID": "FL_2"},
+        {
+            "Type": "Branch",
+            "FlowID": "FL_3",
+            "Description": "adult",
+            "BranchLogic": logic(
+                {
+                    "LogicType": "Question",
+                    "LeftOperand": "q://QID1/ChoiceTextEntryValue",
+                    "Operator": "GreaterThanOrEqual",
+                    "RightOperand": "18",
+                    "Type": "Expression",
+                }
+            ),
+            "Flow": [],
+        },
+    ]
     return load_qsf(minimal_qsf([age, count, essay, email, pick], flow=flow))
 
 

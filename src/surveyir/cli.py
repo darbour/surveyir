@@ -209,15 +209,23 @@ def cmd_simulate(args: argparse.Namespace) -> int:
 def _execution_flags(p: argparse.ArgumentParser, *, strict_default: bool | None = None) -> None:
     g = p.add_mutually_exclusive_group()
     g.add_argument(
-        "--strict", dest="strict", action="store_true", default=strict_default,
+        "--strict",
+        dest="strict",
+        action="store_true",
+        default=strict_default,
         help="Stop at anything that cannot be administered exactly (check: exit 1 if any).",
     )
     g.add_argument(
-        "--permissive", dest="strict", action="store_false",
+        "--permissive",
+        dest="strict",
+        action="store_false",
         help="Approximate gaps and record them instead of stopping.",
     )
     p.add_argument(
-        "--allow", action="append", default=[], metavar="CODE[:LOCATION]",
+        "--allow",
+        action="append",
+        default=[],
+        metavar="CODE[:LOCATION]",
         help="Accept an approximation by code, or code:location; repeatable.",
     )
 
@@ -270,9 +278,7 @@ def main(argv: list[str] | None = None) -> int:
     _execution_flags(p)
     p.set_defaults(func=cmd_simulate)
 
-    p = sub.add_parser(
-        "check", help="List what the runtime can and cannot administer exactly."
-    )
+    p = sub.add_parser("check", help="List what the runtime can and cannot administer exactly.")
     p.add_argument("input")
     p.add_argument("-f", "--from", dest="source_format")
     _execution_flags(p, strict_default=False)

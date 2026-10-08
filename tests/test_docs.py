@@ -75,8 +75,11 @@ def test_llm_example_with_a_fake_client():
     run = Simulator(survey, seed=1, allow={"answer.invalid"}).respondent(persona)
     assert run.answers and len(run.displayed) > 2 and not run.privileged
     assert Allowed("answer.invalid", "QID14") in run.audit
-    assert any("Write at least 100 characters." in m["content"]
-               for r in client.requests for m in r["messages"])
+    assert any(
+        "Write at least 100 characters." in m["content"]
+        for r in client.requests
+        for m in r["messages"]
+    )
     first, last = client.requests[0], client.requests[-1]
     assert first["model"] == MODEL and first["fallbacks"] == "default"
     assert "You are a test persona." in first["system"]
@@ -92,4 +95,3 @@ def test_llm_example_with_a_fake_client():
 
     refused = Simulator(survey, seed=1).respondent(claude_answerer(FakeClient(refuse=True), "x"))
     assert refused.answers == {}
-

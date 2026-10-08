@@ -62,7 +62,10 @@ from .trace import EXECUTION_AFFECTING, Affects, Approximation
 
 Status = Literal["executable", "needs_implementation", "approximated", "preserved_only"]
 STATUSES: tuple[Status, ...] = (
-    "needs_implementation", "approximated", "preserved_only", "executable"
+    "needs_implementation",
+    "approximated",
+    "preserved_only",
+    "executable",
 )
 _ORDERING = ("greater_than", "greater_than_or_equal", "less_than", "less_than_or_equal")
 _RAND_INT = re.compile(r"int/(-?\d+):(-?\d+)")
@@ -171,8 +174,14 @@ def _row(f: Feature) -> dict[str, Any]:
 # --------------------------------------------------------------------------- inventory
 
 
-def _gap(feature: str, code: str, location: str, detail: str | None = None,
-         affects: Affects | None = None, status: Status | None = None) -> Feature:
+def _gap(
+    feature: str,
+    code: str,
+    location: str,
+    detail: str | None = None,
+    affects: Affects | None = None,
+    status: Status | None = None,
+) -> Feature:
     default, meaning = APPROXIMATIONS[code]
     key = IMPLEMENTED_BY.get(code)
     return Feature(
@@ -291,16 +300,31 @@ class _Inventory:
 
     def node(self, node: FlowNode) -> None:
         if isinstance(node, BlockNode) and node.block_id not in self.survey.blocks:
-            self.add(_gap("missing_block", "flow.missing_block", node.block_id,
-                          f"flow element {node.id} references block {node.block_id}"))
+            self.add(
+                _gap(
+                    "missing_block",
+                    "flow.missing_block",
+                    node.block_id,
+                    f"flow element {node.id} references block {node.block_id}",
+                )
+            )
         elif isinstance(node, RandomizerNode):
             n = len(node.children)
             k = node.subset_size if node.subset_size and node.subset_size < n else n
-            even = (", evenly presented (balanced across the simulated sample)"
-                    if node.even_presentation and k < n else "")
-            self.add(Feature("randomizer", node.id, "executable",
-                             "assignment" if k < n else "exposure",
-                             detail=f"{k} of {n}{even}"))
+            even = (
+                ", evenly presented (balanced across the simulated sample)"
+                if node.even_presentation and k < n
+                else ""
+            )
+            self.add(
+                Feature(
+                    "randomizer",
+                    node.id,
+                    "executable",
+                    "assignment" if k < n else "exposure",
+                    detail=f"{k} of {n}{even}",
+                )
+            )
         elif isinstance(node, BranchNode):
             if node.condition is None:
                 self.add(_gap("branch", "branch.no_condition", node.id))
@@ -308,52 +332,120 @@ class _Inventory:
                 self.add(Feature("branch", node.id, "executable", "routing"))
         elif isinstance(node, WebServiceNode):
             sets = ", ".join(node.sets_fields) or "no fields"
-            self.add(_gap("web_service", "web_service", node.id,
-                          f"{node.method or 'GET'} {node.url or ''}; sets {sets}"))
+            self.add(
+                _gap(
+                    "web_service",
+                    "web_service",
+                    node.id,
+                    f"{node.method or 'GET'} {node.url or ''}; sets {sets}",
+                )
+            )
         elif isinstance(node, LibraryBlockNode):
-            self.add(_gap("library_block", "library_block", node.id,
-                          f"library block {node.reference_id} is not in the file",
-                          status="needs_implementation"))
+            self.add(
+                _gap(
+                    "library_block",
+                    "library_block",
+                    node.id,
+                    f"library block {node.reference_id} is not in the file",
+                    status="needs_implementation",
+                )
+            )
         elif isinstance(node, AuthenticatorNode):
             self.add(_gap("authenticator", "flow.authenticator", node.id))
         elif isinstance(node, UnsupportedNode):
-            self.add(_gap("unsupported_flow", "flow.unsupported", node.id,
-                          f"unsupported flow element {node.source_type}"))
+            self.add(
+                _gap(
+                    "unsupported_flow",
+                    "flow.unsupported",
+                    node.id,
+                    f"unsupported flow element {node.source_type}",
+                )
+            )
         elif isinstance(node, EndSurveyNode):
-            self.add(Feature("end_survey", node.id, "executable", "routing",
-                             detail=node.response_flag or node.termination))
+            self.add(
+                Feature(
+                    "end_survey",
+                    node.id,
+                    "executable",
+                    "routing",
+                    detail=node.response_flag or node.termination,
+                )
+            )
         elif isinstance(node, QuotaNode):
             self.add(Feature("quota_check", node.id, "executable", "routing"))
         elif isinstance(node, TableOfContentsNode):
-            self.add(Feature("table_of_contents", node.id, "executable", "routing",
-                             detail="blocks are walked in flow order"))
+            self.add(
+                Feature(
+                    "table_of_contents",
+                    node.id,
+                    "executable",
+                    "routing",
+                    detail="blocks are walked in flow order",
+                )
+            )
         elif isinstance(node, EmbeddedDataNode):
             for f in node.fields:
                 if any(p.kind == "random" for p in (f.value.pipes if f.value else [])):
-                    self.add(Feature("random_value", f.name, "executable", "assignment",
-                                     detail=f"{f.value.plain if f.value else ''} in {node.id}"))
+                    self.add(
+                        Feature(
+                            "random_value",
+                            f.name,
+                            "executable",
+                            "assignment",
+                            detail=f"{f.value.plain if f.value else ''} in {node.id}",
+                        )
+                    )
 
     def quotas(self) -> None:
         for quota in self.survey.quotas:
             if quota.action in (None, "EndCurrentSurvey", "ForBranching"):
-                self.add(Feature("quota", quota.id, "executable", "routing",
-                                 detail=f"{quota.name}: {quota.action or 'no action'}"))
+                self.add(
+                    Feature(
+                        "quota",
+                        quota.id,
+                        "executable",
+                        "routing",
+                        detail=f"{quota.name}: {quota.action or 'no action'}",
+                    )
+                )
             else:
-                self.add(_gap("quota", "quota.action_ignored", quota.id,
-                              f"{quota.name}: action {quota.action} not executed"))
+                self.add(
+                    _gap(
+                        "quota",
+                        "quota.action_ignored",
+                        quota.id,
+                        f"{quota.name}: action {quota.action} not executed",
+                    )
+                )
 
     def logic(self) -> None:
         for cond, feature, where in self.conditions():
-            if feature in ("display_logic", "in_page_display_logic", "skip_logic",
-                           "choice_display_logic"):
-                self.add(Feature(feature, where, "executable",
-                                 "routing" if feature == "skip_logic" else "exposure"))
+            if feature in (
+                "display_logic",
+                "in_page_display_logic",
+                "skip_logic",
+                "choice_display_logic",
+            ):
+                self.add(
+                    Feature(
+                        feature,
+                        where,
+                        "executable",
+                        "routing" if feature == "skip_logic" else "exposure",
+                    )
+                )
             for c in iter_comparisons(cond):
                 gap = self.comparison(c)
                 if gap is not None:
                     code, detail = gap
-                    self.add(_gap("condition", code, operand_location(c.left),
-                                  f"{detail} (in {feature} {where})"))
+                    self.add(
+                        _gap(
+                            "condition",
+                            code,
+                            operand_location(c.left),
+                            f"{detail} (in {feature} {where})",
+                        )
+                    )
 
     @staticmethod
     def comparison(c: Comparison) -> tuple[str, str] | None:
@@ -378,8 +470,15 @@ class _Inventory:
             if affects == "none":
                 continue
             how = "read by logic" if affects == "routing" else "piped into text"
-            self.add(_gap("embedded_field", "embedded.unset", name,
-                          f"{source} field declared in {node_id}, {how}", affects=affects))
+            self.add(
+                _gap(
+                    "embedded_field",
+                    "embedded.unset",
+                    name,
+                    f"{source} field declared in {node_id}, {how}",
+                    affects=affects,
+                )
+            )
 
     def pipe_rows(self) -> None:
         for where, p in self.pipes():
@@ -387,11 +486,25 @@ class _Inventory:
             affects: Affects = self.field_affects(field_name) if field_name else "exposure"
             if p.kind == "random":
                 if _RAND_INT.match(p.selector or ""):
-                    self.add(Feature("random_value", where, "executable",
-                                     "assignment" if field_name else "exposure", detail=p.raw))
+                    self.add(
+                        Feature(
+                            "random_value",
+                            where,
+                            "executable",
+                            "assignment" if field_name else "exposure",
+                            detail=p.raw,
+                        )
+                    )
                 else:
-                    self.add(_gap("pipe", "pipe.random_unsupported", p.path,
-                                  f"{p.raw} in {where}", affects=affects))
+                    self.add(
+                        _gap(
+                            "pipe",
+                            "pipe.random_unsupported",
+                            p.path,
+                            f"{p.raw} in {where}",
+                            affects=affects,
+                        )
+                    )
             elif p.scheme == "loc":
                 self.add(_gap("pipe", "pipe.loc", p.path, f"{p.raw} in {where}", affects=affects))
             elif p.kind == "date":
@@ -401,85 +514,175 @@ class _Inventory:
             ):
                 continue
             else:
-                self.add(_gap("pipe", "pipe.unsupported", p.path, f"{p.raw} in {where}",
-                              affects=affects))
+                self.add(
+                    _gap("pipe", "pipe.unsupported", p.path, f"{p.raw} in {where}", affects=affects)
+                )
 
     # ---------------------------------------------------------------- questions
 
     def question_rows(self) -> None:
         for q in self.questions:
             if isinstance(q, UnsupportedQuestion):
-                self.add(_gap("unsupported_question", "question.unsupported", q.id,
-                              f"{q.origin.type} question is shown but not answered"))
+                self.add(
+                    _gap(
+                        "unsupported_question",
+                        "question.unsupported",
+                        q.id,
+                        f"{q.origin.type} question is shown but not answered",
+                    )
+                )
             js = javascript_affects(q.javascript)
             if js is not None:
-                what = ("randomizes or sets embedded data" if js == "assignment"
-                        else "may change what is shown")
-                self.add(_gap("question_javascript", "javascript", q.id,
-                              f"question JavaScript {what}", affects=js))
+                what = (
+                    "randomizes or sets embedded data"
+                    if js == "assignment"
+                    else "may change what is shown"
+                )
+                self.add(
+                    _gap(
+                        "question_javascript",
+                        "javascript",
+                        q.id,
+                        f"question JavaScript {what}",
+                        affects=js,
+                    )
+                )
             cf = getattr(q, "carry_forward", None)
             if cf is not None:
                 if cf.source == "reference_list":
-                    self.add(_gap("carry_forward", "carry_forward.reference", q.id,
-                                  f"carry forward from reference list {cf.list_id or cf.raw}"))
-                elif cf.source != "question" or not cf.question_id \
-                        or cf.mode not in CARRY_FORWARD_MODES:
-                    self.add(_gap("carry_forward", "carry_forward.unsupported_mode", q.id,
-                                  f"carry forward {cf.mode} from {cf.raw}"))
+                    self.add(
+                        _gap(
+                            "carry_forward",
+                            "carry_forward.reference",
+                            q.id,
+                            f"carry forward from reference list {cf.list_id or cf.raw}",
+                        )
+                    )
+                elif (
+                    cf.source != "question"
+                    or not cf.question_id
+                    or cf.mode not in CARRY_FORWARD_MODES
+                ):
+                    self.add(
+                        _gap(
+                            "carry_forward",
+                            "carry_forward.unsupported_mode",
+                            q.id,
+                            f"carry forward {cf.mode} from {cf.raw}",
+                        )
+                    )
                 else:
-                    self.add(Feature("carry_forward", q.id, "executable", "exposure",
-                                     detail=f"{cf.mode} from {cf.question_id}"))
+                    self.add(
+                        Feature(
+                            "carry_forward",
+                            q.id,
+                            "executable",
+                            "exposure",
+                            detail=f"{cf.mode} from {cf.question_id}",
+                        )
+                    )
             r = getattr(q, "randomization", None)
             if r is not None and r.mode != "none":
                 self.add(Feature("choice_order", q.id, "executable", "exposure", detail=r.mode))
             cr = getattr(q, "column_randomization", None)
             if cr is not None and cr.mode != "none":
-                even = (", evenly presented (balanced across the simulated sample)"
-                        if cr.mode == "subset" and cr.even_presentation else "")
-                self.add(Feature("column_order", q.id, "executable", "exposure",
-                                 detail=cr.mode + even))
+                even = (
+                    ", evenly presented (balanced across the simulated sample)"
+                    if cr.mode == "subset" and cr.even_presentation
+                    else ""
+                )
+                self.add(
+                    Feature("column_order", q.id, "executable", "exposure", detail=cr.mode + even)
+                )
 
     def block_rows(self) -> None:
         for block in self.blocks:
             r = block.randomization
             if r is not None and r.mode != "none":
-                self.add(Feature("block_order", block.id, "executable", "exposure",
-                                 detail=r.mode))
+                self.add(Feature("block_order", block.id, "executable", "exposure", detail=r.mode))
             loop = block.loop
             if loop is None:
                 continue
             if loop.source == "static":
-                self.add(Feature("loop", block.id, "executable", "exposure",
-                                 detail=f"{len(loop.fields)} static loops"))
+                self.add(
+                    Feature(
+                        "loop",
+                        block.id,
+                        "executable",
+                        "exposure",
+                        detail=f"{len(loop.fields)} static loops",
+                    )
+                )
             else:
                 mode = (loop.locator or "").rsplit("/", 1)[-1].split("?")[0]
                 if "MergeOnNumericResponse" in (loop.locator or ""):
                     mode = "MergeOnNumericResponse"
                 if not loop.question_id or mode not in LOOP_MODES:
-                    self.add(_gap("loop", "loop.unknown_mode", block.id,
-                                  f"loop over {loop.question_id or 'a missing question'} "
-                                  f"with mode {mode or 'unknown'!r}"))
+                    self.add(
+                        _gap(
+                            "loop",
+                            "loop.unknown_mode",
+                            block.id,
+                            f"loop over {loop.question_id or 'a missing question'} "
+                            f"with mode {mode or 'unknown'!r}",
+                        )
+                    )
                 else:
-                    self.add(Feature("loop", block.id, "executable", "exposure",
-                                     detail=f"{mode} of {loop.question_id}"))
+                    self.add(
+                        Feature(
+                            "loop",
+                            block.id,
+                            "executable",
+                            "exposure",
+                            detail=f"{mode} of {loop.question_id}",
+                        )
+                    )
             if loop.randomization is not None and loop.randomization.mode != "none":
-                self.add(Feature("loop_order", block.id, "executable", "exposure",
-                                 detail=loop.randomization.mode))
+                self.add(
+                    Feature(
+                        "loop_order",
+                        block.id,
+                        "executable",
+                        "exposure",
+                        detail=loop.randomization.mode,
+                    )
+                )
 
     def preserved(self) -> None:
         s = self.survey
         if s.languages:
-            self.add(Feature("translations", "survey", "preserved_only", "none",
-                             detail=", ".join(s.languages)))
+            self.add(
+                Feature(
+                    "translations",
+                    "survey",
+                    "preserved_only",
+                    "none",
+                    detail=", ".join(s.languages),
+                )
+            )
         scored = [q.id for q in self.questions if q.scoring]
         if s.scoring_categories or scored:
-            self.add(Feature("scoring", "survey", "preserved_only", "none",
-                             detail=f"{len(s.scoring_categories)} categories, "
-                             f"{len(scored)} scored questions; scores are not computed"))
+            self.add(
+                Feature(
+                    "scoring",
+                    "survey",
+                    "preserved_only",
+                    "none",
+                    detail=f"{len(s.scoring_categories)} categories, "
+                    f"{len(scored)} scored questions; scores are not computed",
+                )
+            )
         for i, cj in enumerate(s.conjoints):
-            self.add(Feature("conjoint", cj.id or f"conjoint {i + 1}", "preserved_only", "none",
-                             detail=f"{cj.kind} design metadata ({cj.confidence} confidence); "
-                             "its randomization runs only as listed above"))
+            self.add(
+                Feature(
+                    "conjoint",
+                    cj.id or f"conjoint {i + 1}",
+                    "preserved_only",
+                    "none",
+                    detail=f"{cj.kind} design metadata ({cj.confidence} confidence); "
+                    "its randomization runs only as listed above",
+                )
+            )
 
 
 def external_fields(survey: Survey) -> dict[str, tuple[str, str]]:
@@ -493,11 +696,16 @@ def external_fields(survey: Survey) -> dict[str, tuple[str, str]]:
     use this list.
     """
     set_elsewhere = {
-        name for node in survey.walk_flow() if isinstance(node, WebServiceNode)
+        name
+        for node in survey.walk_flow()
+        if isinstance(node, WebServiceNode)
         for name in node.sets_fields
     } | {
-        f.name for node in survey.walk_flow() if isinstance(node, EmbeddedDataNode)
-        for f in node.fields if f.source == "custom" and f.value is not None
+        f.name
+        for node in survey.walk_flow()
+        if isinstance(node, EmbeddedDataNode)
+        for f in node.fields
+        if f.source == "custom" and f.value is not None
     }
     used = survey.flow_block_ids()
     scripts = " ".join(q.javascript or "" for b in used for q in survey.block_questions(b))

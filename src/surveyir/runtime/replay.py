@@ -98,7 +98,8 @@ class ReplayChooser:
         policy: ExecutionPolicy | None = None,
     ) -> None:
         self.recorded: dict[RecordKey, tuple[str, ...]] = {
-            k: tuple(v) for k, v in (recorded or {}).items()}
+            k: tuple(v) for k, v in (recorded or {}).items()
+        }
         self.fallback = fallback
         self.fallback_kinds = frozenset(fallback_kinds)
         self.policy = policy or ExecutionPolicy()
@@ -122,8 +123,8 @@ class ReplayChooser:
         shown = list(dict.fromkeys(o for o in rec if o in offered))
         if rec and not shown:
             return self._missing(
-                req, rng, balancer,
-                f"recorded {list(rec)}, none of which is offered")
+                req, rng, balancer, f"recorded {list(rec)}, none of which is offered"
+            )
         if req.k >= len(req.options):  # everything is presented: unlisted ones follow
             shown += [o for o in req.options if o not in shown]
         shown = shown[: req.k]
@@ -143,10 +144,12 @@ class ReplayChooser:
             return self.fallback.choose(req, rng, balancer)
         where = f"{req.kind}:{req.node_id}" + (f"#{req.loop_id}" if req.loop_id else "")
         approx = approximation(
-            "replay.gap", where,
+            "replay.gap",
+            where,
             f"replay has no usable {req.kind} order for {req.node_id} ({why}); drawn by "
             "the fallback chooser",
-            _GAP_AFFECTS.get(req.kind, "exposure"))
+            _GAP_AFFECTS.get(req.kind, "exposure"),
+        )
         if not self.policy.permits(approx):
             raise ReplayGap(approx, req, why)
         if approx not in self.gaps:
@@ -198,8 +201,11 @@ def record(run: RespondentRun) -> Recording:
             orders[(e.kind, e.node_id, e.loop_id)] = tuple(e.shown)
     if any(isinstance(ob, Display) and ob.flipped for ob in run.trace):
         orders[("flip", "scale", None)] = (FLIP_OPTIONS[1],)
-    embedded = {e.name: e.value for e in run.audit
-                if isinstance(e, EmbeddedSet) and e.source == "respondent"}
+    embedded = {
+        e.name: e.value
+        for e in run.audit
+        if isinstance(e, EmbeddedSet) and e.source == "respondent"
+    }
     answers = {k: Answer(value=a.value, text=dict(a.text)) for k, a in run.answers.items()}
     return Recording(orders, answers, embedded, run.seed)
 
@@ -240,7 +246,8 @@ class Replayer:
         chooser.recorded = {k: tuple(v) for k, v in orders.items()}
         chooser.gaps, chooser.fallbacks = [], []
         run = self.simulator.respondent(
-            ReplayAnswerer(answers), embedded=dict(embedded or {}), seed=seed)
+            ReplayAnswerer(answers), embedded=dict(embedded or {}), seed=seed
+        )
         if chooser.gaps:  # allowed or permissive gaps, recorded like any approximation
             audit = list(run.audit)
             for approx in chooser.gaps:
@@ -275,9 +282,9 @@ def replay(
     streams (fallback draws, ``rand://`` text); pass the original run's seed to
     reproduce it.
     """
-    return Replayer(survey, fallback=fallback, fallback_kinds=fallback_kinds,
-                    **simulator_kw).respondent(
-        recorded_orders, answers, embedded=embedded, seed=seed)
+    return Replayer(
+        survey, fallback=fallback, fallback_kinds=fallback_kinds, **simulator_kw
+    ).respondent(recorded_orders, answers, embedded=embedded, seed=seed)
 
 
 __all__ = [

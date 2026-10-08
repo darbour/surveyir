@@ -66,7 +66,12 @@ def test_custom_chooser_forces_arms_and_records_p_given_history():
     assert d.shown == ("FL_4",) and d.p_given_history == p and d.p_nominal["FL_4"] == 1 / 3
     req = next(q for q in chooser.requests if q.kind == "flow")
     assert (req.options, req.k, req.mode, req.even, req.balance_key) == (
-        ("FL_3", "FL_4", "FL_5"), 1, "subset", True, "FL_2")
+        ("FL_3", "FL_4", "FL_5"),
+        1,
+        "subset",
+        True,
+        "FL_2",
+    )
     assert [q.respondent_index for q in chooser.requests if q.kind == "flow"] == list(range(20))
     # the forced chooser never touched the balancer
     assert Simulator(survey, chooser=chooser).balancer.counts == {}
@@ -86,8 +91,12 @@ def test_chooser_answer_is_checked():
 
 
 def test_choice_block_and_loop_orders_are_forced():
-    q1 = mc("QID1", Randomization={"Type": "All"},
-            Choices={str(i): {"Display": f"c{i}"} for i in range(1, 5)}, ChoiceOrder=[1, 2, 3, 4])
+    q1 = mc(
+        "QID1",
+        Randomization={"Type": "All"},
+        Choices={str(i): {"Display": f"c{i}"} for i in range(1, 5)},
+        ChoiceOrder=[1, 2, 3, 4],
+    )
     q2 = mc("QID2", QuestionText="Rate ${lm://Field/1}")
     doc = minimal_qsf(
         [q1, q2],
@@ -101,11 +110,13 @@ def test_choice_block_and_loop_orders_are_forced():
         },
     )
     survey = load_qsf(doc)
-    chooser = Forced({
-        ("choices", "QID1"): ("3", "1", "4", "2"),
-        ("loop", "BL_1"): ("2", "3", "1"),
-        ("block", "BL_1"): ("QID2", "QID1"),
-    })
+    chooser = Forced(
+        {
+            ("choices", "QID1"): ("3", "1", "4", "2"),
+            ("loop", "BL_1"): ("2", "3", "1"),
+            ("block", "BL_1"): ("QID2", "QID1"),
+        }
+    )
     run = Simulator(survey, seed=0, chooser=chooser).respondent(RandomAnswerer(seed=1))
     assert run.loops["BL_1"] == ["2", "3", "1"]
     assert [run.choice_order[("QID1", lp)] for lp in "231"] == [["3", "1", "4", "2"]] * 3
@@ -118,10 +129,16 @@ def test_choice_block_and_loop_orders_are_forced():
 
 def test_the_scale_flip_is_a_chooser_decision():
     matrix = {
-        "QuestionID": "QID1", "QuestionType": "Matrix", "Selector": "Likert",
-        "SubSelector": "SingleAnswer", "DataExportTag": "Q1", "QuestionText": "Rate",
-        "Choices": {"1": {"Display": "Row"}}, "ChoiceOrder": [1],
-        "Answers": {str(i): {"Display": f"a{i}"} for i in (1, 2, 3)}, "AnswerOrder": [1, 2, 3],
+        "QuestionID": "QID1",
+        "QuestionType": "Matrix",
+        "Selector": "Likert",
+        "SubSelector": "SingleAnswer",
+        "DataExportTag": "Q1",
+        "QuestionText": "Rate",
+        "Choices": {"1": {"Display": "Row"}},
+        "ChoiceOrder": [1],
+        "Answers": {str(i): {"Display": f"a{i}"} for i in (1, 2, 3)},
+        "AnswerOrder": [1, 2, 3],
         "Randomization": {"Type": "ScaleReversal"},
     }
     survey = load_qsf(minimal_qsf([matrix]))

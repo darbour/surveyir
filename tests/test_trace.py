@@ -57,8 +57,9 @@ def descriptive(qid: str, text: str) -> dict:
 
 def page(*qids: str) -> list[dict]:
     """Block elements: questions, with a page break between ``|`` markers."""
-    return [{"Type": "Page Break"} if q == "|" else {"Type": "Question", "QuestionID": q}
-            for q in qids]
+    return [
+        {"Type": "Page Break"} if q == "|" else {"Type": "Question", "QuestionID": q} for q in qids
+    ]
 
 
 def of(run, kind):
@@ -69,13 +70,24 @@ def of(run, kind):
 
 
 def test_descriptive_screen_is_displayed_not_answered():
-    survey = load_qsf(minimal_qsf([descriptive("QID1", "<p>Read this.</p>"), mc("QID2")],
-                                  block_elements=page("QID1", "|", "QID2")))
+    survey = load_qsf(
+        minimal_qsf(
+            [descriptive("QID1", "<p>Read this.</p>"), mc("QID2")],
+            block_elements=page("QID1", "|", "QID2"),
+        )
+    )
     who = Fixed()
     run = Simulator(survey, seed=0).respondent(who)
     assert [type(o).__name__ for o in run.trace] == [
-        "PageStart", "Display", "PageSubmit", "PageStart", "Display", "Response", "PageSubmit",
-        "End"]
+        "PageStart",
+        "Display",
+        "PageSubmit",
+        "PageStart",
+        "Display",
+        "Response",
+        "PageSubmit",
+        "End",
+    ]
     screen = of(run, Display)[0]
     assert screen.text == "Read this." and not screen.responds
     assert ("QID1", None) not in run.answers and run.answers[("QID2", None)].value == "2"
@@ -96,14 +108,23 @@ def test_pages_are_numbered_globally_and_columns_are_rendered():
         "QuestionText": "Rate",
         "Choices": {"1": {"Display": "Row"}},
         "ChoiceOrder": [1],
-        "Answers": {"1": {"Display": "Like ${q://QID1/ChoiceGroup/SelectedChoices}"},
-                    "2": {"Display": "Dislike"}},
+        "Answers": {
+            "1": {"Display": "Like ${q://QID1/ChoiceGroup/SelectedChoices}"},
+            "2": {"Display": "Dislike"},
+        },
         "AnswerOrder": [1, 2],
         "Validation": {"Settings": {"ForceResponse": "ON", "Type": "None"}},
     }
-    survey = load_qsf(minimal_qsf([mc("QID1"), matrix], block_elements=page("QID1", "|", "QID2"),
-                                  block_options={"Looping": "Static", "LoopingOptions": {
-                                      "Static": {"1": {"1": "a"}, "2": {"1": "b"}}}}))
+    survey = load_qsf(
+        minimal_qsf(
+            [mc("QID1"), matrix],
+            block_elements=page("QID1", "|", "QID2"),
+            block_options={
+                "Looping": "Static",
+                "LoopingOptions": {"Static": {"1": {"1": "a"}, "2": {"1": "b"}}},
+            },
+        )
+    )
     run = Simulator(survey, seed=0).respondent(RandomAnswerer(seed=1))
     starts = of(run, PageStart)
     assert [p.page for p in starts] == [1, 2, 3, 4] == [s.page for s in of(run, PageSubmit)]
@@ -136,14 +157,23 @@ def test_randomizer_decisions_record_balancing_history():
 
 def test_approximations_are_audited_and_noted():
     flow = [
-        {"Type": "WebService", "FlowID": "FL_2", "URL": "https://x", "Method": "GET",
-         "ResponseMap": [{"key": "r", "value": "seed"}]},
-        {"Type": "EmbeddedData", "FlowID": "FL_3",
-         "EmbeddedData": [{"Field": "pid", "Type": "Recipient"}]},
+        {
+            "Type": "WebService",
+            "FlowID": "FL_2",
+            "URL": "https://x",
+            "Method": "GET",
+            "ResponseMap": [{"key": "r", "value": "seed"}],
+        },
+        {
+            "Type": "EmbeddedData",
+            "FlowID": "FL_3",
+            "EmbeddedData": [{"Field": "pid", "Type": "Recipient"}],
+        },
         {"Type": "Block", "ID": "BL_1", "FlowID": "FL_4"},
     ]
-    survey = load_qsf(minimal_qsf([mc(QuestionJS="Qualtrics.SurveyEngine.setEmbeddedData('x')")],
-                                  flow=flow))
+    survey = load_qsf(
+        minimal_qsf([mc(QuestionJS="Qualtrics.SurveyEngine.setEmbeddedData('x')")], flow=flow)
+    )
     run = Simulator(survey, strict=False).respondent()
     codes = [(a.code, a.location, a.affects) for a in of(run, Approximation)]
     # pid is declared but never read, so its being unset changes nothing
@@ -160,12 +190,22 @@ def test_approximations_are_audited_and_noted():
 
 def test_unset_fields_are_recorded_where_they_are_read():
     flow = [
-        {"Type": "EmbeddedData", "FlowID": "FL_2", "EmbeddedData": [
-            {"Field": "pid", "Type": "Recipient"}, {"Field": "src", "Type": "Recipient"},
-            {"Field": "unused", "Type": "Recipient"}]},
-        {"Type": "Branch", "FlowID": "FL_3", "Description": "b",
-         "BranchLogic": logic(ed("pid", "EqualTo", "1")),
-         "Flow": [{"Type": "Block", "ID": "BL_1", "FlowID": "FL_4"}]},
+        {
+            "Type": "EmbeddedData",
+            "FlowID": "FL_2",
+            "EmbeddedData": [
+                {"Field": "pid", "Type": "Recipient"},
+                {"Field": "src", "Type": "Recipient"},
+                {"Field": "unused", "Type": "Recipient"},
+            ],
+        },
+        {
+            "Type": "Branch",
+            "FlowID": "FL_3",
+            "Description": "b",
+            "BranchLogic": logic(ed("pid", "EqualTo", "1")),
+            "Flow": [{"Type": "Block", "ID": "BL_1", "FlowID": "FL_4"}],
+        },
         {"Type": "Block", "ID": "BL_1", "FlowID": "FL_5"},
     ]
     survey = load_qsf(minimal_qsf([mc(QuestionText="From ${e://Field/src}")], flow=flow))
@@ -182,13 +222,21 @@ def test_unset_fields_are_recorded_where_they_are_read():
 
 
 def test_choice_display_logic_and_piped_rand_do_not_shift_seeds():
-    plain = mc("QID1", Choices={"1": {"Display": "Yes"}, "2": {"Display": "No"},
-                                "3": {"Display": "Maybe", "DisplayLogic": logic(ed("x", "EqualTo",
-                                                                                    "1"))}},
-               ChoiceOrder=[1, 2, 3], Randomization={"Type": "All"})
+    plain = mc(
+        "QID1",
+        Choices={
+            "1": {"Display": "Yes"},
+            "2": {"Display": "No"},
+            "3": {"Display": "Maybe", "DisplayLogic": logic(ed("x", "EqualTo", "1"))},
+        },
+        ChoiceOrder=[1, 2, 3],
+        Randomization={"Type": "All"},
+    )
     piped = {**plain, "QuestionText": "Pick ${rand://int/1:1000}"}
-    runs = [Simulator(load_qsf(minimal_qsf([q])), seed=4).run(5, RandomAnswerer(seed=1))
-            for q in (plain, piped)]
+    runs = [
+        Simulator(load_qsf(minimal_qsf([q])), seed=4).run(5, RandomAnswerer(seed=1))
+        for q in (plain, piped)
+    ]
     assert [r.choice_order for r in runs[0]] == [r.choice_order for r in runs[1]]
     assert [r.answers for r in runs[0]] == [r.answers for r in runs[1]]
     assert ChoiceHidden("QID1", None, "3") in runs[0][0].audit
@@ -225,9 +273,16 @@ def test_in_page_display_logic_reveals_after_the_answer():
 
 def test_same_page_carry_forward_is_empty():
     src = mc("QID1", selector="MAVR")
-    dst = mc("QID2", Choices={}, ChoiceOrder=[], DynamicChoices={
-        "Type": "Dynamic", "DynamicType": "ChoiceGroup",
-        "Locator": "q://QID1/ChoiceGroup/SelectedChoices"})
+    dst = mc(
+        "QID2",
+        Choices={},
+        ChoiceOrder=[],
+        DynamicChoices={
+            "Type": "Dynamic",
+            "DynamicType": "ChoiceGroup",
+            "Locator": "q://QID1/ChoiceGroup/SelectedChoices",
+        },
+    )
     run = Simulator(load_qsf(minimal_qsf([src, dst])), seed=0).respondent(Fixed(["1"]))
     assert of(run, Display)[1].choices == ()
 
@@ -235,9 +290,18 @@ def test_same_page_carry_forward_is_empty():
 def test_skip_logic_acts_at_submit():
     q1 = mc("QID1")
     elements = [
-        {"Type": "Question", "QuestionID": "QID1", "SkipLogic": [{
-            "ChoiceLocator": "q://QID1/SelectableChoice/1", "Condition": "Selected",
-            "QuestionID": "QID1", "SkipToDestination": "ENDOFSURVEY"}]},
+        {
+            "Type": "Question",
+            "QuestionID": "QID1",
+            "SkipLogic": [
+                {
+                    "ChoiceLocator": "q://QID1/SelectableChoice/1",
+                    "Condition": "Selected",
+                    "QuestionID": "QID1",
+                    "SkipToDestination": "ENDOFSURVEY",
+                }
+            ],
+        },
         *page("QID2", "|", "QID3"),
     ]
     survey = load_qsf(minimal_qsf([q1, mc("QID2"), mc("QID3")], block_elements=elements))
@@ -251,8 +315,12 @@ def test_skip_logic_acts_at_submit():
 
 
 def test_transcript_is_ordered_and_neutral():
-    survey = load_qsf(minimal_qsf([descriptive("QID1", "Imagine a rainy day."), mc("QID2")],
-                                  block_elements=page("QID1", "|", "QID2")))
+    survey = load_qsf(
+        minimal_qsf(
+            [descriptive("QID1", "Imagine a rainy day."), mc("QID2")],
+            block_elements=page("QID1", "|", "QID2"),
+        )
+    )
     run = Simulator(survey, seed=0).respondent(Fixed("1"))
     assert transcript(run.trace) == (
         "--- Page 1 ---\n(QID1) Imagine a rainy day.\n\n--- Page 2 ---\n(QID2) Pick one\n"

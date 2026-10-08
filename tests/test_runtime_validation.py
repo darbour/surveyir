@@ -195,7 +195,8 @@ def test_recorded_replay_has_no_violations(study):
     assert not r["order_fallbacks"]  # every order came from the response
     e = r["embedded"]
     assert (e["agree"], e["compared"]) == EMBEDDED_DISAGREEMENT.get(
-        study, (e["compared"], e["compared"]))
+        study, (e["compared"], e["compared"])
+    )
 
 
 def test_recorded_replay_covers_the_studies():

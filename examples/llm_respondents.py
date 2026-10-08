@@ -91,8 +91,10 @@ def requirements(view: Display) -> str:
     if "max_chars" in v:
         out.append(f"Write at most {v['max_chars']} characters.")
     if v.get("content_type") == "ValidNumber" or "number_min" in v or "number_max" in v:
-        bounds = [f"from {v['number_min']:g}" if "number_min" in v else "",
-                  f"to {v['number_max']:g}" if "number_max" in v else ""]
+        bounds = [
+            f"from {v['number_min']:g}" if "number_min" in v else "",
+            f"to {v['number_max']:g}" if "number_max" in v else "",
+        ]
         out.append(" ".join(["Enter a number", *filter(None, bounds)]) + ".")
     if "min_choices" in v:
         out.append(f"Select at least {v['min_choices']}.")

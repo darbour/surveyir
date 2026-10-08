@@ -21,27 +21,57 @@ def vignette_survey():
     """A randomizer picks one of two arms. Each sets ``treatment_cond`` and shows a
     text-only vignette in its own block; then everyone answers the same question."""
     screens = [
-        {"QuestionID": qid, "QuestionType": "DB", "Selector": "TB",
-         "DataExportTag": f"V{n}", "QuestionText": f"<p>{VIGNETTES[block]}</p>"}
+        {
+            "QuestionID": qid,
+            "QuestionType": "DB",
+            "Selector": "TB",
+            "DataExportTag": f"V{n}",
+            "QuestionText": f"<p>{VIGNETTES[block]}</p>",
+        }
         for n, (qid, block) in enumerate([("QID10", "BL_alpha"), ("QID11", "BL_beta")])
     ]
     outcome = mc("QID1", QuestionText="<p>How much do you trust people around you?</p>")
-    doc = minimal_qsf([outcome, *screens], flow=[
-        {"Type": "BlockRandomizer", "FlowID": "FL_2", "SubSet": 1, "EvenPresentation": True,
-         "Flow": [
-             {"Type": "Group", "FlowID": fid, "Description": "arm", "Flow": [
-                 {"Type": "EmbeddedData", "FlowID": f"{fid}_ed", "EmbeddedData": [
-                     {"Field": FIELD, "Type": "Custom", "Value": VALUES[block]}]},
-                 {"Type": "Block", "ID": block, "FlowID": f"{fid}_bl"}]}
-             for fid, block in (("FL_3", "BL_alpha"), ("FL_4", "BL_beta"))
-         ]},
-        {"Type": "Block", "ID": "BL_1", "FlowID": "FL_5"},
-    ])
+    doc = minimal_qsf(
+        [outcome, *screens],
+        flow=[
+            {
+                "Type": "BlockRandomizer",
+                "FlowID": "FL_2",
+                "SubSet": 1,
+                "EvenPresentation": True,
+                "Flow": [
+                    {
+                        "Type": "Group",
+                        "FlowID": fid,
+                        "Description": "arm",
+                        "Flow": [
+                            {
+                                "Type": "EmbeddedData",
+                                "FlowID": f"{fid}_ed",
+                                "EmbeddedData": [
+                                    {"Field": FIELD, "Type": "Custom", "Value": VALUES[block]}
+                                ],
+                            },
+                            {"Type": "Block", "ID": block, "FlowID": f"{fid}_bl"},
+                        ],
+                    }
+                    for fid, block in (("FL_3", "BL_alpha"), ("FL_4", "BL_beta"))
+                ],
+            },
+            {"Type": "Block", "ID": "BL_1", "FlowID": "FL_5"},
+        ],
+    )
     blocks = doc["SurveyElements"][0]["Payload"]
     blocks[0]["BlockElements"] = [{"Type": "Question", "QuestionID": "QID1"}]
-    blocks += [{"Type": "Standard", "ID": block, "Description": block, "BlockElements": [
-        {"Type": "Question", "QuestionID": qid}]}
-        for qid, block in (("QID10", "BL_alpha"), ("QID11", "BL_beta"))]
+    blocks += [
+        {
+            "Type": "Standard",
+            "ID": block,
+            "Description": block,
+            "BlockElements": [{"Type": "Question", "QuestionID": qid}],
+        }
+        for qid, block in (("QID10", "BL_alpha"), ("QID11", "BL_beta"))
+    ]
     return load_qsf(doc)
 
 
@@ -86,10 +116,13 @@ def test_prompt_holds_the_assigned_vignette_and_no_hidden_state():
     assert seen == set(VALUES)
 
 
-@pytest.mark.parametrize("legacy", [
-    lambda view, state: None,
-    RandomAnswerer(seed=1).__call__,  # a bound (view, state) method is legacy too
-])
+@pytest.mark.parametrize(
+    "legacy",
+    [
+        lambda view, state: None,
+        RandomAnswerer(seed=1).__call__,  # a bound (view, state) method is legacy too
+    ],
+)
 def test_legacy_answerers_are_privileged(legacy):
     run = Simulator(vignette_survey(), seed=0).respondent(legacy)
     assert run.privileged

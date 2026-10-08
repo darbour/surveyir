@@ -37,24 +37,29 @@ def snapshot(path: Path, **simulator: Any) -> list[dict[str, Any]]:
     sim = Simulator(survey, seed=SEED, **simulator)
     out = []
     for run in sim.run(N, RandomAnswerer(seed=ANSWER_SEED)):
-        out.append(_plain({
-            "displayed": [_key(k) for k in run.displayed],
-            "flow_order": run.flow_order,
-            "choice_order": {_key(k): v for k, v in run.choice_order.items()},
-            "column_order": {_key(k): v for k, v in run.column_order.items()},
-            "block_order": {_key(k): v for k, v in run.block_order.items()},
-            "loops": run.loops,
-            "embedded": run.embedded,
-            "answers": {_key(k): [a.value, a.text] for k, a in run.answers.items()},
-            "finished": run.finished,
-            "ended_by": run.ended_by,
-        }))
+        out.append(
+            _plain(
+                {
+                    "displayed": [_key(k) for k in run.displayed],
+                    "flow_order": run.flow_order,
+                    "choice_order": {_key(k): v for k, v in run.choice_order.items()},
+                    "column_order": {_key(k): v for k, v in run.column_order.items()},
+                    "block_order": {_key(k): v for k, v in run.block_order.items()},
+                    "loops": run.loops,
+                    "embedded": run.embedded,
+                    "answers": {_key(k): [a.value, a.text] for k, a in run.answers.items()},
+                    "finished": run.finished,
+                    "ended_by": run.ended_by,
+                }
+            )
+        )
     return out
 
 
 def all_snapshots(**simulator: Any) -> dict[str, list[dict[str, Any]]]:
-    return {p.stem: snapshot(p, **simulator)
-            for p in sorted((FIXTURES / "qualtrics").glob("*.qsf"))}
+    return {
+        p.stem: snapshot(p, **simulator) for p in sorted((FIXTURES / "qualtrics").glob("*.qsf"))
+    }
 
 
 if __name__ == "__main__":

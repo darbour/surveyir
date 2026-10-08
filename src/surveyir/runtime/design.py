@@ -239,15 +239,19 @@ class Design(BaseModel):
         for f in self.factors:
             fields = ", ".join(f.recorded_field)
             if f.contrast == "assignment" and f.k == f.n:
-                kind = (f"assignment to {fields} (arms display nothing; all run, the last one "
-                        f"wins: each value with nominal share 1/{f.n})")
+                kind = (
+                    f"assignment to {fields} (arms display nothing; all run, the last one "
+                    f"wins: each value with nominal share 1/{f.n})"
+                )
             elif f.contrast == "assignment":
                 kind = f"assignment to {fields} (arms display nothing)"
             else:
                 kind = f"{f.contrast} contrast"
                 if f.recorded_field:
-                    kind += (f"; field {fields} records the last arm shown "
-                             f"(each value with nominal share 1/{f.n})")
+                    kind += (
+                        f"; field {fields} records the last arm shown "
+                        f"(each value with nominal share 1/{f.n})"
+                    )
             even = ", evenly presented" if f.even_presentation else ""
             where = f" within {' > '.join(f.within)}" if f.within else ""
             cond = f" if {f.condition}" if f.condition else ""
@@ -562,9 +566,7 @@ def exposures(run: RespondentRun, survey: Survey | Design) -> ExposureHistory:
     """
     d = design(survey) if isinstance(survey, Survey) else survey
     arms = {f.id: {a.key: a for a in f.arms} for f in d.factors}
-    shown = tuple(
-        o for o in run.trace if isinstance(o, Display) and o.kind not in INVISIBLE_KINDS
-    )
+    shown = tuple(o for o in run.trace if isinstance(o, Display) and o.kind not in INVISIBLE_KINDS)
     factors = []
     for decision in run.audit:
         if not isinstance(decision, RandomizerDecision) or decision.kind != "flow":
