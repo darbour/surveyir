@@ -17,7 +17,6 @@ every condition found in ``outputs/``.
 from __future__ import annotations
 
 import argparse
-import csv
 import json
 import os
 import sys
@@ -97,19 +96,9 @@ def simulate(survey, respondent, twin_ids: list[str], seed: int, allow: frozense
 
 
 def write_csv(survey, runs, twin_ids: list[str], path: Path) -> None:
-    """Qualtrics-shaped: names, labels, ImportIds; plus the TWIN_ID key the original
+    """Qualtrics-shaped (names, labels, ImportIds), plus the TWIN_ID key the original
     script merges on (simulated respondent i stands in for human respondent i)."""
-    columns = list(surveyir.response_columns(survey))
-    def label(c):
-        q = survey.questions.get(c.question_id) if c.question_id else None
-        return q.text.plain if q is not None else c.name
-    with open(path, "w", newline="", encoding="utf-8") as f:
-        w = csv.writer(f)
-        w.writerow([c.name for c in columns] + ["TWIN_ID"])
-        w.writerow([label(c) for c in columns] + ["TWIN_ID"])
-        w.writerow([json.dumps(c.import_object) for c in columns] + ['{"ImportId":"TWIN_ID"}'])
-        for run, tid in zip(runs, twin_ids, strict=True):
-            w.writerow([v for _, v in run.cells(survey)] + [tid])
+    surveyir.write_responses_csv(survey, runs, path, keys={"TWIN_ID": twin_ids})
 
 
 def save_examples(survey, runs, respondent, out: Path) -> None:

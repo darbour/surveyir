@@ -11,13 +11,21 @@ Quick start::
 
 import logging
 
-from .columns import Column, ColumnOptions, infer_options, read_header, response_columns
+from .columns import (
+    Column,
+    ColumnOptions,
+    column_label,
+    infer_options,
+    read_header,
+    response_columns,
+    response_header_rows,
+)
 from .describe import describe_condition
 from .exporters import Exporter, available_exporters, export, get_exporter
 from .loaders import available_loaders, load
 from .loaders.qualtrics import LoadError, load_qsf
 from .model import SCHEMA_VERSION, Survey
-from .runtime import RandomAnswerer, Simulator, design
+from .runtime import RandomAnswerer, Simulator, design, write_responses_csv
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
@@ -32,6 +40,7 @@ __all__ = [
     "Survey",
     "available_exporters",
     "available_loaders",
+    "column_label",
     "describe_condition",
     "design",
     "export",
@@ -41,4 +50,6 @@ __all__ = [
     "load",
     "load_qsf",
     "response_columns",
+    "response_header_rows",
+    "write_responses_csv",
 ]

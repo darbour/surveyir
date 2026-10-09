@@ -87,6 +87,14 @@ class ReplayChooser:
     ``policy`` decides gaps (strict by default: raise ``ReplayGap``); ``Replayer``
     and ``replay`` pass the simulator's. Gaps drawn by ``fallback`` are listed in
     ``gaps`` (as approximations) or, for ``fallback_kinds``, in ``fallbacks``.
+
+    ``touch_balancer`` (default True): a forced, evenly presented decision is
+    counted in the shared ``Counterbalancer``, as the recorded history left it, and
+    fallback draws update it as a normal draw would. With ``touch_balancer=False``
+    the counts are left exactly as they were: recorded decisions are not counted,
+    and fallback draws are made from a copy of the counts (least-filled first
+    against the current counts, without recording the draw). Use it to replay
+    respondents alongside a simulation whose balancing must not see them.
     """
 
     def __init__(
@@ -96,7 +104,9 @@ class ReplayChooser:
         fallback: Chooser = default_chooser,
         fallback_kinds: Collection[ChoiceKind] = (),
         policy: ExecutionPolicy | None = None,
+        touch_balancer: bool = True,
     ) -> None:
+        self.touch_balancer = touch_balancer
         self.recorded: dict[RecordKey, tuple[str, ...]] = {
             k: tuple(v) for k, v in (recorded or {}).items()
         }
@@ -128,7 +138,7 @@ class ReplayChooser:
         if req.k >= len(req.options):  # everything is presented: unlisted ones follow
             shown += [o for o in req.options if o not in shown]
         shown = shown[: req.k]
-        if req.even:  # keep the shared counts as the recorded history left them
+        if req.even and self.touch_balancer:  # the shared counts, as the history left them
             counts = balancer.counts.setdefault(req.balance_key, {})
             for o in shown:
                 counts[o] = counts.get(o, 0) + 1
@@ -139,6 +149,8 @@ class ReplayChooser:
     def _missing(
         self, req: ChoiceRequest, rng: random.Random, balancer: Counterbalancer, why: str
     ) -> tuple[Sequence[str], Mapping[str, float] | None]:
+        if not self.touch_balancer:  # draw against the current counts without changing them
+            balancer = Counterbalancer.from_dict(balancer.to_dict())
         if req.kind in self.fallback_kinds:
             self.fallbacks.append(req)
             return self.fallback.choose(req, rng, balancer)
@@ -216,7 +228,8 @@ class Replayer:
     Keyword arguments go to ``Simulator`` (``strict``, ``allow``,
     ``implementations``, ``seed``, ...); ``fallback`` and ``fallback_kinds`` to
     ``ReplayChooser``. Quota counts and balancer counts carry over between
-    respondents, as they would in the field.
+    respondents, as they would in the field; ``touch_balancer=False`` leaves the
+    balancer counts unchanged (see ``ReplayChooser``).
     """
 
     def __init__(
@@ -225,9 +238,12 @@ class Replayer:
         *,
         fallback: Chooser = default_chooser,
         fallback_kinds: Collection[ChoiceKind] = (),
+        touch_balancer: bool = True,
         **simulator_kw: Any,
     ) -> None:
-        self.chooser = ReplayChooser(fallback=fallback, fallback_kinds=fallback_kinds)
+        self.chooser = ReplayChooser(
+            fallback=fallback, fallback_kinds=fallback_kinds, touch_balancer=touch_balancer
+        )
         self.simulator = Simulator(survey, chooser=self.chooser, **simulator_kw)
         self.chooser.policy = self.simulator.policy
 
@@ -271,6 +287,7 @@ def replay(
     seed: int | None = None,
     fallback: Chooser = default_chooser,
     fallback_kinds: Collection[ChoiceKind] = (),
+    touch_balancer: bool = True,
     **simulator_kw: Any,
 ) -> RespondentRun:
     """Replay one respondent: recorded orders, recorded answers, and recorded inputs
@@ -283,7 +300,11 @@ def replay(
     reproduce it.
     """
     return Replayer(
-        survey, fallback=fallback, fallback_kinds=fallback_kinds, **simulator_kw
+        survey,
+        fallback=fallback,
+        fallback_kinds=fallback_kinds,
+        touch_balancer=touch_balancer,
+        **simulator_kw,
     ).respondent(recorded_orders, answers, embedded=embedded, seed=seed)
 
 

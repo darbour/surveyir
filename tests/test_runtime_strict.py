@@ -271,10 +271,8 @@ def test_evenly_presented_columns_are_balanced():
     assert "columns.unbalanced" not in {f.code for f in executability(survey).features}
 
 
-def test_quota_status_is_current_at_each_quota_check():
-    """A respondent counts toward a quota when their response is recorded (as in
-    Qualtrics), so the one who fills it is not screened out by it; the next is, and
-    is not counted."""
+def _quota_survey():
+    """QO_1 (limit 1) ends the survey for respondents who chose 1 at QID1 once it is full."""
     doc = minimal_qsf(
         [mc("QID1"), mc("QID2")],
         flow=[
@@ -301,7 +299,14 @@ def test_quota_status_is_current_at_each_quota_check():
             },
         }
     )
-    survey = load_qsf(doc)
+    return load_qsf(doc)
+
+
+def test_quota_status_is_current_at_each_quota_check():
+    """A respondent counts toward a quota when their response is recorded (as in
+    Qualtrics), so the one who fills it is not screened out by it; the next is, and
+    is not counted."""
+    survey = _quota_survey()
     assert any(isinstance(n, QuotaNode) for n in survey.flow)
     sim = Simulator(survey, seed=0)
     first, second = sim.run(2, lambda view, state: "1")
@@ -392,3 +397,15 @@ def test_invalid_answers_are_outcome_approximations():
     assert ("answer.invalid", "QID5", "outcome") not in got  # "text" is no selection
     run = Simulator(survey, allow={"answer.invalid"}).respondent(lambda view, state: "42")
     assert {a.location for a in of(run, Allowed)} == {"QID3", "QID4"}
+
+
+def test_out_of_order_respondent_cannot_know_quota_status():
+    """respondent(index=) out of order: quota status would need the responses before
+    it, so a quota with a limit is an approximation, and the walk is not counted."""
+    survey = _quota_survey()
+    with pytest.raises(ExecutionError, match="respondent.out_of_order at QO_1"):
+        Simulator(survey, seed=0).respondent(lambda view, state: "1", index=4)
+    sim = Simulator(survey, seed=0, allow={"respondent.out_of_order:QO_1"})
+    run = sim.respondent(lambda view, state: "1", index=4)
+    assert run.finished and sim.quota_counts == {} and sim.count == 0
+    assert any(isinstance(e, Allowed) and e.code == "respondent.out_of_order" for e in run.audit)

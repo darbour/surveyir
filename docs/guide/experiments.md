@@ -212,6 +212,43 @@ blocks shown: ['Introduction', 'Privacy Sandbox - A', 'Finish-1']
 The randomizer ran all six arms, `Group` holds the last one, and the respondent
 saw exactly one condition block: the one the branch on `Group` selected.
 
+### What an arm shows
+
+`stimulus_for_arm(survey, factor_id, arm)` answers the question per arm instead
+of per run: the screens a respondent sees under that arm of a 1-of-n randomizer
+and under no other, including screens chosen later by display logic or branches
+on a field the arm set. In *Targeting Fairness*, arm FL_493 only sets
+`Segment=2`; the vignette QID1459 is shown by display logic on `Segment`:
+
+```python
+from surveyir.runtime import stimulus_for_arm
+
+tf = surveyir.load_qsf("tests/fixtures/qualtrics/targeting_fairness.qsf")
+s = stimulus_for_arm(tf, "FL_491", "FL_493")
+print([d.qid for d in s.displays], s.reasons, s.walks)
+print(s.text[:110])
+```
+
+```text
+['QID1459'] {('QID1459', None): 'only'} 5
+A snack foods company has developed a new line of snacks. Initial testing showed that, due to the taste and te
+```
+
+It works by simulation, not by reading the flow: `walks` paired walks (5 by
+default), each run once per arm with that arm forced and everything else
+identical (seed, answerer, fresh balancer). A display is specific to the arm
+when no other arm's walk shows it (`"only"`), or shows it only with different
+rendered text or choices (`"content"`, e.g. a field the arm sets piped into a
+shared screen). The limits follow from the method: logic on answers is evaluated
+with the answers given (`make_answerer=lambda walk: ...`; none by default), so a
+screen that depends on an answer is found only if some walk gives that answer,
+and it is listed in `s.sometimes` when it is specific to the arm in some walks
+but not others. A screener that ends the survey on a blank answer stops every
+walk before the randomizer (`s.walks == 0`): pass an answerer such as
+`ScreenerAwareAnswerer`. Walks are strict; keyword arguments go to `Simulator`.
+Randomizers that show several arms to each respondent have no arm-specific
+stimulus and raise `ValueError`; use `exposures(run, survey)` for those.
+
 ## Random values
 
 Embedded data can be set to a random number, e.g. `${rand://int/1:4}`, often as

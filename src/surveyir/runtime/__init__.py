@@ -10,10 +10,12 @@ print(transcript(runs[0].trace))   # what the first respondent saw and answered
 rec = record(runs[0])           # its orders, answers, inputs and seed
 again = replay(survey, rec.orders, rec.answers, embedded=rec.embedded, seed=rec.seed)
 rows = [r.row(survey) for r in runs]   # columns match response_columns()
+write_responses_csv(survey, runs, "sim.csv", keys={"TWIN_ID": ids})  # Qualtrics-shaped
 """
 
 from .design import (
     Arm,
+    ArmStimulus,
     Design,
     Factor,
     FactorAnnotation,
@@ -21,6 +23,8 @@ from .design import (
     OrderRandomization,
     RandomValue,
     design,
+    exposures,
+    stimulus_for_arm,
 )
 from .executability import ExecutabilityReport, executability
 from .execution import APPROXIMATIONS, ExecutionError, ExecutionPolicy, javascript_affects
@@ -35,6 +39,7 @@ from .replay import (
     record,
     replay,
 )
+from .rows import write_responses_csv
 from .state import Answer, LoopContext, RespondentState
 from .trace import AuditEvent, Display, Observation, transcript
 from .walker import (
@@ -67,6 +72,7 @@ __all__ = [
     "Answer",
     "Answerer",
     "Arm",
+    "ArmStimulus",
     "AuditEvent",
     "ChoiceRequest",
     "ChoiceView",
@@ -97,10 +103,13 @@ __all__ = [
     "arrange",
     "design",
     "evaluate",
+    "exposures",
     "record",
     "replay",
     "no_answer",
     "render",
     "resolve_pipe",
+    "stimulus_for_arm",
     "transcript",
+    "write_responses_csv",
 ]

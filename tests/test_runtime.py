@@ -12,6 +12,7 @@ from surveyir.model import Randomization
 from surveyir.runtime import (
     Answer,
     Counterbalancer,
+    ExecutionError,
     RandomAnswerer,
     RespondentState,
     Simulator,
@@ -469,3 +470,67 @@ def test_duplicate_export_tags_keep_both_columns():
     run = Simulator(survey, seed=0).respondent(lambda v, s: "1" if v.question.id == "QID1" else "2")
     cells = [(c.name, c.question_id, v) for c, v in run.cells(survey) if c.part == "response"]
     assert cells == [("Q1", "QID1", 1), ("Q1", "QID2", 2)]
+
+
+# ------------------------------------------------------------------ respondent(index=)
+
+
+def _same(a, b) -> bool:
+    return (a.index, a.seed, a.trace, a.audit, a.answers) == (
+        b.index,
+        b.seed,
+        b.trace,
+        b.audit,
+        b.answers,
+    )
+
+
+def test_respondent_index_reproduces_a_sequential_run_without_walking_earlier_ones():
+    survey = randomizer_survey(even=False)  # no balancing: nothing depends on earlier ones
+    sequential = Simulator(survey, seed=8).run(6)
+    for i in (5, 0, 3):
+        sim = Simulator(survey, seed=8)
+        alone = sim.respondent(index=i)
+        assert _same(alone, sequential[i]) and alone.seed == sim.seed_for(i)
+        assert alone.row(survey) == sequential[i].row(survey)  # ResponseId R_sim00000<i>
+        assert sim.count == (1 if i == 0 else 0)  # out of order: the count is left alone
+    assert len({r.seed for r in sequential}) == 6
+
+
+def test_respondent_index_in_order_is_the_sequential_call():
+    survey = randomizer_survey()  # evenly presented: balancing carries over in order
+    expected = Simulator(survey, seed=4).run(4)
+    sim = Simulator(survey, seed=4)
+    got = [sim.respondent(index=0), sim.respondent(index=1), sim.respondent(), sim.respondent()]
+    assert all(_same(a, b) for a, b in zip(got, expected, strict=True))
+    assert [r.index for r in got] == [0, 1, 2, 3] and sim.count == 4
+
+    # an explicit seed takes no draw; index= realigns the stream, respondent() would not
+    mixed = Simulator(survey, seed=4)
+    mixed.respondent(seed=123)
+    assert mixed.respondent(index=1).seed == expected[1].seed
+
+
+def test_out_of_order_balanced_draw_is_an_approximation():
+    survey = randomizer_survey()  # FL_2 is evenly presented
+    sim = Simulator(survey, seed=4)
+    with pytest.raises(ExecutionError, match="respondent.out_of_order at flow:FL_2"):
+        sim.respondent(index=3)
+    allowed = Simulator(survey, seed=4, allow={"respondent.out_of_order"})
+    allowed.respondent()  # respondent 0, in order: counted
+    counts = allowed.balancer.to_dict()
+    run = allowed.respondent(index=5)
+    assert run.index == 5 and run.seed == allowed.seed_for(5)
+    assert [(a.code, a.location) for a in run.state.approximations] == [
+        ("respondent.out_of_order", "flow:FL_2")
+    ]
+    assert allowed.balancer.to_dict() == counts and allowed.count == 1  # left as they were
+    nxt = allowed.respondent()  # the sequence continues at 1, unaffected
+    assert nxt.index == 1 and nxt.seed == allowed.seed_for(1)
+
+
+def test_respondent_index_needs_a_seeded_simulator():
+    with pytest.raises(ValueError, match="seeded Simulator"):
+        Simulator(randomizer_survey(even=False)).respondent(index=2)
+    with pytest.raises(ValueError, match="walk one respondent n times"):
+        Simulator(randomizer_survey(even=False), seed=1, strict=False).run(3, index=2)

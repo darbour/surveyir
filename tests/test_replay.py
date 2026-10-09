@@ -14,6 +14,7 @@ from surveyir.runtime import (
     RandomAnswerer,
     ReplayAnswerer,
     ReplayChooser,
+    Replayer,
     ReplayGap,
     Simulator,
     record,
@@ -155,3 +156,39 @@ def test_replay_answerer_and_chooser_work_with_a_simulator():
     assert run.answers[("QID1", None)] == Answer("2", {"2": "why"})
     shown = [o.qid for o in run.trace if isinstance(o, Display)]
     assert shown == ["QID1"] and not run.privileged
+
+
+def test_replay_can_leave_the_balancer_counts_untouched():
+    """targeting_fairness's FL_491 is evenly presented: by default a replayed arm is
+    counted in the shared balancer (as the recorded history left it); with
+    touch_balancer=False the counts stay exactly as they were, for recorded decisions
+    and for fallback draws alike."""
+    survey = load_qsf(Path(__file__).parent / "fixtures" / "qualtrics" / "targeting_fairness.qsf")
+    runs = Simulator(survey, seed=2).run(3)
+    recordings = [record(r) for r in runs]
+    assert all(("flow", "FL_491", None) in rec.orders for rec in recordings)
+
+    counted = Replayer(survey)
+    for rec in recordings:
+        counted.respondent(rec.orders, rec.answers, embedded=rec.embedded, seed=rec.seed)
+    assert sum(counted.simulator.balancer.counts["FL_491"].values()) == 3
+
+    untouched = Replayer(survey, touch_balancer=False)
+    before = {"FL_491": {"FL_493": 7, "FL_497": 2}}
+    untouched.simulator.balancer.counts = {k: dict(v) for k, v in before.items()}
+    again = [
+        untouched.respondent(rec.orders, rec.answers, embedded=rec.embedded, seed=rec.seed)
+        for rec in recordings
+    ]
+    assert untouched.simulator.balancer.counts == before
+    assert [r.flow_order for r in again] == [r.flow_order for r in runs]
+
+    # a gap drawn by the fallback (least-filled first: FL_497) leaves the counts alone too
+    gap = Replayer(survey, touch_balancer=False, allow={"replay.gap"})
+    gap.simulator.balancer.counts = {k: dict(v) for k, v in before.items()}
+    orders = {k: v for k, v in recordings[0].orders.items() if k[0] != "flow"}
+    run = gap.respondent(orders, recordings[0].answers, seed=recordings[0].seed)
+    assert run.flow_order["FL_491"] == ["FL_497"]
+    assert gap.simulator.balancer.counts == before
+    # replay() passes the option through
+    replay(survey, orders, {}, seed=1, allow={"replay.gap"}, touch_balancer=False)

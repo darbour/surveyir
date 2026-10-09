@@ -30,7 +30,7 @@ import importlib
 import itertools
 import json
 import re
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
@@ -598,3 +598,176 @@ def exposures(run: RespondentRun, survey: Survey | Design) -> ExposureHistory:
             )
         )
     return ExposureHistory(shown, tuple(factors))
+
+
+# --------------------------------------------------------------------------- arm stimuli
+
+DisplayKey = tuple[str, str | None]  # (qid, loop_id)
+
+
+@dataclass(frozen=True)
+class ArmStimulus:
+    """What one arm of a 1-of-n flow randomizer shows that the other arms do not.
+
+    ``displays`` are the screens (questions and text-only screens) specific to the
+    arm, in the order shown (those first found in a later walk follow): shown
+    under this arm and under no other arm, or shown under other arms only with
+    different content (``reasons``: ``"only"`` or ``"content"``; content is the
+    rendered text, choices and columns, so a field the arm sets that later text
+    pipes counts). They include
+    screens outside the arm's own blocks, chosen afterwards by branches or display
+    logic on what the arm set. See ``stimulus_for_arm`` for the method.
+    """
+
+    factor_id: str
+    arm: str  # arm key, as in the FL_<id>_DO columns
+    displays: tuple[Display, ...]
+    reasons: Mapping[DisplayKey, Literal["only", "content"]]
+    #: paired walks in which the respondent reached the factor
+    walks: int
+    #: displays specific to the arm in some reached walks but not all: they depend on
+    #: answers or on other random draws, not on the arm alone
+    sometimes: frozenset[DisplayKey] = frozenset()
+
+    @property
+    def text(self) -> str:
+        """The displays' rendered text, one paragraph each."""
+        return "\n\n".join(d.text for d in self.displays)
+
+    @property
+    def screens(self) -> tuple[Display, ...]:
+        """Text-only screens (vignettes, instructions) among ``displays``."""
+        return tuple(d for d in self.displays if not d.responds and d.kind != "captcha")
+
+
+class _ForceArm:
+    """Forces one flow randomizer to one arm; every other decision is the default draw.
+    The forced decision does not touch the balancer."""
+
+    def __init__(self, factor_id: str, arm: str) -> None:
+        from .walker import default_chooser
+
+        self.factor_id, self.arm, self.base = factor_id, arm, default_chooser
+
+    def choose(self, req: Any, rng: Any, balancer: Any) -> tuple[Any, Any]:
+        if req.kind == "flow" and req.node_id == self.factor_id:
+            return (self.arm,), None
+        return self.base.choose(req, rng, balancer)
+
+
+def _content(d: Display) -> tuple[Any, ...]:
+    """What a respondent perceives of a display, order aside (paired walks' other draws
+    can diverge once the arms consume the random stream differently)."""
+    return (
+        d.text,
+        tuple(sorted(c.text for c in d.choices)),
+        tuple(sorted(c.text for c in d.columns)),
+        tuple(sorted((s.text, tuple(sorted(c.text for c in s.columns))) for s in d.subquestions)),
+    )
+
+
+def stimulus_for_arm(
+    survey: Survey,
+    factor_id: str,
+    arm: str,
+    *,
+    walks: int = 5,
+    seed: int = 0,
+    make_answerer: Callable[[int], Any] | None = None,
+    embedded: Mapping[str, str] | None = None,
+    **simulator_kw: Any,
+) -> ArmStimulus:
+    """The respondent-visible stimulus of ``arm`` (key or flow id) of flow randomizer
+    ``factor_id``: what is shown under that arm and under no other.
+
+    An arm often shows nothing itself: it sets embedded data, and later display
+    logic or branches on that field pick the screens (targeting_fairness: arm
+    FL_493 sets ``Segment=2``; display logic then shows QID1459). Reading the arm's
+    blocks misses those, so this simulates instead.
+
+    Method: ``walks`` paired walks. Walk ``w`` is run once per arm of the factor,
+    each with that arm forced (every other randomization drawn as usual), the same
+    seed (``Simulator(survey, seed=seed).seed_for(w)``), a fresh simulator (empty
+    balancer and quota counts) and an answerer from ``make_answerer(w)`` (default:
+    no answers). A display is specific to ``arm`` in a walk when no other arm's
+    walk shows it, or shows it only with different content (``ArmStimulus.reasons``).
+    The result is the union over the walks that reached the factor; displays
+    specific in only some of them are listed in ``ArmStimulus.sometimes``.
+
+    Limits: logic on answers is evaluated with the answers ``make_answerer`` gives,
+    so a screen that depends on an answer is found only if some walk gives that
+    answer (and a screener that ends the survey on a blank answer stops every
+    walk before the factor: pass an answerer, e.g. ``ScreenerAwareAnswerer``).
+    Paired walks share a seed but an arm that shows more screens consumes more of
+    the random stream, so later random draws (question order, other randomizers)
+    can differ between arms; such differences appear in ``sometimes``. A field
+    piped into text shared by every arm is found as a content difference only on
+    screens the walks reach. Execution is strict by default (``simulator_kw`` go to
+    ``Simulator``, e.g. ``allow=`` or ``implementations=``); ``embedded`` is passed
+    to each respondent (panel, recipient or URL fields).
+
+    Only 1-of-n factors have arm-specific stimuli: a factor that presents several
+    arms to each respondent (an order contrast when every arm is shown) raises
+    ``ValueError``; see ``exposures(run, survey)`` for what a respondent saw.
+    """
+    from .walker import Simulator, no_answer
+
+    d = design(survey)
+    factor = next((f for f in d.factors if f.id == factor_id), None)
+    if factor is None:
+        raise ValueError(
+            f"no flow randomizer {factor_id!r}; factors are {[f.id for f in d.factors]}"
+        )
+    if factor.k != 1:
+        raise ValueError(
+            f"{factor_id} presents {factor.k} of {factor.n} arms to each respondent, so no arm "
+            "has a stimulus of its own; see exposures(run, survey) for what a respondent saw"
+        )
+    key = next((a.key for a in factor.arms if arm in (a.key, a.flow_id)), None)
+    if key is None:
+        raise ValueError(
+            f"{factor_id} has no arm {arm!r}; arms are {[a.key for a in factor.arms]} "
+            f"(flow ids {[a.flow_id for a in factor.arms]})"
+        )
+    seeds = Simulator(survey, seed=seed)
+    found: dict[DisplayKey, Display] = {}
+    reasons: dict[DisplayKey, Literal["only", "content"]] = {}
+    hits: dict[DisplayKey, int] = {}
+    reached = 0
+    for w in range(walks):
+        shown: dict[str, dict[DisplayKey, tuple[Display, tuple[Any, ...]]]] = {}
+        for a in factor.arms:
+            sim = Simulator(survey, chooser=_ForceArm(factor_id, a.key), **simulator_kw)
+            answerer = make_answerer(w) if make_answerer is not None else no_answer
+            run = sim.respondent(answerer, embedded=dict(embedded or {}), seed=seeds.seed_for(w))
+            if not any(
+                isinstance(e, RandomizerDecision) and e.node_id == factor_id for e in run.audit
+            ):
+                break  # the walk never reached the factor (the paired walks are the same up to it)
+            seen: dict[DisplayKey, tuple[Display, tuple[Any, ...]]] = {}
+            for o in run.trace:
+                if isinstance(o, Display) and o.kind not in INVISIBLE_KINDS:
+                    seen.setdefault((o.qid, o.loop_id), (o, _content(o)))
+            shown[a.key] = seen
+        else:
+            reached += 1
+            others = [s for k, s in shown.items() if k != key]
+            for k, (disp, content) in shown[key].items():
+                elsewhere = [s[k][1] for s in others if k in s]
+                if not elsewhere:
+                    why: Literal["only", "content"] = "only"
+                elif content not in elsewhere:
+                    why = "content"
+                else:
+                    continue
+                found.setdefault(k, disp)
+                reasons.setdefault(k, why)
+                hits[k] = hits.get(k, 0) + 1
+    return ArmStimulus(
+        factor_id,
+        key,
+        tuple(found.values()),
+        reasons,
+        reached,
+        frozenset(k for k, n in hits.items() if n < reached),
+    )

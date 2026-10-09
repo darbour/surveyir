@@ -8,9 +8,12 @@ display-order columns. Questions the respondent never saw are blank.
 
 from __future__ import annotations
 
+import csv
+from collections.abc import Iterable, Mapping, Sequence
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from ..columns import Column, ColumnOptions, response_columns
+from ..columns import Column, ColumnOptions, key_columns, response_columns, response_header_rows
 from ..model import (
     ChoiceQuestion,
     ConstantSumQuestion,
@@ -110,7 +113,11 @@ def _question_value(q: Question, col: Column, answer: Answer | None, order: list
 
 
 def to_row(
-    run: RespondentRun, survey: Survey, options: ColumnOptions | None = None
+    run: RespondentRun,
+    survey: Survey,
+    options: ColumnOptions | None = None,
+    *,
+    key: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Values keyed by column name.
 
@@ -118,13 +125,21 @@ def to_row(
     then writes both under the same header). A dict cannot hold both, so use
     ``to_cells`` when the exact export layout matters.
     """
-    return {col.name: value for col, value in to_cells(run, survey, options)}
+    return {col.name: value for col, value in to_cells(run, survey, options, key=key)}
 
 
 def to_cells(
-    run: RespondentRun, survey: Survey, options: ColumnOptions | None = None
+    run: RespondentRun,
+    survey: Survey,
+    options: ColumnOptions | None = None,
+    *,
+    key: Mapping[str, Any] | None = None,
 ) -> list[tuple[Column, Any]]:
-    """(column, value) for every ``response_columns(survey, options)`` column, in order."""
+    """(column, value) for every ``response_columns(survey, options)`` column, in order.
+
+    ``key`` appends external key columns after them, in order: ``{"TWIN_ID": "T17"}``
+    adds a ``TWIN_ID`` column (``part == "key"``) holding ``"T17"``, so simulated
+    rows can be merged with a human export on it."""
     options = options or ColumnOptions()
     row: list[tuple[Column, Any]] = []
     questions = dict(survey.questions)
@@ -158,12 +173,45 @@ def to_cells(
             base_qid = col.question_id.split("#")[0]
             q = questions.get(col.question_id) or questions.get(base_qid)
             if q is not None:
-                key = (base_qid, col.loop)
-                if key in run.state.displayed:
-                    answer = run.answers.get(key)
+                where = (base_qid, col.loop)
+                if where in run.state.displayed:
+                    answer = run.answers.get(where)
                     if q.id != base_qid and answer is not None and isinstance(answer.value, dict):
                         answer = Answer(value=answer.value.get(q.id))  # side-by-side column
-                    order = run.choice_order.get(key, [])
+                    order = run.choice_order.get(where, [])
                     value = _question_value(q, col, answer, order)
         row.append((col, value))
+    if key:
+        row.extend(zip(key_columns(key), key.values(), strict=True))
     return row
+
+
+def write_responses_csv(
+    survey: Survey,
+    runs: Iterable[RespondentRun],
+    path: str | Path,
+    *,
+    options: ColumnOptions | None = None,
+    keys: Mapping[str, Sequence[Any]] | None = None,
+) -> Path:
+    """Write ``runs`` as a Qualtrics-shaped CSV export: the three header rows of
+    ``response_header_rows`` (names, labels, ImportIds), then one row per run.
+
+    ``keys`` maps extra column names to one value per run (in the order of
+    ``runs``), appended after the response columns: e.g. ``{"TWIN_ID": ids}`` to
+    merge simulated respondent ``i`` with human respondent ``ids[i]``. Returns the path.
+    """
+    runs = list(runs)
+    keys = dict(keys or {})
+    for name, values in keys.items():
+        if len(values) != len(runs):
+            raise ValueError(f"keys[{name!r}] has {len(values)} values for {len(runs)} runs")
+    columns = response_columns(survey, options=options)
+    path = Path(path)
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerows(response_header_rows(survey, columns, key=list(keys)))
+        for i, run in enumerate(runs):
+            key = {name: values[i] for name, values in keys.items()}
+            w.writerow([v for _, v in to_cells(run, survey, options, key=key)])
+    return path

@@ -137,3 +137,53 @@ not predicted: ['TWIN_ID', '']
 
 The two unpredicted columns were added by the dataset's publishers after export
 (`TWIN_ID`, and one with an empty name). Neither has an ImportId.
+
+## Labels
+
+The second header row of a Qualtrics export holds a label per column.
+`column_label(survey, column)` produces it, and `response_header_rows(survey)`
+gives all three header rows (names, labels, ImportIds as compact JSON), with
+`key=["TWIN_ID"]` appending key columns:
+
+```python
+for name, label, import_id in zip(*surveyir.response_header_rows(survey, key=["TWIN_ID"])):
+    if name.startswith(("Q4_First", "FL_50_DO", "attitude", "TWIN")):
+        print(f"{name:<16} {label[:60]!r:<64} {import_id}")
+```
+
+```text
+Q4_First Click   'Timing - First Click'                                           {"ImportId":"QID4_FIRST_CLICK"}
+attitude_1       'To what extent do you agree with the proposition, "America s'   {"ImportId":"QID3_1"}
+FL_50_DO_FL_51   'FL_50 - Block Randomizer - Display Order - FL_51'               {"ImportId":"FL_50_DO","choiceId":"FL_51"}
+FL_50_DO_FL_52   'FL_50 - Block Randomizer - Display Order - FL_52'               {"ImportId":"FL_50_DO","choiceId":"FL_52"}
+TWIN_ID          'TWIN_ID'                                                        {"ImportId":"TWIN_ID"}
+```
+
+The rules, read off real exports: question text with its markup stripped
+(`<br>` is a newline, source spacing is kept, `${lm://Field/3}` becomes
+`[Field-3]`; the export tag when the text is empty), then `` - `` and the part:
+the choice, row, item or form field (as written in the source, markup and all,
+except matrix rows of answer columns, which are stripped), `Selected Choice`
+for choice questions with text-entry choices (their text columns are
+`Question - Choice - Text`), `Display Order - <item>`, or the timing, meta-info
+or file part. Flow randomizer display order reads
+`FL_5 - Block Randomizer - Display Order - <arm>`, block display order
+`<block description> - Display Order - <tag>`; embedded data and key columns are
+their name; score columns the scoring category's name.
+
+Checked against the 19 human exports of the Twin-2K-500 mega-study
+(`tests/test_labels.py`, which runs when `SURVEYIR_TWIN_DAT` is set and reads
+only the header rows): of 2,831 columns paired by ImportId, 2,806 labels are
+reproduced exactly; the 25 others are the columns of one question whose text
+contains `<div><br></div>`. Verified: the metadata columns Start Date, End Date,
+Progress, Duration (in seconds), Finished and Recorded Date; single-answer and
+split multi-select choice questions (Selected Choice and text columns too);
+single-answer matrix rows; single-line and form text entry; slider; constant
+sum; timing; meta info; choice, matrix, block and flow display order (split
+layout); embedded data; score. Not verified: the other metadata labels
+(`METADATA_LABELS`), multi-answer and text matrix cells, side by side, rank
+order, drill down, file upload, signature, hot spot, heat map, highlight,
+pick-group-rank, graphic slider, single-column display order, and piped text
+other than `lm://`. Loop & Merge labels lead with the loop's first field value
+(`TikTok - Question`), but Qualtrics varies this by column kind; the patterns
+in the mega-study exports are reproduced, others are not checked.

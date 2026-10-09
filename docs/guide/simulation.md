@@ -205,6 +205,42 @@ assignments, orders and (with a seeded answerer) answers. Seed the `Simulator`,
 not `run`: `sim.run(n, seed=...)` would give every respondent the same random
 stream, so strict runs reject it.
 
+Respondent `i` of a sequential run can also be walked on its own, without the
+`i` before it: `sim.respondent(answerer, index=i)` uses `sim.seed_for(i)`, the
+seed a sequential run of the same seeded `Simulator` gives respondent `i` (the
+`i + 1`-th draw of its seed stream; explicit `seed=` values take no draw, so a
+run that passed them is not reproduced). When `i` is the next respondent this is
+just the sequential call. Out of order, the simulator's count, seed stream,
+quota counts and balancer are left untouched, and what depends on the
+respondents before `i` (a draw balanced across respondents, "evenly present", or
+a quota with a limit) cannot be reproduced: each is a `respondent.out_of_order`
+approximation, which stops a strict run. Allow it to draw from (a copy of) the
+current counts instead:
+
+```python
+from surveyir.runtime import ExecutionError
+
+fresh = Simulator(survey, seed=7)
+print(fresh.seed_for(5) == runs[5].seed)
+try:
+    fresh.respondent(ScreenerAwareAnswerer(survey, seed=8), index=5)
+except ExecutionError as e:
+    print(str(e)[:72])
+lenient = Simulator(survey, seed=7, allow={"respondent.out_of_order"})
+alone = lenient.respondent(ScreenerAwareAnswerer(survey, seed=8), index=5)
+print(alone.index, alone.seed == runs[5].seed, lenient.count)
+```
+
+```text
+True
+respondent.out_of_order at flow:FL_6 (affects assignment): respondent 5
+5 True 0
+```
+
+A survey with no balanced randomizers and no quota limits walks out of order
+exactly as in sequence (with an answerer that, like the simulator, starts afresh
+for the respondent).
+
 ## Choosers and replay
 
 Every randomization decision goes through a *chooser*: which arms of a flow
@@ -267,6 +303,10 @@ record does not hold raises `ReplayGap` (an `ExecutionError`), unless you pass
 `allow={"replay.gap"}` or `strict=False`, in which case the default chooser
 draws it and the gap is recorded in the audit. `fallback_kinds={"columns"}`
 draws orders the export never records without counting them as gaps.
+A replayed "evenly present" decision is counted in the simulator's balancer, as
+the recorded history left it; `touch_balancer=False` (on `replay`, `Replayer` or
+`ReplayChooser`) leaves the counts exactly as they were, for recorded decisions
+and fallback draws alike.
 `scripts/validate_runtime.py` replays the real respondents of the 19 fixture
 studies this way (see `tests/test_runtime_validation.py`).
 
@@ -297,21 +337,40 @@ s_1                'control'
 ```
 
 `run.row(survey)` returns the same as a `{name: value}` dict. Two questions can
-share an export tag, so prefer `cells` when writing files. To write a CSV:
+share an export tag, so prefer `cells` when writing files. `key=` appends
+external key columns, so simulated rows can be merged with a human export:
 
 ```python
-import csv, io
-
-buf = io.StringIO()
-writer = csv.writer(buf)
-writer.writerow([c.name for c in surveyir.response_columns(survey)])
-for run in runs[:3]:
-    writer.writerow([value for _, value in run.cells(survey)])
-print(buf.getvalue().splitlines()[0][:80])
+column, value = run.cells(survey, key={"TWIN_ID": "T17"})[-1]
+print(column.name, column.part, value)
 ```
 
 ```text
-consent non_twins,consent twins,Q57,Q4_First Click,Q4_Last Click,Q4_Page Submit,
+TWIN_ID key T17
+```
+
+`write_responses_csv` writes a Qualtrics-shaped CSV: the three header rows of a
+real export (column names, labels, ImportIds; see
+[Data columns](data-columns.md#labels)) and one row per run, with optional key
+columns holding one value per run:
+
+```python
+import csv, tempfile
+from pathlib import Path
+
+path = surveyir.write_responses_csv(
+    survey, runs[:3], Path(tempfile.mkdtemp()) / "sim.csv",
+    keys={"TWIN_ID": ["T1", "T2", "T3"]},
+)
+with open(path, newline="", encoding="utf-8") as f:
+    names, labels, import_ids, *rows = list(csv.reader(f))
+print(names[3], "|", labels[3], "|", import_ids[3])
+print(names[-1], [r[-1] for r in rows])
+```
+
+```text
+Q4_First Click | Timing - First Click | {"ImportId":"QID4_FIRST_CLICK"}
+TWIN_ID ['T1', 'T2', 'T3']
 ```
 
 Simulated rows leave timing and meta-info columns blank. Pass

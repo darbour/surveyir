@@ -13,9 +13,10 @@ rules taken from export screenshots on Qualtrics' support pages, and
 
 from __future__ import annotations
 
+import html as _html
 import json
 import re
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from typing import Any, Literal
 
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field, computed_field
@@ -43,6 +44,7 @@ from .model import (
     SignatureQuestion,
     SliderQuestion,
     Survey,
+    Text,
     TextEntryQuestion,
     TimingQuestion,
 )
@@ -59,6 +61,7 @@ ColumnPart = Literal[
     "region",
     "score",
     "embedded_data",
+    "key",
 ]
 Evidence = Literal["corpus", "vendor_docs", "inferred"]
 
@@ -495,6 +498,226 @@ def response_columns(
             if keep is None or n in keep
         )
     return cols
+
+
+# --------------------------------------------------------------------------- labels
+
+#: Second-header-row labels of the standard metadata columns. Start Date, End Date,
+#: Progress, Duration (in seconds), Finished and Recorded Date were checked against
+#: real exports; the others follow Qualtrics' export layout but are not checked.
+METADATA_LABELS = {
+    "StartDate": "Start Date",
+    "EndDate": "End Date",
+    "Status": "Response Type",
+    "IPAddress": "IP Address",
+    "RecordedDate": "Recorded Date",
+    "ResponseId": "Response ID",
+    "RecipientLastName": "Recipient Last Name",
+    "RecipientFirstName": "Recipient First Name",
+    "RecipientEmail": "Recipient Email",
+    "ExternalReference": "External Data Reference",
+    "LocationLatitude": "Location Latitude",
+    "LocationLongitude": "Location Longitude",
+    "DistributionChannel": "Distribution Channel",
+    "UserLanguage": "User Language",
+}
+_PART_LABELS = {imp: label for label, imp in TIMING_PARTS + FILE_PARTS + META_PARTS}
+_BR = re.compile(r"<br\s*/?>", re.I)
+_TAG = re.compile(r"<[^>]*>")
+_LABEL_PIPE = re.compile(r"\$\{(\w+)://([^}]*)\}")
+
+
+def _label_text(source: str) -> str:
+    """Question text as Qualtrics writes it into an export label: ``<br>`` becomes a
+    newline, other tags are dropped (source newlines and spaces are kept), entities
+    are decoded, ``&nbsp;`` is a space, and piped text ``${lm://Field/3}`` becomes
+    ``[Field-3]`` (checked for ``lm://``; other schemes are assumed alike)."""
+    t = _TAG.sub("", _BR.sub("\n", source or ""))
+    t = _LABEL_PIPE.sub(lambda m: "[" + m.group(2).replace("/", "-") + "]", t)
+    return _html.unescape(t).replace("\xa0", " ").strip()
+
+
+def _sub_label(item: Any, *, flatten: bool = False) -> str | None:
+    """A choice, row or field as it follows `` - `` in a label: its source text as is
+    (Qualtrics does not strip markup here; matrix rows of response columns are the
+    exception, ``flatten``), its id when it has no text, and nothing when its text is
+    only whitespace or markup."""
+    text: Text | None = getattr(item, "text", None)
+    raw = text.html if text is not None else ""
+    if not raw:
+        return str(getattr(item, "id", ""))
+    flat = _label_text(raw)
+    if not flat:
+        return None
+    return flat if flatten else raw
+
+
+def _find(items: Sequence[Any] | None, item_id: str | None) -> Any:
+    return next((c for c in items or [] if c.id == item_id), None)
+
+
+def _loop_value(survey: Survey, question_id: str, loop: str) -> str:
+    """The loop's label in export labels: its first field's value, else the loop id."""
+    for block in survey.blocks.values():
+        if block.loop is None or not any(
+            q.id == question_id for q in survey.block_questions(block.id)
+        ):
+            continue
+        fields = block.loop.fields.get(loop) or {}
+        if fields:
+            first = min(fields, key=lambda k: (not k.isdigit(), int(k) if k.isdigit() else 0, k))
+            return fields[first]
+    return loop
+
+
+def column_label(survey: Survey, column: Column) -> str:
+    """The second-header-row label Qualtrics writes for ``column``.
+
+    Question columns: the question text (markup stripped as in ``_label_text``, or
+    the export tag when the text is empty), then `` - `` and the part: the choice,
+    row, item or form field (``"Q - Choice"``), ``Selected Choice`` for a choice
+    question with text-entry choices (``"Q - Selected Choice"``; their text columns
+    are ``"Q - Choice - Text"``), ``Display Order`` (``"Q - Display Order - Choice"``),
+    or the timing / meta-info / file part (``"Timing - First Click"``). Flow
+    randomizer display order is ``"FL_5 - Block Randomizer - Display Order - <arm>"``,
+    block display order ``"<block description> - Display Order - <tag>"``; embedded
+    data and key columns are their name, score columns the scoring category name,
+    metadata columns ``METADATA_LABELS``. Loop & Merge columns lead with the loop's
+    first field value (``"TikTok - Q"``).
+
+    Checked against 19 real exports (Twin-2K-500 mega-study; see
+    tests/test_labels.py): metadata (the six names above), single-answer and
+    split multi-select choice questions (with Selected Choice and text columns),
+    single-answer matrix rows, text entry (single and form), slider, constant sum,
+    timing, meta info, choice / matrix / block / flow display order, embedded
+    data and score. Not checked: multi-answer and text matrix cells, side by side,
+    rank order, drill down, file upload, signature, hot spot, heat map, highlight,
+    pick-group-rank, graphic slider, single-column display order, the unchecked
+    metadata labels, and piped text other than ``lm://``. Loop & Merge labels are
+    checked only in part. Qualtrics is not consistent there: the value goes after
+    the question text on text columns and form fields (``"Q - TikTok - Other -
+    Text"``), and a choice question with text-entry choices repeats the question
+    on its choice columns (``"Q - TikTok - Q - Selected Choice - Other"``).
+    """
+    if column.part == "metadata":
+        return METADATA_LABELS.get(column.name, column.name)
+    if column.part in ("embedded_data", "key"):
+        return column.name
+    if column.part == "score":
+        cat = next((c for c in survey.scoring_categories if c.id == column.import_id), None)
+        return cat.name if cat is not None and cat.name else column.name
+    if column.question_id is None:
+        if column.part != "display_order":
+            return column.name
+        source = column.import_id[: -len("_DO")]
+        if source.startswith("FL_"):
+            base = f"{source} - Block Randomizer - Display Order"
+        else:
+            block = survey.blocks.get(source)
+            base = f"{block.description if block and block.description else source} - Display Order"
+        return base if column.choice_id is None else f"{base} - {column.choice_id}"
+    q = _label_question(survey, column.question_id)
+    if q is None:
+        return column.name
+    parts = [_label_text(q.text.html) or q.export_tag]
+    after: list[str] = []  # Loop & Merge: where the loop value goes (see the docstring)
+    if column.part == "display_order":
+        parts.append("Display Order")
+        if column.choice_id is not None:
+            item = None
+            if isinstance(q, MatrixQuestion) and column.choice_id.isdigit():
+                pos = int(column.choice_id) - 1
+                item = q.rows[pos] if 0 <= pos < len(q.rows) else None
+            else:
+                item = _find(_label_items(q), column.choice_id)
+            parts.append((_sub_label(item) if item is not None else None) or column.choice_id)
+    elif column.part in ("timing", "meta", "file"):
+        suffix = next((k for k in _PART_LABELS if column.import_id.endswith(f"_{k}")), None)
+        if suffix is not None:
+            parts.append(_PART_LABELS[suffix])
+    elif isinstance(q, MatrixQuestion):
+        row = _find(q.rows, column.row_id)
+        parts.append((_sub_label(row, flatten=True) if row else None) or column.row_id or "")
+        if column.answer_id is not None:
+            ans = _find(q.columns, column.answer_id)
+            parts.append((_sub_label(ans, flatten=True) if ans else None) or column.answer_id)
+        if column.part == "text":
+            parts.append("Text")
+    elif isinstance(q, ChoiceQuestion):
+        has_text = any(c.text_entry for c in q.choices)
+        if column.part == "text":
+            parts.append(_sub_label(_find(q.choices, column.choice_id)) or str(column.choice_id))
+            parts.append("Text")
+            after = ["text"]
+        else:
+            if has_text:
+                parts.append("Selected Choice")
+                after = ["repeat"]
+            if column.choice_id is not None:
+                label = _sub_label(_find(_label_items(q), column.choice_id))
+                if label is not None:
+                    parts.append(label)
+    elif column.choice_id is not None:
+        label = _sub_label(_find(_label_items(q), column.choice_id))
+        if label is not None:
+            parts.append(label)
+        if column.part == "text":
+            parts.append("Text")
+        if isinstance(q, TextEntryQuestion):
+            after = ["text"]
+    if column.loop is not None:
+        value = _loop_value(survey, column.question_id.split("#")[0], column.loop)
+        if after == ["repeat"]:
+            parts = [parts[0], value, *parts]
+        elif after == ["text"]:
+            parts.insert(1, value)
+        else:
+            parts.insert(0, value)
+    return " - ".join(parts)
+
+
+def _label_question(survey: Survey, question_id: str) -> Question | None:
+    q = survey.questions.get(question_id)
+    if q is not None:
+        return q
+    base = survey.questions.get(question_id.split("#")[0])
+    if isinstance(base, SideBySideQuestion):
+        return next((sub for sub in base.questions if sub.id == question_id), base)
+    return base
+
+
+def _label_items(q: Question) -> list[Any]:
+    for attr in ("choices", "items", "fields", "levels", "regions", "words"):
+        items = getattr(q, attr, None)
+        if items:
+            return list(items)
+    return []
+
+
+def response_header_rows(
+    survey: Survey,
+    columns: Sequence[Column] | None = None,
+    *,
+    options: ColumnOptions | None = None,
+    key: Sequence[str] = (),
+) -> list[list[str]]:
+    """The three header rows of a Qualtrics CSV export: column names, labels
+    (``column_label``) and the ImportId objects, as compact JSON as Qualtrics writes
+    them. ``columns`` defaults to ``response_columns(survey, options=options)``;
+    ``key`` names extra columns appended at the end (a respondent id to merge on,
+    e.g. ``TWIN_ID``), labelled with their name and ``{"ImportId": name}``."""
+    cols = list(columns) if columns is not None else response_columns(survey, options=options)
+    cols += key_columns(key)
+    return [
+        [c.name for c in cols],
+        [column_label(survey, c) for c in cols],
+        [json.dumps(c.import_object, separators=(",", ":")) for c in cols],
+    ]
+
+
+def key_columns(names: Sequence[str] | Mapping[str, Any]) -> list[Column]:
+    """Columns for external keys appended to an export (``part == "key"``)."""
+    return [Column(name=n, import_id=n, part="key", evidence="inferred") for n in names]
 
 
 # --------------------------------------------------------------------------- real exports

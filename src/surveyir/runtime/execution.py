@@ -27,8 +27,9 @@ quota.action_ignored,           quota id
 quota.snapshot
 pipe.*                          the reference path (``CountryName`` for
                                 ``${loc://CountryName}``)
-replay.gap                      ``kind:node_id`` (``flow:FL_3``, ``block:BL_x``),
-                                with ``#loop_id`` inside a loop
+replay.gap,                     ``kind:node_id`` (``flow:FL_3``, ``block:BL_x``),
+respondent.out_of_order         with ``#loop_id`` inside a loop; the quota id
+                                for a quota checked out of order
 logic.*                         the operand's question id, else its raw locator
                                 (``loc://CountryName``); see ``logic.operand_location``
 ==============================  ============================================
@@ -99,6 +100,12 @@ APPROXIMATIONS: dict[str, tuple[Affects, str]] = {
         "exposure",
         "a replay has no recorded decision for a randomization point; "
         "drawn by the fallback chooser (assignment for flow randomizers)",
+    ),
+    "respondent.out_of_order": (
+        "assignment",
+        "respondent walked out of order (respondent(index=...)): a balanced draw or a "
+        "quota check uses the simulator's current counts, not those left by the "
+        "respondents before it (exposure for order draws, routing for quotas)",
     ),
 }
 

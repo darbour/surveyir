@@ -567,17 +567,22 @@ class RespondentRun:
     def notes(self) -> list[str]:
         return self.state.notes
 
-    def row(self, survey: Survey, options: Any = None) -> dict[str, Any]:
+    def row(
+        self, survey: Survey, options: Any = None, *, key: Mapping[str, Any] | None = None
+    ) -> dict[str, Any]:
         """This respondent as {column name: value} (see ``rows.to_row``)."""
         from .rows import to_row
 
-        return to_row(self, survey, options)
+        return to_row(self, survey, options, key=key)
 
-    def cells(self, survey: Survey, options: Any = None) -> list[tuple[Any, Any]]:
-        """This respondent as ordered (Column, value) pairs, exactly as exported."""
+    def cells(
+        self, survey: Survey, options: Any = None, *, key: Mapping[str, Any] | None = None
+    ) -> list[tuple[Any, Any]]:
+        """This respondent as ordered (Column, value) pairs, exactly as exported.
+        ``key`` appends external key columns, e.g. ``{"TWIN_ID": "T17"}``."""
         from .rows import to_cells
 
-        return to_cells(self, survey, options)
+        return to_cells(self, survey, options, key=key)
 
 
 class _EndSurvey(Exception):
@@ -838,7 +843,11 @@ class Simulator:
                 )
         self.policy = policy
         self.survey = survey
+        self.seed = seed
         self.seed_rng = random.Random(seed)
+        self._seeds_drawn = 0  # draws taken from seed_rng so far
+        self._seed_stream: list[int] = []  # seed_for() cache: the stream from the start
+        self._seed_stream_rng = random.Random(seed)
         self.balancer = balancer or Counterbalancer()
         self.chooser: Chooser = chooser or default_chooser
         self.device = device
@@ -857,28 +866,88 @@ class Simulator:
 
     # ---------------------------------------------------------------- public
 
+    def seed_for(self, index: int) -> int:
+        """The seed respondent ``index`` (from 0) is walked with in a sequential run.
+
+        ``Simulator(survey, seed=s).run(n)`` gives respondent ``i`` the ``i + 1``-th
+        ``randrange(2**32)`` draw of ``random.Random(s)``; this replays that stream
+        (cached, so each draw is made once). It equals the seed a sequential run
+        used unless that run passed explicit ``seed=`` values, which take no draw.
+        Needs a seeded simulator.
+        """
+        if self.seed is None:
+            raise ValueError(
+                "seed_for() and respondent(index=...) need a seeded Simulator(seed=...)"
+            )
+        if index < 0:
+            raise ValueError(f"respondent index must be >= 0, got {index}")
+        while len(self._seed_stream) <= index:
+            self._seed_stream.append(self._seed_stream_rng.randrange(2**32))
+        return self._seed_stream[index]
+
     def respondent(
         self,
         answerer: Respondent | Answerer = no_answer,
         *,
         embedded: dict[str, str] | None = None,
         seed: int | None = None,
+        index: int | None = None,
     ) -> RespondentRun:
         """Walk one respondent. ``answerer`` is a ``Respondent`` (has ``answer(ctx)``)
         or a legacy ``(view, state)`` callable, which makes the run ``privileged``.
 
+        ``index`` walks respondent ``index`` of a sequential run directly, without
+        walking the ones before it: its seed is ``seed_for(index)`` (unless ``seed=``
+        is given) and ``run.index`` is ``index``. When ``index`` is the next
+        respondent (``index == self.count``), this is the sequential call: the
+        counts move on and a later ``respondent()`` walks ``index + 1``. Otherwise
+        the walk is *out of order*: the simulator's count, seed stream, quota counts
+        and balancer are left as they were. Its evenly presented (balanced) draws and
+        quota checks would need the counts left by respondents ``0..index-1``, which
+        the simulator does not have, so each is a ``respondent.out_of_order``
+        approximation (strict runs stop; ``allow=`` it to draw from a copy of the
+        current counts). A survey without balanced randomizers or quota limits walks
+        out of order exactly as in sequence.
+
         Raises ``ExecutionError`` in a strict run that reaches a gap it may not
         pass; the partial run is on the error's ``run`` attribute.
         """
-        seed = self.seed_rng.randrange(2**32) if seed is None else seed
+        given = index is not None
+        out_of_order = given and index != self.count
+        if not out_of_order:
+            index = self.count
+            if seed is None:
+                if given and self._seeds_drawn != index and self.seed is not None:
+                    # explicit seeds were passed earlier, so the stream is behind ``index``
+                    self.seed_rng = random.Random(self.seed)
+                    for _ in range(index):
+                        self.seed_rng.randrange(2**32)
+                    self._seeds_drawn = index
+                seed = self.seed_rng.randrange(2**32)
+                self._seeds_drawn += 1
+            self.count += 1
+        elif seed is None:
+            assert index is not None
+            seed = self.seed_for(index)
+        assert index is not None
         supplied = {**self.embedded, **(embedded or {})}
         state = RespondentState(embedded=supplied, device=self.device, location=dict(self.location))
         state.unsupplied = self._external - set(supplied)
         self._quota_status(state)
-        run = RespondentRun(index=self.count, seed=seed, state=state)
-        self.count += 1
-        walk = _Walk(self, run, random.Random(seed), answerer)
+        run = RespondentRun(index=index, seed=seed, state=state)
+        walk = _Walk(self, run, random.Random(seed), answerer, out_of_order=out_of_order)
         try:
+            if out_of_order:
+                for quota in self.survey.quotas:
+                    if quota.limit is not None:
+                        walk.approximate(
+                            "respondent.out_of_order",
+                            quota.id,
+                            f"respondent {index} walked out of order: quota {quota.id}'s "
+                            "status comes from the simulator's current counts, not from "
+                            f"respondents 0..{index - 1}",
+                            "routing",
+                        )
             with contextlib.suppress(_EndSurvey):
                 walk.nodes(self.survey.flow)
                 walk.end("flow_end", finished=True)
@@ -887,7 +956,7 @@ class Simulator:
             for quota in self.survey.quotas:
                 if run.ended_by == f"quota {quota.id}" or quota.condition is None:
                     continue
-                if evaluate(quota.condition, state, self.survey):
+                if not out_of_order and evaluate(quota.condition, state, self.survey):
                     self.quota_counts[quota.id] = self.quota_counts.get(quota.id, 0) + 1
         except ExecutionError as e:
             e.run = run
@@ -904,6 +973,11 @@ class Simulator:
         A fixed ``seed=`` here would give every respondent the same random stream;
         strict runs reject it (seed the ``Simulator`` instead).
         """
+        if kw.get("index") is not None:
+            raise ValueError(
+                "run(n, index=...) would walk one respondent n times; run(n) walks "
+                "respondents in turn, respondent(index=...) walks one of them"
+            )
         if self.policy.strict and kw.get("seed") is not None:
             raise ValueError(
                 "run(n, seed=...) reuses one seed for every respondent, so they are not "
@@ -945,8 +1019,15 @@ class _Walk:
         run: RespondentRun,
         rng: random.Random,
         answerer: Respondent | Answerer,
+        *,
+        out_of_order: bool = False,
     ) -> None:
         self.sim, self.survey, self.run, self.rng = sim, sim.survey, run, rng
+        #: out of order (``respondent(index=)``): balanced draws use a copy of the counts
+        self.out_of_order = out_of_order
+        self.balancer = (
+            Counterbalancer.from_dict(sim.balancer.to_dict()) if out_of_order else sim.balancer
+        )
         self.state = run.state
         self._p: Mapping[str, float] | None = None  # the last decision's p_given_history
         # one scale reversal for the respondent, applied to every flip-scale question
@@ -1121,7 +1202,17 @@ class _Walk:
 
     def choose(self, req: ChoiceRequest) -> tuple[str, ...]:
         """Ask the chooser, check its answer, and keep its ``p_given_history``."""
-        shown, self._p = self.sim.chooser.choose(req, self.rng, self.sim.balancer)
+        if req.even and self.out_of_order:
+            where = f"{req.kind}:{req.node_id}" + (f"#{req.loop_id}" if req.loop_id else "")
+            self.approximate(
+                "respondent.out_of_order",
+                where,
+                f"respondent {self.run.index} walked out of order: the balanced draw at "
+                f"{where} uses the simulator's current counts, not those left by "
+                f"respondents 0..{self.run.index - 1}",
+                "assignment" if req.kind == "flow" else "exposure",
+            )
+        shown, self._p = self.sim.chooser.choose(req, self.rng, self.balancer)
         shown = tuple(shown)
         if len(shown) > req.k or len(set(shown)) < len(shown) or not set(shown) <= set(req.options):
             raise ValueError(
@@ -1131,7 +1222,7 @@ class _Walk:
         return shown
 
     def _before(self, key: str, options: Sequence[str]) -> dict[str, int]:
-        counts = self.sim.balancer.counts.get(key, {})
+        counts = self.balancer.counts.get(key, {})
         return {o: counts.get(o, 0) for o in options}
 
     def randomizer(self, node: RandomizerNode) -> None:
