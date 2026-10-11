@@ -88,6 +88,8 @@ STATIC_ATTRIBUTES: Final = frozenset(
 SURVEY_VALUES: Final = frozenset(
     {"SID", "LANG", "SURVEYNAME", "STARTDATE", "SUBMITDATE", "DATESTAMP", "STARTTIME"}
 )
+#: survey values that read the clock
+CLOCK_VALUES: Final = frozenset({"STARTDATE", "SUBMITDATE", "DATESTAMP", "STARTTIME"})
 #: functions that read the clock
 CLOCK_FUNCTIONS: Final = frozenset({"date", "gmdate", "idate", "mktime", "time", "strtotime"})
 #: question types whose values are numbers (EM 'onlynum')
@@ -459,7 +461,7 @@ def _survey_value(v: Var, ctx: Context) -> Any:
         return ctx.state.embedded.get("LANG") or (survey.language if survey else "") or ""
     if name == "SURVEYNAME" and survey is not None:
         return survey.name
-    if name in ("STARTDATE", "SUBMITDATE", "DATESTAMP", "STARTTIME"):
+    if name in CLOCK_VALUES:
         ctx.record("expression.clock", f"{name} reads the current date and time")
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     ctx.record(
@@ -1054,4 +1056,6 @@ def static_gaps(expr: Expr | None, source: str) -> list[tuple[str, str]]:
             or (node.kind == "survey" and (node.field or node.name) not in SURVEY_VALUES)
         ):
             out.append(("expression.unknown_variable", f"variable {node.name!r} in {source!r}"))
+        elif isinstance(node, Var) and node.kind == "survey" and node.field in CLOCK_VALUES:
+            out.append(("expression.clock", f"{node.field} reads the current date and time"))
     return list(dict.fromkeys(out))

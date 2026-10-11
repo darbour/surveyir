@@ -627,6 +627,12 @@ def _answer(q: Question, cells: list[tuple[Column, Any]]) -> tuple[Any, dict[str
     return (filled[0][1] if filled else None), text
 
 
+def _lsr(doc: Any) -> tuple[list[dict[str, Any]], list[str]]:
+    """Rows and field names of a response file; the writer spells ``#`` as ``-``."""
+    rows = [{k.replace("-", "#"): v for k, v in r.items()} for r in doc.rows("responses")]
+    return rows, [h.replace("-", "#") for h in doc.fields.get("responses", [])]
+
+
 def read_responses(
     source: str | Path, survey: Survey, options: LimeColumnOptions | None = None
 ) -> list[Any]:
@@ -649,15 +655,9 @@ def read_responses(
         archive = read_archive(data)
         if archive.responses is None:
             return []
-        rows, header = (
-            archive.responses.rows("responses"),
-            archive.responses.fields.get("responses", []),
-        )
+        rows, header = _lsr(archive.responses)
     elif data.lstrip(b"\xef\xbb\xbf \r\n\t").startswith(b"<"):
-        doc = parse_document(data)
-        rows, header = doc.rows("responses"), doc.fields.get("responses", [])
-        rows = [{k.replace("-", "#"): v for k, v in r.items()} for r in rows]
-        header = [h.replace("-", "#") for h in header]
+        rows, header = _lsr(parse_document(data))
     else:
         header, rows = read_lime_csv(path)
     options = options or infer_lime_options(header, survey)

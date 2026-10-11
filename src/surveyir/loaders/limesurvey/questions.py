@@ -465,7 +465,12 @@ def build(q: QRow, ctx: Context, *, other: bool) -> Question:
         return TextEntryQuestion(**common, mode=mode, translations=_translations(q, ctx))  # type: ignore[arg-type]
     if t == "R":
         source = sub0 if sub0 else None
-        items = _choices(sub0, ctx, owner) if source else _answer_choices(ans0, ctx, owner)
+        if source:  # LimeSurvey 7: ranking items are subquestions
+            items = [
+                c.model_copy(update={"recode": _recode(c.id)}) for c in _choices(sub0, ctx, owner)
+            ]
+        else:
+            items = _answer_choices(ans0, ctx, owner)
         items, rnd = _order(items, ctx, set(), answers=not sub0)
         return RankOrderQuestion(
             **common,

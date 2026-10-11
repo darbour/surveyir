@@ -501,7 +501,11 @@ def _expand(name: str, scope: Scope) -> str | None:
         if len(parts) < 2:
             return None
         target = scope.names.get(parts[1])
-        qid = target.question_id if target is not None else None
+        qid = (
+            target.question_id
+            if target is not None
+            else (parts[1] if parts[1] in scope.variables else None)
+        )
         parts = parts[2:]
     if qid is None or qid not in scope.variables:
         return None
@@ -740,12 +744,16 @@ def _question_var(e: Expr) -> Var | None:
         and e.attribute in (None, "NAOK", "code")
     ):
         return e
+    if isinstance(e, Var) and e.kind == "participant" and e.field and e.attribute is None:
+        return e
     return None
 
 
 def _operand(v: Var, shapes: QuestionShape, value: str | None) -> tuple[Operand, str] | None:
     """(operand, how) for comparing ``v``: how is 'value', 'choice' (selected test on a
     multiple-choice part) or 'cell' (selected test on an array row)."""
+    if v.kind == "participant":  # always relevant; read like an embedded field
+        return Operand(kind="embedded_data", name=f"TOKEN:{v.field}", raw=v.name), "value"
     shape = shapes.get(v.question_id or "", "")
     raw = v.name
     qid = v.question_id

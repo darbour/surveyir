@@ -1063,6 +1063,7 @@ class _Walk:
         self.public: list[Observation] = []
         self.audit: list[AuditEvent] = []
         self.page = 0  # global page number; 0 until the first page renders
+        self.equations: list[EquationQuestion] = []  # loaded on the current page
         self.seq = 0
         self.page_open = False
         if _is_respondent(answerer):
@@ -1533,6 +1534,13 @@ class _Walk:
                     self._show(later, block, revealed=True)
         never = [i.q.id for i in items if not i.shown]
         self._hide(never, "in_page_display_logic")
+        # equations take their value as the page is submitted, from its final answers
+        equations, self.equations = self.equations, []
+        for q in equations:
+            if self.state.is_relevant(q.id):
+                self._compute(q)
+            else:
+                self.state.answers.pop(self.state.key(q.id), None)
         return items
 
     def _skip(
@@ -1573,14 +1581,15 @@ class _Walk:
             state.irrelevant.add(state.key(q.id))
             return None
         state.irrelevant.discard(state.key(q.id))
+        if isinstance(q, EquationQuestion):  # its value so far; recorded at page submit
+            self._compute(q, audit=False)
+            self.equations.append(q)
         if q.hidden:  # relevant but never shown: its default or computed value is recorded
-            if evaluate(q.in_page_display_logic, state, self.survey):
-                self._record_hidden(q)
-            else:
+            if not evaluate(q.in_page_display_logic, state, self.survey):
                 state.irrelevant.add(state.key(q.id))
+            elif not isinstance(q, EquationQuestion):
+                self._record_default(q)
             return None
-        if isinstance(q, EquationQuestion):
-            self._compute(q)
         # in-page logic shows the question at load if it already holds, else maybe later
         pending = not evaluate(q.in_page_display_logic, state, self.survey)
         key = state.key(q.id)
@@ -1637,16 +1646,15 @@ class _Walk:
         )
         return _Item(q, key, block_page, display, order, col_ids, bool(items), audit, pending)
 
-    def _compute(self, q: EquationQuestion) -> None:
+    def _compute(self, q: EquationQuestion, *, audit: bool = True) -> None:
         """Evaluate an equation question and record its value."""
         value = render(q.expression, self.state, self.survey, self.rng, "outcome")
         self.state.answers[self.state.key(q.id)] = Answer(value=value)
-        self.audit.append(EmbeddedSet(q.id, value, f"equation:{q.id}"))
+        if audit:
+            self.audit.append(EmbeddedSet(q.id, value, f"equation:{q.id}"))
 
-    def _record_hidden(self, q: Question) -> None:
-        if isinstance(q, EquationQuestion):
-            self._compute(q)
-        elif q.default_value not in (None, "", {}, []):
+    def _record_default(self, q: Question) -> None:
+        if q.default_value not in (None, "", {}, []):
             self.state.answers[self.state.key(q.id)] = Answer(value=q.default_value)
             self.audit.append(EmbeddedSet(q.id, q.default_value, f"default:{q.id}"))
 
@@ -1705,6 +1713,8 @@ class _Walk:
 
     def _answer(self, item: _Item, page: Sequence[_Item]) -> None:
         """Ask the respondent for ``item`` (never for text-only screens), and record it."""
+        if item.q.text.syntax == "expression_script":
+            self._refresh(item)
         d, state = item.display, self.state
         if not d.responds:
             return
@@ -1784,6 +1794,31 @@ class _Walk:
             else:
                 state.answers[key] = before
         return errors
+
+    def _refresh(self, item: _Item) -> None:
+        """Re-render text that reads earlier answers on the same page, as LimeSurvey
+        updates it while the page is answered; the trace keeps one display per
+        question, as it read when the respondent answered it."""
+        q, d = item.q, item.display
+        plain, html = render_display(q.text, self.state, self.survey, self.pipe_rng)
+        items, _ = self._items(q)
+        by_id = {c.id: c for c in items}
+        choices = tuple(
+            dataclasses.replace(
+                c, text=render(by_id[c.id].text, self.state, self.survey, self.pipe_rng)
+            )
+            if c.id in by_id
+            else c
+            for c in d.choices
+        )
+        if (plain, html, choices) == (d.text, d.html, d.choices):
+            return
+        new = dataclasses.replace(d, text=plain, html=html, choices=choices)
+        for i, ob in enumerate(self.trace):
+            if ob is d:
+                self.trace[i] = new
+                self.public[i] = _public(new)
+        item.display = new
 
     def _items(self, q: Question) -> tuple[list[Choice], dict[str, tuple[str, str]]]:
         """Options in source order, and {carried choice id: (source qid, source id)}."""
