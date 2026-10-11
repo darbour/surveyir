@@ -213,6 +213,17 @@ def _texts(obj: Any) -> Iterator[Text]:
             yield from _texts(x)
 
 
+def _participant_fields(tree: Any) -> set[str]:
+    """Participant attributes an expression reads, as the embedded fields that hold them."""
+    from ..model import Var, iter_nodes
+
+    return {
+        f"TOKEN:{n.field}"
+        for n in iter_nodes(tree)
+        if isinstance(n, Var) and n.kind == "participant" and n.field
+    }
+
+
 class _Inventory:
     def __init__(self, survey: Survey) -> None:
         self.survey = survey
@@ -227,9 +238,14 @@ class _Inventory:
             for c in iter_comparisons(cond):
                 if c.left.kind == "embedded_data" and c.left.name:
                     self.logic_reads.add(c.left.name)
+            for e in iter_expressions(cond):
+                self.logic_reads.update(_participant_fields(e.tree))
         for where, pipe in self.pipes():
             if pipe.kind == "embedded_data" and pipe.name:
                 self.pipe_reads.setdefault(pipe.name, set()).add(where)
+            elif pipe.kind == "expression":
+                for name in _participant_fields(pipe.expression):
+                    self.pipe_reads.setdefault(name, set()).add(where)
 
     def add(self, feature: Feature) -> None:
         self.rows.append(feature)

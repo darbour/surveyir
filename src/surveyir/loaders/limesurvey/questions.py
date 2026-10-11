@@ -454,12 +454,13 @@ def build(q: QRow, ctx: Context, *, other: bool) -> Question:
     if t in ("K", "Q"):
         fields = _choices(sub0, ctx, owner)
         fields, rnd = _order(fields, ctx, set(), answers=False)
-        out = TextEntryQuestion(
-            **common, mode="form", fields=fields, translations=_translations(q, ctx, choices=fields)
+        return TextEntryQuestion(
+            **common,
+            mode="form",
+            fields=fields,
+            randomization=rnd,
+            translations=_translations(q, ctx, choices=fields),
         )
-        if rnd is not None:
-            out.extras["randomization"] = rnd.model_dump()
-        return out
     if t in ("S", "T", "U", "N", "D"):
         mode = {"S": "single_line", "T": "multi_line", "U": "essay"}.get(t, "single_line")
         return TextEntryQuestion(**common, mode=mode, translations=_translations(q, ctx))  # type: ignore[arg-type]

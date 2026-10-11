@@ -1,9 +1,9 @@
 # surveyir documentation
 
-surveyir reads survey instruments (currently Qualtrics `.qsf` exports) into one
-typed, documented structure. It writes that structure to other formats, describes
-the experimental design, and simulates respondents with the same data layout as a
-real Qualtrics export.
+surveyir reads survey instruments (Qualtrics `.qsf` and LimeSurvey `.lss` / `.lsa`
+exports) into one typed, documented structure. It writes that structure to other
+formats, describes the experimental design, and simulates respondents with the same
+data layout as a real export from the survey's platform.
 
 surveyir makes three separate claims, with different evidence: the IR
 preserves the information in the source file; a strict simulation administers
@@ -22,16 +22,18 @@ The output shown under an example is what it actually prints.
 | [Data columns](guide/data-columns.md) | Qualtrics export columns, export settings, reading real exports |
 | [Experiments](guide/experiments.md) | What a survey randomizes: factors, arms, crossing, cells; exposure histories |
 | [Simulating respondents](guide/simulation.md) | Running answerers (rules, random, LLMs) through a survey |
+| [LimeSurvey](guide/limesurvey.md) | LimeSurvey files, ExpressionScript logic, LimeSurvey export columns, replaying real responses |
 | [Command line](cli.md) | `inspect`, `convert`, `design`, `simulate`, `formats`, `schema` |
 | [Design](design.md) | Why the library is built the way it is, and what it claims on what evidence |
 | [Positioning](positioning.md) | How surveyir compares with related tools (ExploraTwin, EDSL, DDI-Lifecycle) |
 | [Qualtrics parity](parity.md) | Exactly which Qualtrics features are covered, measured on real files |
+| [LimeSurvey parity](parity_limesurvey.md) | Exactly which LimeSurvey features are covered, measured on LimeSurvey's own surveys |
 
 Runnable scripts are in [`examples/`](../examples):
 
 | Script | Shows |
 |---|---|
 | `examples/inspect_survey.py` | load a .qsf and print its questions, design and diagnostics |
-| `examples/simulate_to_csv.py` | simulate respondents and write a Qualtrics-style CSV |
+| `examples/simulate_to_csv.py` | simulate respondents and write a CSV shaped like the platform's export |
 | `examples/custom_exporter.py` | write and use your own exporter |
 | `examples/llm_respondents.py` | simulate LLM personas with Claude (needs an API key) |

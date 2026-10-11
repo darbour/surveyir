@@ -165,3 +165,11 @@ def test_hidden_equation_uses_other_answers():
     assert run.answers[("score", None)].value == "41"
     info = next(ob for ob in run.trace if isinstance(ob, Display) and ob.qid == "info")
     assert info.text == "Thank you, Red it is."
+
+
+def test_welcome_page_and_group_info_are_shown(logic):
+    run, _ = walk(logic, BASE)
+    order = shown(run)
+    assert order[:3] == ["welcome", "G10_info", "age"]
+    pages = {ob.qid: ob.page for ob in run.trace if isinstance(ob, Display)}
+    assert pages["welcome"] < pages["G10_info"] == pages["age"]  # info shares the page

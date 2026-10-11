@@ -846,8 +846,10 @@ def write_archive(lss: str) -> bytes:
     )
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
-        zf.writestr("survey_111111.lss", lss)
-        zf.writestr("survey_111111_responses.lsr", lsr)
+        for name, text in (("survey_111111.lss", lss), ("survey_111111_responses.lsr", lsr)):
+            info = zipfile.ZipInfo(name, date_time=(2026, 1, 1, 0, 0, 0))  # reproducible
+            info.compress_type = zipfile.ZIP_DEFLATED
+            zf.writestr(info, text)
     return buf.getvalue()
 
 

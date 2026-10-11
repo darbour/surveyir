@@ -1,10 +1,11 @@
-"""Regenerate docs/parity.md.
+"""Regenerate docs/parity.md and docs/parity_limesurvey.md.
 
     uv run python scripts/parity_report.py
 
 Uses the committed fixtures and, if downloaded (scripts/fetch_corpus.py), the
-external corpus of public QSFs and export headers. The checklist of Qualtrics
-question types is maintained by hand; every count is computed.
+external corpora: public QSFs and export headers, and LimeSurvey's own demo and
+test surveys. The checklist of Qualtrics question types is maintained by hand;
+every count is computed.
 """
 
 from __future__ import annotations
@@ -253,6 +254,157 @@ def main() -> None:
     ]
     (ROOT / "docs" / "parity.md").write_text("\n".join(out), encoding="utf-8")
     print("wrote docs/parity.md")
+    limesurvey_report()
+
+
+#: what the LimeSurvey runtime does not reproduce (maintained by hand)
+LIMESURVEY_GAPS = """\
+| Feature | What happens | Recorded as |
+|---|---|---|
+| Presentation order | LimeSurvey derives every shuffle from the response's `seed` with PHP's generator; a simulation draws its own orders, and a replay of real responses draws them too (exports keep no order) | replay fallbacks |
+| All-in-one format | administered group by group: same questions, same logic, one page per group | `limesurvey-all-in-one` diagnostic |
+| Non-adjacent randomization groups | shuffled as one run at the first group's position | `limesurvey-randomization-group-split` warning |
+| Several question random groups in one group | each shuffled among its own positions | exact |
+| End text | kept in `extras`; shown after the last answer, so it changes nothing recorded | not needed |
+| Default answers on displayed questions | recorded for hidden questions; displayed ones are not shown pre-filled | not recorded |
+| Question timers (`time_limit*`) | kept in `extras`, not enforced | not recorded |
+| "Allow change" quota action | not executed | `quota.action_ignored` |
+| Plugin and unimplemented ExpressionScript functions | the expression is false (empty as text) | `expression.unknown_function` |
+| `date()`, `time()`, `STARTDATE`, ... | evaluated at simulation time | `expression.clock` |
+| Question JavaScript | not run (as for Qualtrics) | `javascript` |
+"""
+
+
+def limesurvey_report() -> None:
+    from surveyir import RandomAnswerer, Simulator
+    from surveyir.columns_limesurvey import (
+        METADATA,
+        infer_lime_options,
+        lime_columns,
+        read_responses,
+    )
+    from surveyir.loaders.limesurvey import LimeSurveyLoader
+    from surveyir.loaders.limesurvey.questions import TYPES
+    from surveyir.loaders.limesurvey.xmlfile import read_archive
+    from surveyir.model import Comparison, Expression, iter_comparisons, iter_expressions
+    from surveyir.runtime.replay import Replayer
+
+    fixtures = sorted((ROOT / "tests" / "fixtures" / "limesurvey").rglob("*.ls?"))
+    corpus_dir = EXTERNAL / "limesurvey"
+    corpus = sorted(corpus_dir.glob("*")) if corpus_dir.exists() else []
+    types: Counter[str] = Counter()
+    eras: Counter[str] = Counter()
+    versions: list[int] = []
+    logic: Counter[str] = Counter()
+    gaps: Counter[str] = Counter()
+    diags: Counter[str] = Counter()
+    strict_clean = 0
+    loaded = 0
+    for path in fixtures + corpus:
+        survey = LimeSurveyLoader().load(path)
+        loaded += 1
+        eras[survey.extras.get("era", "?")] += 1
+        if survey.source.format_version and survey.source.format_version.isdigit():
+            versions.append(int(survey.source.format_version))
+        for d in survey.diagnostics:
+            diags[f"{d.level}: {d.code}"] += 1
+        for q in survey.questions.values():
+            types[q.origin.type] += 1
+            for cond in (q.display_logic, q.in_page_display_logic):
+                if cond is None:
+                    continue
+                exprs = list(iter_expressions(cond))
+                if not exprs:
+                    logic["comparisons only"] += 1
+                elif isinstance(cond, Expression):
+                    logic["kept as one expression"] += 1
+                else:
+                    logic["comparisons and expressions"] += 1
+                if "relevance_from_conditions" in q.extras.get("limesurvey", {}):
+                    logic["converted from conditions"] += 1
+        runs = Simulator(survey, seed=1, strict=False).run(5, RandomAnswerer(seed=2))
+        found = {a.code for r in runs for a in r.state.approximations}
+        for code in found:
+            gaps[code] += 1
+        if not found - {"answer.invalid"}:
+            strict_clean += 1
+    archives = [p for p in corpus if p.suffix == ".lsa"]
+    with_data = matched = answers = reproduced = 0
+    for path in archives:
+        archive = read_archive(path.read_bytes())
+        if archive.responses is None or not archive.responses.fields.get("responses"):
+            continue
+        with_data += 1
+        survey = LimeSurveyLoader().load(path)
+        fields = [f.replace("-", "#") for f in archive.responses.fields["responses"]]
+        opts = infer_lime_options(fields, survey).model_copy(update={"heading": "field"})
+        meta = {m for m, _, _ in METADATA} | {"quota_exit"}
+        ours = [c.name for c in lime_columns(survey, opts) if c.name not in meta]
+        matched += ours == [f for f in fields if f not in meta]
+        replayer = Replayer(
+            survey, strict=False, fallback_kinds=("block", "choices", "columns", "flow")
+        )
+        for rec in read_responses(path, survey):
+            run = replayer.respondent(rec.orders, rec.answers, embedded=rec.embedded)
+            for key, a in rec.answers.items():
+                answers += 1
+                reproduced += run.answers.get(key) is not None and run.answers[key].value == a.value
+
+    rows = ["| Code | LimeSurvey type | IR kind | Questions |", "|---|---|---|---|"]
+    for code, (kind, name) in TYPES.items():
+        rows.append(f"| `{code}` | {name} | `{kind}` | {types[code]:,} |")
+    out = [
+        "# LimeSurvey parity",
+        "",
+        "Generated by `scripts/parity_report.py`; do not edit by hand.",
+        "",
+        f"**Corpus:** {len(fixtures)} committed fixtures and {len(corpus)} of LimeSurvey's own "
+        "demo and test surveys (`corpus/manifest.json`, fetched with "
+        "`scripts/fetch_corpus.py --only limesurvey`; GPL, never committed): "
+        f"{loaded} files, DBVersion {min(versions, default=0)} to {max(versions, default=0)}, "
+        f"{eras['legacy']} in the 2.x/3.x layout and {eras['l10n']} in the 4.x+ layout. "
+        "Every file loads, round-trips through JSON and exports.",
+        "",
+        f"**Simulation:** {strict_clean} of {loaded} files are walked by random respondents "
+        "with no approximation other than answers that fail validation (random answers do "
+        "not respect validation).",
+        "",
+    ]
+    if with_data:
+        out += [
+            f"**Data:** in {with_data} archives that hold responses, the generated field "
+            f"names match the response file exactly in {matched}; replaying their "
+            f"{answers} recorded answers reproduces {reproduced}.",
+            "",
+        ]
+    out += [
+        "## Question types",
+        "",
+        "Every type LimeSurvey defines (`Question.php`) maps onto an IR kind.",
+        "",
+        "\n".join(rows),
+        "",
+        "## Relevance",
+        "",
+        "How question relevance was represented: lowered to comparisons where that is "
+        "exact under ExpressionScript's rules, kept as `Expression` leaves otherwise.",
+        "",
+        _table(logic, "relevance"),
+        "## What is not reproduced",
+        "",
+        LIMESURVEY_GAPS,
+        "## Approximations recorded in random walks",
+        "",
+        "Files in which five random respondents met each gap.",
+        "",
+        _table(gaps, "approximation") if gaps else "None.\n",
+        "## Load diagnostics",
+        "",
+        _table(diags, "diagnostic") if diags else "None.\n",
+    ]
+    del Comparison, iter_comparisons
+    (ROOT / "docs" / "parity_limesurvey.md").write_text("\n".join(out), encoding="utf-8")
+    print("wrote docs/parity_limesurvey.md")
 
 
 if __name__ == "__main__":

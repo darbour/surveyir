@@ -281,6 +281,9 @@ class TextEntryQuestion(QuestionBase):
     kind: Literal["text_entry"] = "text_entry"
     mode: Literal["single_line", "multi_line", "essay", "form", "password", "autocomplete", "other"]
     fields: list[Choice] = Field(default_factory=list, description="Form fields (form mode).")
+    randomization: Randomization | None = Field(
+        default=None, description="Field order randomization (form mode)."
+    )
 
 
 class SliderQuestion(QuestionBase):

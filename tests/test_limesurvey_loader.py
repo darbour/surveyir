@@ -56,8 +56,13 @@ def test_survey_level(types):
         ["de"],
     )
     assert types.source.format_version == "498"
-    assert list(types.blocks) == ["G1", "G2", "G3"]
-    assert [b.description for b in types.blocks.values()] == ["Choices", "Arrays", "Entry"]
+    assert list(types.blocks) == ["welcome", "G1", "G2", "G3"]
+    assert [b.description for b in types.blocks.values()] == [
+        "Welcome",
+        "Choices",
+        "Arrays",
+        "Entry",
+    ]
     assert types.diagnostics == []
 
 
@@ -223,16 +228,23 @@ def test_array_filter_and_subquestion_relevance(logic):
 
 def test_flow(logic):
     kinds = [type(n).__name__ for n in logic.flow]
-    assert kinds == ["EmbeddedDataNode", "BlockNode", "BranchNode", "RandomizerNode", "BlockNode"]
+    assert kinds == [
+        "EmbeddedDataNode",
+        "BlockNode",  # the welcome page
+        "BlockNode",
+        "BranchNode",
+        "RandomizerNode",
+        "BlockNode",
+    ]
     participant = logic.flow[0]
     assert isinstance(participant, EmbeddedDataNode)
     assert [(f.name, f.source) for f in participant.fields] == [("TOKEN:FIRSTNAME", "recipient")]
-    branch = logic.flow[2]
+    branch = logic.flow[3]
     assert isinstance(branch, BranchNode)
     assert describe_condition(branch.condition, logic) == "consent = Y"
     assert [type(c).__name__ for c in branch.children] == ["BlockNode", "QuotaNode"]
     assert isinstance(branch.children[1], QuotaNode)
-    rnd = logic.flow[3]
+    rnd = logic.flow[4]
     assert isinstance(rnd, RandomizerNode)
     assert [c.block_id for c in rnd.children if isinstance(c, BlockNode)] == ["G12", "G13"]
 
@@ -250,8 +262,19 @@ def test_quotas(logic):
 
 def test_question_by_question_pages():
     s = load_lss(FIX / "conditions.lss", strict=True)
-    elements = s.blocks["G20"].elements
-    assert sum(isinstance(e, PageBreak) for e in elements) == len(s.questions) - 1
+    block = s.blocks["G20"]
+    questions = [q for q in block.question_ids if not q.endswith("_info")]
+    assert sum(isinstance(e, PageBreak) for e in block.elements) == len(questions) - 1
+
+
+def test_welcome_and_group_info(logic):
+    welcome = logic.questions["welcome"]
+    assert welcome.kind == "descriptive" and welcome.text.plain == "Welcome"
+    info = logic.questions["G10_info"]
+    assert info.kind == "descriptive" and info.text.plain == "Screen"
+    assert logic.blocks["G10"].question_ids[0] == "G10_info"
+    assert "G14_info" in logic.questions  # every group with a visible question
+    assert not any(c.question_id == "G10_info" for c in surveyir.response_columns(logic))
 
 
 @pytest.mark.parametrize(

@@ -5556,6 +5556,17 @@
           "title": "Randomized",
           "type": "array"
         },
+        "groups": {
+          "description": "Advanced mode without slots: further pools, each shuffled among its own positions independently of `randomized` (LimeSurvey question random groups).",
+          "items": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": "Groups",
+          "type": "array"
+        },
         "undisplayed": {
           "items": {
             "type": "string"
@@ -7464,6 +7475,18 @@
           },
           "title": "Fields",
           "type": "array"
+        },
+        "randomization": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Randomization"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Field order randomization (form mode)."
         }
       },
       "required": [

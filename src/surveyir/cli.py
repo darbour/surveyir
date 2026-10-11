@@ -267,8 +267,9 @@ def main(argv: list[str] | None = None) -> int:
 
     p = sub.add_parser(
         "simulate",
-        help="Simulate respondents with random answers; writes a Qualtrics-style CSV. "
-        "Strict by default: stops (exit 1) at anything it cannot administer exactly.",
+        help="Simulate respondents with random answers; writes a CSV shaped like the "
+        "platform's own export. Strict by default: stops (exit 1) at anything it cannot "
+        "administer exactly.",
     )
     p.add_argument("input")
     p.add_argument("-n", type=int, default=100, help="Number of respondents.")

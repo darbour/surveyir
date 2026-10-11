@@ -46,12 +46,14 @@ from ...model import (
     BranchNode,
     Comparison,
     Condition,
+    DescriptiveQuestion,
     EmbeddedDataNode,
     EmbeddedField,
     Expression,
     FlowNode,
     Operand,
     Or,
+    Origin,
     PageBreak,
     QuestionRef,
     Quota,
@@ -468,7 +470,12 @@ class _Builder:
             self._validation_logic(q, iq)
             out_questions[qid] = iq
 
+        self._group_info(groups, blocks, out_questions)
         flow = self._flow(groups, blocks, by_group)
+        welcome = self._welcome(settings, blocks, out_questions)
+        if welcome is not None:
+            flow.insert(0, welcome)
+            blocks = {"welcome": blocks.pop("welcome"), **blocks}
         quotas = self._quotas()
         if quotas:
             flow = self._quota_checks(flow, quotas, blocks)
@@ -522,6 +529,77 @@ class _Builder:
         return survey
 
     # ---------------------------------------------------------------- pieces
+
+    def _group_info(
+        self, groups: list[GRow], blocks: dict[str, Block], questions: dict[str, Any]
+    ) -> None:
+        """Each group's name and description, shown at the top of its first page
+        (survey setting ``showgroupinfo``: B both, N name, D description, X none), as a
+        text display marked ``synthetic``. It is shown when one of the group's visible
+        questions can be."""
+        mode = (self.st.survey.get("showgroupinfo") or "B").upper()
+        if mode not in ("B", "N", "D"):
+            return
+        by_id = {iq.id: iq for iq in questions.values()}
+        for g in groups:
+            block = blocks.get(f"G{g.gid}")
+            if block is None:
+                continue
+            members = [by_id[q] for q in block.question_ids if q in by_id]
+            visible = [q for q in members if not q.hidden and q.kind != "equation"]
+            if not visible:
+                continue
+            texts = g.texts.get(self.lang) or next(iter(g.texts.values()), {}) if g.texts else {}
+            name = (texts or {}).get("group_name", "") if mode in ("B", "N") else ""
+            desc = (texts or {}).get("description", "") if mode in ("B", "D") else ""
+            if not (name.strip() or _plain(desc)):
+                continue
+            markup = (f"<h2>{name}</h2>" if name.strip() else "") + desc
+            terms: list[Condition] = []
+            for q in visible:
+                parts = [c for c in (q.display_logic, q.in_page_display_logic) if c is not None]
+                if not parts:
+                    terms = []
+                    break
+                terms.append(parts[0] if len(parts) == 1 else And(terms=parts))
+            qid = f"{block.id}_info"
+            info = DescriptiveQuestion(
+                id=qid,
+                export_tag=qid,
+                origin=Origin(format="limesurvey", type="group_info"),
+                text=self.text(markup, None),
+                description="Group name and description",
+                display_logic=(terms[0] if len(terms) == 1 else Or(terms=terms)) if terms else None,
+                extras={"limesurvey": {"synthetic": "group_info", "gid": g.gid}},
+            )
+            questions[qid] = info
+            block.elements.insert(0, QuestionRef(question_id=qid))
+
+    def _welcome(
+        self, settings: Mapping[str, Any], blocks: dict[str, Block], questions: dict[str, Any]
+    ) -> FlowNode | None:
+        """The welcome page, shown first unless the survey turns it off."""
+        text = settings.get("surveyls_welcometext") or ""
+        if (self.st.survey.get("showwelcome") or "Y").upper() == "N" or not _plain(text):
+            return None
+        info = DescriptiveQuestion(
+            id="welcome",
+            export_tag="welcome",
+            origin=Origin(format="limesurvey", type="welcome"),
+            text=self.text(text, None),
+            description="Welcome page",
+            extras={"limesurvey": {"synthetic": "welcome"}},
+        )
+        if "welcome" in questions:
+            return None
+        questions["welcome"] = info
+        blocks["welcome"] = Block(
+            id="welcome",
+            description="Welcome",
+            elements=[QuestionRef(question_id="welcome")],
+            extras={"limesurvey": {"synthetic": "welcome", "group_order": -1}},
+        )
+        return BlockNode(id="FL_welcome", block_id="welcome")
 
     def _question_groups(self, qs: list[QRow]) -> Randomization | None:
         """Questions sharing a ``random_group`` are shuffled among their own positions."""

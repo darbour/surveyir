@@ -161,6 +161,8 @@ def _col(
 
 def question_columns(q: Question) -> list[Column]:
     """The fields one question adds, in LimeSurvey's order."""
+    if _info(q).get("synthetic"):  # a group description or the welcome page: no field
+        return []
     t = q.origin.type
     cols: list[Column] = []
     if t in ("M", "P") and isinstance(q, ChoiceQuestion):
