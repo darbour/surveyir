@@ -33,6 +33,7 @@ from ..model import (
 from .state import Answer
 
 if TYPE_CHECKING:
+    from ..columns_limesurvey import LimeColumnOptions
     from .walker import RespondentRun
 
 
@@ -115,7 +116,7 @@ def _question_value(q: Question, col: Column, answer: Answer | None, order: list
 def to_row(
     run: RespondentRun,
     survey: Survey,
-    options: Any = None,
+    options: ColumnOptions | LimeColumnOptions | None = None,
     *,
     key: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -131,7 +132,7 @@ def to_row(
 def to_cells(
     run: RespondentRun,
     survey: Survey,
-    options: Any = None,
+    options: ColumnOptions | LimeColumnOptions | None = None,
     *,
     key: Mapping[str, Any] | None = None,
 ) -> list[tuple[Column, Any]]:
@@ -200,7 +201,7 @@ def write_responses_csv(
     runs: Iterable[RespondentRun],
     path: str | Path,
     *,
-    options: Any = None,
+    options: ColumnOptions | LimeColumnOptions | None = None,
     keys: Mapping[str, Sequence[Any]] | None = None,
 ) -> Path:
     """Write ``runs`` as a Qualtrics-shaped CSV export: the three header rows of

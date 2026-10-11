@@ -689,7 +689,14 @@ def lower(
     ``shapes`` maps question ids to ``kind`` or ``kind/mode`` (``choice/single``,
     ``choice/multiple``, ``matrix/single``, ``matrix/text``, ``text_entry/form``, ...).
     """
-    lowered = _lower(expr, shapes, location)
+    undefined = any(
+        (isinstance(n, Var) and n.kind == "unknown")
+        or (isinstance(n, Call) and n.fn not in LS_FUNCTIONS)
+        for n in iter_nodes(expr)
+    )
+    # LimeSurvey rejects an expression with an undefined name as a whole, so it stays
+    # whole: no lowered branch can hold while the undefined part goes unevaluated
+    lowered = None if undefined else _lower(expr, shapes, location)
     if lowered is None:
         return Expression(language="expression_script", source=source, tree=expr, location=location)
     guards: dict[str, Var] = {}
@@ -725,7 +732,11 @@ def _implied(c: Condition) -> set[str]:
         if c.left.kind == "question" and c.left.question_id:
             if c.operator == "selected" or c.operator == "not_empty":
                 return {c.left.question_id}
-            if c.operator == "equal" and c.right not in (None, ""):
+            if (
+                c.operator == "equal"
+                and c.right not in (None, "")
+                and c.left.selector != "SelectedAnswerCount"  # "0" encodes an empty row
+            ):
                 return {c.left.question_id}
         return set()
     if isinstance(c, And):

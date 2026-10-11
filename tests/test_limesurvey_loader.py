@@ -359,7 +359,7 @@ def test_not_limesurvey(tmp_path):
         load_lss(bad)
 
 
-def test_strict_rejects_unexpected_warnings(tmp_path):
+def test_strict_tolerates_source_defects(tmp_path):
     src = (FIX / "logic.lss").read_text()
     broken = src.replace("pets_SQ001 == &quot;Y&quot;", "nosuch == 1").replace(
         'pets_SQ001 == "Y"', "nosuch == 1"

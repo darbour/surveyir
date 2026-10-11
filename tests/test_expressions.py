@@ -200,6 +200,20 @@ def test_parts_choose_selectors():
     assert isinstance(c, Comparison) and c.left.choice_id == "-oth-"
 
 
+def test_empty_array_row_keeps_its_guard():
+    c = lowered("is_empty(Q3_R1)")
+    assert isinstance(c, And)
+    guard, test = c.terms
+    assert isinstance(guard, Comparison) and guard.operator == "relevant"
+    assert isinstance(test, Comparison) and test.left.selector == "SelectedAnswerCount"
+
+
+def test_undefined_names_keep_the_expression_whole():
+    for source in ('Q1 == "A1" or nosuch == 1', 'Q1 == "A1" or myplugin(Q1)'):
+        c = lowered(source)
+        assert isinstance(c, Expression) and c.source == source
+
+
 def test_is_empty_and_not():
     c = lowered("is_empty(Q1.NAOK)")
     assert isinstance(c, Comparison) and (c.operator, c.right) == ("equal", "")
@@ -302,6 +316,29 @@ def test_an_irrelevant_variable_fails_the_whole_expression():
     assert run('Q1 == "A1" or N1 != 5', {"Q1": "A1"}, irrelevant={"N1"}) is False
     assert run('Q1 == "A1" or N1.NAOK != 5', {"Q1": "A1"}, irrelevant={"N1"}) is True
     assert run("N1.relevanceStatus == 0", {}, irrelevant={"N1"}) is True
+
+
+def test_irrelevant_array_row_is_not_empty_but_failed():
+    from surveyir.model import MatrixQuestion, ScalePoint
+
+    s = survey()
+    s.questions["M1"] = MatrixQuestion(
+        id="M1",
+        export_tag="M1",
+        origin=Origin(format="limesurvey", type="F"),
+        text=Text(plain="Grid"),
+        mode="single",
+        rows=[Choice(id="R1", text=Text(plain="Row"))],
+        columns=[ScalePoint(id="A1", text=Text(plain="Yes"))],
+    )
+    names = {"M1_R1": ex.Target("M1", "R1")}
+    tree = ex.compile_expression("is_empty(M1_R1)", ex.Scope(names))
+    cond = ex.lower(tree, "is_empty(M1_R1)", {"M1": "matrix/single"})
+    from surveyir.runtime.logic import evaluate
+
+    hidden = RespondentState(irrelevant={("M1", None)})
+    assert evaluate(cond, hidden, s) is False  # LimeSurvey: the expression fails
+    assert evaluate(cond, RespondentState(), s) is True  # relevant and unanswered
 
 
 def test_unknown_functions_and_variables_are_recorded():

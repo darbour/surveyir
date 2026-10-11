@@ -17,9 +17,12 @@ import html as _html
 import json
 import re
 from collections.abc import Iterator, Mapping, Sequence
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field, computed_field
+
+if TYPE_CHECKING:
+    from .columns_limesurvey import LimeColumnOptions
 
 from .model import (
     Block,
@@ -449,7 +452,10 @@ def _flow_display_order(survey: Survey, options: ColumnOptions) -> Iterator[Colu
 
 
 def response_columns(
-    survey: Survey, *, include_embedded: bool = True, options: Any = None
+    survey: Survey,
+    *,
+    include_embedded: bool = True,
+    options: ColumnOptions | LimeColumnOptions | None = None,
 ) -> list[Column]:
     """Every response column the survey can produce.
 
@@ -710,7 +716,7 @@ def response_header_rows(
     survey: Survey,
     columns: Sequence[Column] | None = None,
     *,
-    options: Any = None,
+    options: ColumnOptions | LimeColumnOptions | None = None,
     key: Sequence[str] = (),
 ) -> list[list[str]]:
     """The three header rows of a Qualtrics CSV export: column names, labels

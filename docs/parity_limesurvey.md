@@ -51,9 +51,9 @@ How question relevance was represented: lowered to comparisons where that is exa
 | relevance | count |
 |---|---|
 | `comparisons only` | 197 |
-| `kept as one expression` | 46 |
+| `kept as one expression` | 47 |
 | `converted from conditions` | 34 |
-| `comparisons and expressions` | 9 |
+| `comparisons and expressions` | 8 |
 
 ## What is not reproduced
 
