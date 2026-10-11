@@ -46,7 +46,9 @@ class Quota(Extensible):
     )
     action: str | None = Field(
         default=None,
-        description="Source action when full, e.g. 'EndCurrentSurvey', 'ForBranching'.",
+        description="Action when full: Qualtrics 'EndCurrentSurvey' or 'ForBranching' as "
+        "written; for other platforms 'end_survey' (the respondent is screened out) or "
+        "'allow_change' (the respondent may change the answers that filled it).",
     )
     over_quota_action: str | None = None
 

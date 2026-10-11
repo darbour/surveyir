@@ -46,6 +46,7 @@ from ..model import (
     DrillDownQuestion,
     EmbeddedDataNode,
     EndSurveyNode,
+    EquationQuestion,
     FileUploadQuestion,
     FlowNode,
     GraphicSliderQuestion,
@@ -1052,6 +1053,7 @@ class _Walk:
             self.respondent, self.legacy = None, answerer  # type: ignore[assignment]
             run.privileged = True
         self.state.on_approximation = self._approximated
+        self.state.rng = rng  # ExpressionScript rand() in logic and computed values
         for name, value in self.state.embedded.items():
             self.audit.append(EmbeddedSet(name, value, "respondent"))
 
@@ -1139,6 +1141,8 @@ class _Walk:
                 self.audit.append(BranchEval(node.id, result))
                 if result:
                     self.nodes(node.children)
+                else:
+                    self._irrelevant(node.children)
         elif isinstance(node, RandomizerNode):
             self.randomizer(node)
         elif isinstance(node, AuthenticatorNode):
@@ -1178,7 +1182,7 @@ class _Walk:
             for quota in self.survey.quotas:
                 if quota.id not in state.quotas_met:
                     continue
-                if quota.action == "EndCurrentSurvey":
+                if quota.action in ("EndCurrentSurvey", "end_survey"):
                     if evaluate(quota.condition, state, self.survey):
                         self.run.ended_by = f"quota {quota.id}"
                         self.run.finished = False
@@ -1199,6 +1203,16 @@ class _Walk:
                 f"unsupported flow element {node.source_type} skipped; its children are run",
             )
             self.nodes(node.children)
+
+    def _irrelevant(self, nodes: Sequence[FlowNode]) -> None:
+        """Mark every question in the blocks under ``nodes`` irrelevant (a branch that
+        did not hold: LimeSurvey group relevance)."""
+        from ..model import walk
+
+        for node in walk(list(nodes)):
+            if isinstance(node, BlockNode):
+                for qid in b.question_ids if (b := self.survey.blocks.get(node.block_id)) else []:
+                    self.state.irrelevant.add(self.state.key(qid))
 
     def choose(self, req: ChoiceRequest) -> tuple[str, ...]:
         """Ask the chooser, check its answer, and keep its ``p_given_history``."""
@@ -1485,7 +1499,9 @@ class _Walk:
             if item is None:
                 continue
             items.append(item)
-            if not item.pending:
+            if item.pending:  # not relevant (yet): its value cannot be read
+                self.state.irrelevant.add(item.key)
+            else:
                 self._show(item, block)
         while (item := next((i for i in items if i.shown and not i.asked), None)) is not None:
             item.asked = True
@@ -1494,6 +1510,7 @@ class _Walk:
                 if not later.shown and evaluate(
                     later.q.in_page_display_logic, self.state, self.survey
                 ):
+                    self.state.irrelevant.discard(later.key)
                     self._show(later, block, revealed=True)
         never = [i.q.id for i in items if not i.shown]
         self._hide(never, "in_page_display_logic")
@@ -1534,7 +1551,17 @@ class _Walk:
         state = self.state
         if not evaluate(q.display_logic, state, self.survey):
             self.audit.append(Hidden(q.id, self.loop_id, "display_logic"))
+            state.irrelevant.add(state.key(q.id))
             return None
+        state.irrelevant.discard(state.key(q.id))
+        if q.hidden:  # relevant but never shown: its default or computed value is recorded
+            if evaluate(q.in_page_display_logic, state, self.survey):
+                self._record_hidden(q)
+            else:
+                state.irrelevant.add(state.key(q.id))
+            return None
+        if isinstance(q, EquationQuestion):
+            self._compute(q)
         # in-page logic shows the question at load if it already holds, else maybe later
         pending = not evaluate(q.in_page_display_logic, state, self.survey)
         key = state.key(q.id)
@@ -1590,6 +1617,19 @@ class _Walk:
             **_presentation(q, text),
         )
         return _Item(q, key, block_page, display, order, col_ids, bool(items), audit, pending)
+
+    def _compute(self, q: EquationQuestion) -> None:
+        """Evaluate an equation question and record its value."""
+        value = render(q.expression, self.state, self.survey, self.rng, "outcome")
+        self.state.answers[self.state.key(q.id)] = Answer(value=value)
+        self.audit.append(EmbeddedSet(q.id, value, f"equation:{q.id}"))
+
+    def _record_hidden(self, q: Question) -> None:
+        if isinstance(q, EquationQuestion):
+            self._compute(q)
+        elif q.default_value not in (None, "", {}, []):
+            self.state.answers[self.state.key(q.id)] = Answer(value=q.default_value)
+            self.audit.append(EmbeddedSet(q.id, q.default_value, f"default:{q.id}"))
 
     def _show(self, item: _Item, block: Block, *, revealed: bool = False) -> None:
         """Put a prepared question on the respondent's screen, and record it."""
@@ -1674,6 +1714,7 @@ class _Walk:
             return
         answer = value if isinstance(value, Answer) else Answer(value=value)
         errors = validation_errors(d, answer.value)
+        errors += self._expression_errors(item.q, item.key, answer)
         if errors:
             self.approximate(
                 "answer.invalid",
@@ -1683,6 +1724,47 @@ class _Walk:
             )
         state.answers[item.key] = answer
         self.observe(Response(d.page, d.seq, d.qid, d.loop_id, answer.value, dict(answer.text)))
+
+    def _expression_errors(
+        self, q: Question, key: tuple[str, str | None], answer: Answer
+    ) -> list[str]:
+        """How ``answer`` fails the question's validation expressions (LimeSurvey
+        ``em_validation_q`` / ``em_validation_sq``), checked with the answer in place."""
+        v = q.validation
+        if v is None or (v.expression is None and v.item_expression is None):
+            return []
+        state = self.state
+        before = state.answers.get(key)
+        state.answers[key] = answer
+        errors: list[str] = []
+        try:
+            if v.expression is not None and not evaluate(v.expression, state, self.survey):
+                errors.append(v.custom_message or "the answer fails the question's validation")
+            if v.item_expression is not None:
+                from ..model import Expression as _Expression
+                from .expressions import evaluate_boolean
+
+                expr = v.item_expression
+                value = answer.value
+                answered = (
+                    [k for k, x in value.items() if x not in (None, "")]
+                    if isinstance(value, dict)
+                    else []
+                )
+                for item in answered:
+                    ok = (
+                        evaluate_boolean(expr, state, self.survey, affects="outcome", item=item)
+                        if isinstance(expr, _Expression)
+                        else evaluate(expr, state, self.survey)
+                    )
+                    if not ok:
+                        errors.append(f"{item} fails the question's item validation")
+        finally:
+            if before is None:
+                state.answers.pop(key, None)
+            else:
+                state.answers[key] = before
+        return errors
 
     def _items(self, q: Question) -> tuple[list[Choice], dict[str, tuple[str, str]]]:
         """Options in source order, and {carried choice id: (source qid, source id)}."""

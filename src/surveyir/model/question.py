@@ -168,6 +168,21 @@ class Validation(Extensible):
     total: float | None = Field(default=None, description="Required sum (constant sum).")
     custom: Condition | None = None
     custom_message: str | None = None
+    pattern: str | None = Field(
+        default=None,
+        description="Regular expression every entered text must match (LimeSurvey 'preg'), "
+        "as written in the source, delimiters included.",
+    )
+    expression: Condition | None = Field(
+        default=None,
+        description="Condition the answer must satisfy, checked by the runtime once the "
+        "question is answered (LimeSurvey 'em_validation_q').",
+    )
+    item_expression: Condition | None = Field(
+        default=None,
+        description="Condition each answered item must satisfy, the item being 'self' "
+        "(LimeSurvey 'em_validation_sq').",
+    )
 
 
 class Translation(Extensible):
@@ -208,6 +223,11 @@ class QuestionBase(Extensible):
     scoring: list[Score] = Field(default_factory=list)
     default_value: Any = Field(default=None, description="Pre-filled response, source format.")
     javascript: str | None = Field(default=None, description="Custom question JavaScript.")
+    hidden: bool = Field(
+        default=False,
+        description="Never shown, but relevant: its default value (or computed value) is "
+        "still recorded (LimeSurvey's 'hidden' attribute).",
+    )
 
 
 class ChoiceQuestion(QuestionBase):
@@ -405,6 +425,18 @@ class GraphicSliderQuestion(QuestionBase):
     direction: str | None = None
 
 
+class EquationQuestion(QuestionBase):
+    """A value computed from an expression when the respondent reaches it, and
+    recorded like an answer (LimeSurvey equation questions).
+
+    ``expression`` is evaluated as text: its references are replaced and the result
+    (markup stripped) is the recorded value. Shown as text unless ``hidden``.
+    """
+
+    kind: Literal["equation"] = "equation"
+    expression: Text
+
+
 class FileUploadQuestion(QuestionBase):
     """Respondent uploads a file (allowed type is in ``validation.file_type``)."""
 
@@ -441,6 +473,7 @@ Question = Annotated[
     | HotSpotQuestion
     | HeatMapQuestion
     | GraphicSliderQuestion
+    | EquationQuestion
     | FileUploadQuestion
     | SignatureQuestion
     | UnsupportedQuestion,
@@ -450,4 +483,4 @@ Question = Annotated[
 SideBySideQuestion.model_rebuild()
 
 #: Kinds that never collect a respondent answer.
-NON_RESPONSE_KINDS = frozenset({"descriptive", "timing", "meta_info", "captcha"})
+NON_RESPONSE_KINDS = frozenset({"descriptive", "timing", "meta_info", "captcha", "equation"})

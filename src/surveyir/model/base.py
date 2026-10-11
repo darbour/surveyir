@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 #: Version of the IR schema. Bump the minor version for additive changes and
 #: the major version for breaking ones. Serialized surveys carry this value.
-SCHEMA_VERSION = "0.2"
+SCHEMA_VERSION = "0.3"
 
 
 class IRModel(BaseModel):
