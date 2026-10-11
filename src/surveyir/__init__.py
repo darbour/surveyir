@@ -5,6 +5,7 @@ Quick start::
     import surveyir
 
     survey = surveyir.load("study.qsf")            # Qualtrics export -> Survey
+    survey = surveyir.load("study.lss")            # LimeSurvey export -> Survey
     print(surveyir.export(survey, "markdown"))      # readable instrument
     survey.to_json()                                # canonical IR as JSON
 """
@@ -23,6 +24,7 @@ from .columns import (
 from .describe import describe_condition
 from .exporters import Exporter, available_exporters, export, get_exporter
 from .loaders import available_loaders, load
+from .loaders.limesurvey import load_lss
 from .loaders.qualtrics import LoadError, load_qsf
 from .model import SCHEMA_VERSION, Survey
 from .runtime import RandomAnswerer, Simulator, design, write_responses_csv
@@ -48,6 +50,7 @@ __all__ = [
     "infer_options",
     "read_header",
     "load",
+    "load_lss",
     "load_qsf",
     "response_columns",
     "response_header_rows",

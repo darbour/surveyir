@@ -322,6 +322,9 @@ def _text_answer(v: Mapping[str, Any], rng: random.Random) -> str:
             lo = 0.0 if hi is None or hi >= 0 else hi - 100
         if hi is None or hi < lo:
             hi = lo + 100
+        width = _int(v.get("max_chars"))
+        if width is not None and width > 0 and hi >= 10**width:
+            hi = max(lo, 10**width - 1)  # fit the field
         a, b = math.ceil(lo), math.floor(hi)
         if a <= b:  # whole numbers satisfy any decimal-places limit
             return str(rng.randint(a, b))
@@ -372,6 +375,12 @@ def validation_errors(d: Display, value: Any) -> list[str]:
             errors.append(f"{where}{s!r} is not an e-mail address")
         if content == "ValidZip" and not _ZIP.match(s):
             errors.append(f"{where}{s!r} is not a ZIP code")
+        if v.get("pattern"):
+            from .expressions import _php_regex
+
+            rx = _php_regex(str(v["pattern"]))
+            if rx is not None and not rx.search(s):
+                errors.append(f"{where}{s!r} does not match {v['pattern']}")
         lo_c, hi_c = _int(v.get("min_chars")), _int(v.get("max_chars"))
         if lo_c is not None and len(s) < lo_c:
             errors.append(f"{where}{len(s)} characters, fewer than {lo_c}")
@@ -474,6 +483,10 @@ def _presentation(q: Question, text: Callable[[Text], str]) -> dict[str, Any]:
     )
     if v is not None and v.number is not None:
         rules.update({f"number_{k}": x for k, x in v.number.model_dump().items() if x is not None})
+    if v is not None and v.pattern:
+        rules["pattern"] = v.pattern
+    if v is not None and v.custom_message and (v.expression or v.item_expression):
+        rules["message"] = v.custom_message  # a validation tip, shown with the question
     mode = getattr(q, "mode", None)
     out: dict[str, Any] = {
         "kind": q.kind,
@@ -732,6 +745,12 @@ def _layout(
         out = list(ids)
         for pos, new in zip(positions, pool, strict=False):
             out[pos] = new
+        for group in r.groups:  # further pools, each shuffled among its own positions
+            members = [i for i in group if i in ids and i not in hidden]
+            drawn = pick(members, len(members), "permutation") if len(members) > 1 else members
+            spots = [n for n, i in enumerate(out) if i in set(members)]
+            for pos, new in zip(spots, drawn, strict=False):
+                out[pos] = new
         return [i for i in out if i not in hidden]
     out = []
     for slot in r.slots:
@@ -1720,7 +1739,7 @@ class _Walk:
                 "answer.invalid",
                 d.qid,
                 f"answer to {d.qid} violates its validation ({'; '.join(errors)}); "
-                "Qualtrics would not have accepted it",
+                "the platform would not have accepted it",
             )
         state.answers[item.key] = answer
         self.observe(Response(d.page, d.seq, d.qid, d.loop_id, answer.value, dict(answer.text)))

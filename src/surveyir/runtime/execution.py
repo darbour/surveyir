@@ -109,7 +109,7 @@ APPROXIMATIONS: dict[str, tuple[Affects, str]] = {
     ),
     "expression.unknown_variable": (
         "routing",
-        "expression reads a variable the simulator cannot know; read as empty",
+        "expression reads a variable the simulator cannot know; the expression fails",
     ),
     "expression.clock": (
         "routing",

@@ -68,6 +68,7 @@ NAOK_ATTRIBUTES: Final = frozenset({"NAOK", "valueNAOK", "shown", "relevanceStat
 #: attributes that never change on a page (EM aRDP_regexpStaticAttribute)
 STATIC_ATTRIBUTES: Final = frozenset(
     {
+        "help",
         "qid",
         "gid",
         "question",
@@ -84,7 +85,9 @@ STATIC_ATTRIBUTES: Final = frozenset(
     }
 )
 #: survey-level values the runtime knows
-SURVEY_VALUES: Final = frozenset({"SID", "LANG", "SURVEYNAME"})
+SURVEY_VALUES: Final = frozenset(
+    {"SID", "LANG", "SURVEYNAME", "STARTDATE", "SUBMITDATE", "DATESTAMP", "STARTTIME"}
+)
 #: functions that read the clock
 CLOCK_FUNCTIONS: Final = frozenset({"date", "gmdate", "idate", "mktime", "time", "strtotime"})
 #: question types whose values are numbers (EM 'onlynum')
@@ -389,13 +392,15 @@ def _var(v: Var, ctx: Context) -> Value:
     part = v.part
     if v.kind == "self" and ctx.item is not None:
         part = ctx.item
+    if part == "*":
+        part = None
     q = ctx.survey.questions.get(qid) if (ctx.survey is not None and qid) else None
-    if q is None:
+    if q is None:  # LimeSurvey: an undefined variable is an error, so the expression fails
         ctx.record(
             "expression.unknown_variable",
-            f"variable {v.name!r} does not name a question the runtime knows; read as empty",
+            f"variable {v.name!r} does not name a question the runtime knows; the expression fails",
         )
-        return "", "WORD"
+        raise _Fail(f"unknown variable {v.name}")
     ctx.used.append(v)
     if attr in STATIC_ATTRIBUTES:
         return _static(q, part, attr, ctx), "WORD"
@@ -435,6 +440,12 @@ def _static(q: Question, part: str | None, attr: str, ctx: Context) -> Any:
         return info.get("relevance", "1")
     if attr == "grelevance":
         return info.get("grelevance", "1")
+    if attr == "help":
+        return info.get("help", "")
+    if attr in ("jsName", "jsName_on"):  # the page element's name: static, never compared
+        return f"java{info.get('sgqa', q.id)}{part or ''}"
+    if attr == "rowdivid":
+        return f"javatbd{info.get('sgqa', q.id)}{part or ''}"
     ctx.record("expression.unknown_variable", f"attribute .{attr} is not computed; read as empty")
     return ""
 
@@ -448,24 +459,31 @@ def _survey_value(v: Var, ctx: Context) -> Any:
         return ctx.state.embedded.get("LANG") or (survey.language if survey else "") or ""
     if name == "SURVEYNAME" and survey is not None:
         return survey.name
+    if name in ("STARTDATE", "SUBMITDATE", "DATESTAMP", "STARTTIME"):
+        ctx.record("expression.clock", f"{name} reads the current date and time")
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     ctx.record(
         "expression.unknown_variable",
-        f"survey value {name!r} is not available to the simulator; read as empty",
+        f"survey value {name!r} is not available to the simulator; the expression fails",
     )
-    return ""
+    raise _Fail(f"unknown survey value {name}")
 
 
 def _args(args: Sequence[Expr], ctx: Context) -> list[Any]:
     out: list[Any] = []
     for a in args:
-        if isinstance(a, Var) and a.kind == "self" and ctx.item is None:
+        if isinstance(a, Var) and (
+            (a.kind == "self" and ctx.item is None and a.part is None) or a.part == "*"
+        ):
             q = ctx.survey.questions.get(a.question_id or "") if ctx.survey else None
             items = item_ids(q) if q is not None else []
             if items:  # EM ExpandThisVar: self -> one variable per subquestion
                 for code in items:
-                    sub = a.model_copy(update={"part": code})
+                    sub = a.model_copy(update={"part": code, "kind": "question"})
                     out.append(_eval(sub, ctx)[0])
                 continue
+            if a.part == "*":
+                a = a.model_copy(update={"part": None})
         out.append(_eval(a, ctx)[0])
     return out
 

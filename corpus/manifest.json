@@ -1,5 +1,5 @@
 {
- "description": "Public Qualtrics .qsf files and Qualtrics CSV exports found on GitHub, pinned by git blob SHA. Nothing is redistributed here: scripts/fetch_corpus.py downloads the .qsf files into corpus/external/ and keeps only the two header rows (column names and ImportIds) of each export in corpus/external_columns/.",
+ "description": "Public Qualtrics .qsf files and Qualtrics CSV exports found on GitHub, pinned by git blob SHA. Nothing is redistributed here: scripts/fetch_corpus.py downloads the .qsf files into corpus/external/ and keeps only the two header rows (column names and ImportIds) of each export in corpus/external_columns/. `limesurvey` lists LimeSurvey survey exports (.lss, .lsa, .lsg, .lsq) from LimeSurvey's own repository (GPL-2.0-or-later), downloaded into corpus/external/limesurvey/ and never committed.",
  "files": [
   {
    "sha": "90760ec04c244788cc77850293652a42f00dc32c",
@@ -15548,6 +15548,953 @@
    "sha": "a00b0acb87777d06cb28d974fd394b0f600a80fb",
    "repo": "zzbn12345/WHOSe_Heritage",
    "path": "Data/Questionnaire/OUV_Venice_expert_May+9%2C+2021_05.19.csv"
+  }
+ ],
+ "limesurvey": [
+  {
+   "sha": "cb705ae0c796f347c3ef1c3a7560bf2955f959ab",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "application/core/plugins/expressionQuestionHelp/sample/limesurvey_survey_expressionQuestionHelp.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "dc3c3d6ecc4c8c6d7743f61a38f6617b05791b06",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "docs/demosurveys/ls205_array_filter_tests.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "729b8db876ab2b515cc7045b28066776aededee3",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "docs/demosurveys/ls205_cascading_array_filter.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "704e69e6379c8f0c016f13c232025084cd617799",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "docs/demosurveys/ls205_cascading_array_filter_exclude.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "709d62065abe16fae4cf3445e7222116a9d50d49",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "docs/demosurveys/ls205_comma_as_radix_separator.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "c2cb41c83f3d8bb7f5abf68aa27cd595c9036ae3",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "docs/demosurveys/ls205_countifop_sumifop.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "b11d28899a45ec2901d1a59cee4d0caae65858d8",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "docs/demosurveys/ls205_em_tailoring.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "79e34b3128f30b2b602b59b8cee60fb7f3ec93ba",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "docs/demosurveys/ls205_em_validation_q.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "c009178b0e7bb9d5f9151477c79e176e64d918f6",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "docs/demosurveys/ls205_group_relevance.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "d2d90e12c9ba039f4dfdf6f72a517cbab071675e",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "docs/demosurveys/ls205_maximum_chars_feature.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "702b60a0727c2b9962b770a1dd54e2db946ae1ea",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "docs/demosurveys/ls205_plurals_test.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "3fa0453a612091576f404aa067147e8b9b4f2001",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "docs/demosurveys/ls205_randomization_group_test.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "1d7386405a364dbe9f1524d0b555fd569eebd086",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "docs/demosurveys/ls205_sample_survey_english.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "4cd26f5b4e0037773a17fb20b49183d0d72a013a",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "docs/demosurveys/ls205_self_and_that.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "1f06cc6ee24b23bec73546063e31406706f02cf2",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "docs/demosurveys/ls205_subquestion_relevance.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "3c804bb3007c3c00aa6616c260e08de5444f12e2",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "docs/demosurveys/ls205_test_em_sq_validation.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "4192a534c5c0f52199be5fa5713379b78b1e12e8",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "docs/demosurveys/ls205_validation_tests.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "e5c095b0138f743f19bcd6328279a0bbc0cfcaee",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "docs/demosurveys/ls206_em_subquestion_relevance.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "cec11015118232868badf479eacc23e86f7fee2f",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "docs/demosurveys/ls5_EM_question_attributes.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "dd775b75fa54c7aad640873be66b6ddb58a89807",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "docs/demosurveys/ls5_sample_survey_multilingual_fr_de_en_it.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "48b3e0b30a843f28727169952bced75316a93e00",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "docs/demosurveys/ls6_sample_survey_multilingual_fr_de_en_it_ru.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "9596278dac0b930e3e8de325a0aa84342168488d",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "docs/demosurveys/ls7_EM_question_attributes_multilang.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "198ab945632b0dede86c69d3d029bf38f4da003e",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "docs/demosurveys/ls7_Samplesurvey_en_de.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "8ec3ac19338f2d13b340fd81cfa10892c4a7f4bc",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "plugins/Demo/demoAddEmFunction/demo/limesurvey_survey_demo.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "3544bf2b43e68bbaf44ac31789342fa35d44d8b1",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/file_upload/limesurvey_group_472.lsg",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "6311c47b1712d6db8f17067781e9456cf4dfc77c",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/access_modes_368399.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "a04921a0016331ac70458a5ea913c4eb606c71e1",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/access_modes_553745.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "0d1aa3d32e129bb5e8ff0e4626fd492180da0fef",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/access_modes_797496.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "992caa401493703e8289188a0062ec3e452105eb",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/access_modes_976917.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "923774175aecebbc9e9a79633c3452d14a03e384",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_question_16908_three_languages.lsq",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "b50e21ccf30e19795c8c46896162681e792c6228",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_question_import_question_test.lsq",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "7ee925e03f5656fbf2d62b43ce1895a0f5f6cfc5",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_question_import_question_test_II.lsq",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "34d86ba3deb57127ab1389ffe4c8a320d7b6ce60",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_141451_testSaveQuestionAttributes.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "1d4068ff223432ca26134281184baa98a8840ad3",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_143933.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "4efa0da8e49855f58879f2a85fb2f0be4e0e6a7a",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_15598_intval_floatval_jsphp_compare.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "2b3fa04836d88f85b7815a9d572dc642c88cad1a",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_157447_array_filter_ranking_max_columns.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "2048c979baa1ec8d164a6f0f610ff5f2d28e91bd",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_161359_quickTranslation.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "642c818db656f9661898ea685276f6f2e0d74e21",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_186734.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "1dbb5759af7ac5713d86855f19486248b37c0030",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_188432_answerSetsForEmTest.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "7be9a456f54ee41fd865d2397bc974c669065092",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_193959_testSelectQuestionThemeInEditor.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "aea0af0f65c7a5c0a2479738485c348974faa51e",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_251297_import_group.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "006d5fb4492fb669cb26bbb4ce7e385d133dea8f",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_268886_testSurveyPermissions.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "8da28ef999ece79360536ccff80b15c38b0b4f85",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_334427.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "49f68f2c0d8f9aacb26f02ba4b07048ee0916390",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_351443.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "cf34a791e185ee7ea3af76fe86a39790d6f588bc",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_352985.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "432c22d653c2bf67287471c19c6f435aa6cb3550",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_358685_Copy_survey_with_short_url_test.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "892d0d2f7e306cf525d2b1eca7770f0c814762d1",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_366446.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "33d9cf2558d0235d9a60f5a7c771d895ee31eaf2",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_373616_copySurvey.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "88aad1536a4f2a389ed112140f01352147b11a7c",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_376789_quotas.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "8ecb4f3dbaa267dab03aea28b20c9a51ffbe356b",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_383591_testCreateQuestion.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "74f2b7cd14e1667722c302ba55a0c871b6b6a9ff",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_425647_subquestion_relevance_edit.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "c17579be072d2735f9cc6fea4e25d95074525757",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_454287.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "4a6c9598a514fdaaadacebfb03a3d3c5596b1f9f",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_478651_import_export_irrelevant.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "6f50c6ec10b0f671b1dac72d98fa9aad230a2857",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_479717.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "a5726b85170c0222726f1a01fc722c2817e30066",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_489_default.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "c532f7302a38f83213a20ae576aecba35a711a7f",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_496242.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "3f539ba305e6c7dea345b5cf5379e9395aac6161",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_561859.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "0c3e26f786e6ade14692c766687160eb0037afb0",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_563168.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "af1ce34e18cca644172f7344668406fd98ed1fbb",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_573386.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "4b384c1d43fd4ad22f6bbeef3f7bf22cc0d37cd0",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_573837.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "9565ba31b4f9bc36669ea9a1668d5ec0329534a9",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_583654_ranking_response_table.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "38eb41e237050f93418de0d1801e33a3948782f9",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_583999.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "90b125aa4ffccd00dded52b3a89566665fc307ae",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_594264_getGroupDescription.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "ff82d38f7797e4ae3dd6e22d953c6202a3cfce5e",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_666368.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "f060e94bc441ddeb73a865399d4c26b813841cab",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_677328.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "86a9396dc528d5b1a2991c7dbcbd3abf086ba532",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_696688_surveyObjExport.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "87cf1a5caeb25a700fa930b4fe8f9c6936bf2b3d",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_767665_ListRadioOtherPositionTest.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "bd3a4d4609333ec4fd796c664e1f3cded93f8fc0",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_834477.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "8e44c292527ea1a34af4759d2ef6460f636f6a71",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_854771.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "236b9af4fce53a3d28d7dbd82d4e0dafe302ab37",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_88881.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "6078376f454655f43cbbed2826caa0d89954c25e",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_900697_xss_import_warning_test.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "8687e9632b0bfb05c4f8a6a288d0522365b7d23d",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_917744.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "ebabcd9a160b9db81421cd3fc8273b7bc1a637de",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_928171.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "a44098264f6ae7fe752e57f0715125077a8a2674",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_931272_SurveyUrl.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "b049ee521ece2e4ef1aa8b84cfe95e14749f1bdc",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_969899_ImportResponses.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "6244fdb43541383c75e27a010ec63310376ab31a",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_975622.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "461c683752325e1b70ee35e2e2167d1360a0cde5",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_994476_CopySurveyResources.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "597a72c0e27cfd16dcc528da77744954b3882ae1",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_ArrayNumberCheckbox.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "8506149dff733d1b96117fb961c279887cebe55b",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_CheckGetQuestionID.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "dec64c8aea4af384ef87e8ff494bf50bad3326e1",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_CorruptedSurvey.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "85af0ccb1ed9ca8db04824c20ca985294c44500a",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_HtmlInTimerMessages.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "3207d513664433d2bc3583fefe1f51ac487d2f7b",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_InviteParticipantsTest.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "3f583ce39d5eb9cca7b87f88060ba8434579e0bf",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_MandatorySoftBrokeMandatory.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "8026f9c0575c5bfd115901a6db093614f7b5311f",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_MandatorySoftCloseDialog.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "d0e288c0572250a7b790696ff7c29dfab0fe4e26",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_MandatorySoftMultiPage.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "52ab9a5739cbbff9c911bfde43111d36e676700e",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_MinMaxCompareTest.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "411974e39814d548c7017e785115cf84fad14c47",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_OldCodes.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "77843453ad972834caf3803e9f485bf9747de7fc",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_OrderTestSurvey.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "76ca79aac538b8c01ccc4d36613bdf33373d0e0b",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_PrefillStartingValues.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "cfcd82793590cc3ebf97b8fc107086d03533d1dd",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_QuestionAttributeTestSurvey.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "ce87d01f3b95bbd27af0efd3598c8489b020c9d6",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_SurveyLogicWarnings.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "4e9e19638ad3c8d9e55818151e82325e6af16c80",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_XssAndScriptCheck.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "8c247826db8de423367c6c64b720a2994462af56",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_allinoneCondition.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "327f46c63784c1ac1512d799e98de6ad244d4525",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_checkCompareTestSurvey.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "cc60d22e92d844d488150ca4282f35bd16e5931a",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_expressionAnswerOptionsTest.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "2ebd54ad8cb7bba6983426bc87a118c2a52d5ae5",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_get_participant_properties.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "126595a8a304eed9b4b8a47902a353178fe001a0",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_groupEMupdateAndGoodQID.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "52094af61c6a544070f5f9230046f52d4071a87c",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_import_question_test.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "0b264b4d8712dc574d4a9dc9cf6cdc4625c830c1",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_navigation.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "7b23f75d088267f6aa91e260a71ee01aa926c209",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_previewGroupQuestion.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "d80c2440b02991d03847a51154da89bc9db9f77c",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_rankingFilterHideShow.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "3bb7de355d5a3e3f4e23c8f1775e9c6bde188f51",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_remote_api_get_fieldmap.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "2426e57eb3c42d267048770dba48b55073ab507b",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_remote_api_group_language.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "4a9da24447fe334f7333b02412d0c790c5698e4d",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/limesurvey_survey_shortUrlOpen.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "d043782535f23bb7f3979d745ea55ecf8775f653",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey-dual-scale-question-api-test.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "16d4d323d279387677ea115990074139cf4b17a0",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_GetQuestionTest.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "0243aa89003eb43aa1d716d4a8e56f4961f1a4e7",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_archive_222923_executeQuestionThemeSurvey.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "902d560665c9c20e0324082db49460f02bd2797a",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_archive_265351_listParticipants.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "0edeea2ff8c697f45885cc73ed316c9cf38d1ff7",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_archive_265831.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "17623b31cd5c68b738d237703b6c200311581198",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_archive_2_basic_responses.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "c535a935bfd9c0905940b0cff4a5231e1674cd7a",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_archive_358746_no_green_bar.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "5f682bc985ec155ac45a265d77e876ae5e82fd32",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_archive_426848.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "bb7f6b2bac4b3afb981a2a12d281d5c04ed4a36a",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_archive_464421.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "2ae696ad140b755995239d99e40048087e4758ef",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_archive_564265.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "ea5deab06fca652e414f28cf4458c54016a04afb",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_archive_821351.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "fb6d1956842148ae3fccd194b4800b74ea683349",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_archive_993688_participantBlacklist.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "7548b076942638c4d4d21bba7047e1b16b67f4b3",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_archive_RemoteControlExportResponses.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "8d639541f62481bf9781cc8d74192645116d0215",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_archive_SaveEditedResponseTest.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "7c73f5bdc73e355284c7a8c27ff4b8df5686e258",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_archive_deleteResponseTest.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "f1486dc1f589859b97cda1ebd2306b227ae2e8ce",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_archive_getFileUploadTest.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "6173df6b72f2b3e19557d5c2f1a2fea0c5f0c277",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_archive_getFileUploadTestClosed.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "aab451b28ef62fd60254e86e4b5e11dfac5b0e41",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_archive_getParticipantPropertiesTest.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "28a5b4af1adae076e235847019415a2e6ba567fd",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_archive_setVariableExpressionEndPluginTest.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "291c232328928c66bb9d0517270a15f6421f8b11",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_archive_shortUrlClosed.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "f45504cc87e142641a94af692955cb3e598d2ae2",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_archive_statCountFunctionsTest.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "10388ec75feed2cfe9b8ff44f19c664b0afab6ad",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_export_responses_by_token_955579.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "b25090abca46df7e9bf1b838e6e2b43b3b5ea28a",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_export_responses_with_tokens.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "791f8680959c5c1bbb36da9280d01a16aea6322d",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_fixMovedQuestionConditionsDefault.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "68522b6eda3f915741477829c6d6469f1ca65a99",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_fixMovedQuestionConditionsNew.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "8a3786728adc55ca5ba89277162fc929cf16245a",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_groupHelper_test.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "673510aa7f2c815b00ffc4d0b77a247b37369bcb",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_index_navigation_test.lss",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "0200ed933990e56b1a116f12e13f38e6a7856119",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_simple_statistics.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "94248b3627a113460f1346f5c04fa343b1effc48",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_statistics_one.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "311ea6da6015e0bc172deb08ad1dee4c0b9f5196",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_statistics_three.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
+  },
+  {
+   "sha": "d5d19510b3375bf8dc68e26cef947e716630d233",
+   "repo": "LimeSurvey/LimeSurvey",
+   "path": "tests/data/surveys/survey_statistics_two.lsa",
+   "ref": "7.5.0+261001",
+   "license": "GPL-2.0-or-later"
   }
  ]
 }

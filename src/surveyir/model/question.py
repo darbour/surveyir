@@ -98,6 +98,11 @@ class Randomization(IRModel):
         ),
     )
     randomized: list[str] = Field(default_factory=list)
+    groups: list[list[str]] = Field(
+        default_factory=list,
+        description="Advanced mode without slots: further pools, each shuffled among its own "
+        "positions independently of `randomized` (LimeSurvey question random groups).",
+    )
     undisplayed: list[str] = Field(default_factory=list)
     per_page: int | None = Field(default=None, description="Questions per page (blocks only).")
     flip_scale: bool = Field(
