@@ -663,6 +663,8 @@ def read_responses(
     else:
         header, rows = read_lime_csv(path)
     options = options or infer_lime_options(header, survey)
+    # an unfinished response has no submit date (NULL, left out of .lsr rows)
+    dated = "submitdate" in header
     out = []
     for r in rows:
         embedded = {}
@@ -677,6 +679,8 @@ def read_responses(
                 answers=row_answers(survey, r, options),
                 embedded=embedded,
                 seed=int(seed) if isinstance(seed, str) and seed.isdigit() else None,
+                id=str(r["id"]) if r.get("id") not in (None, "") else None,
+                finished=bool(r.get("submitdate")) if dated else None,
             )
         )
     return out

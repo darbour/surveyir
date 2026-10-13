@@ -296,9 +296,10 @@ print(again.trace == runs[0].trace, rec.orders[("flow", "FL_6", None)])
 True ('FL_8',)
 ```
 
-To replay a real response, build the orders from its `_DO` columns
-(`FL_<id>_DO` for flow randomizers), its answers keyed `(qid, loop_id)`, and
-its panel or URL fields as `embedded=`. A replay is strict: a decision the
+To replay a real response, read the export with `surveyir.read_responses`. It
+gives each respondent's orders (from the `_DO` columns, or reconstructed when the
+export has none), answers keyed `(qid, loop_id)`, and panel or URL fields for
+`embedded=` (see [Real responses](responses.md)). A replay is strict: a decision the
 record does not hold raises `ReplayGap` (an `ExecutionError`), unless you pass
 `allow={"replay.gap"}` or `strict=False`, in which case the default chooser
 draws it and the gap is recorded in the audit. `fallback_kinds={"columns"}`

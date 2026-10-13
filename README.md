@@ -46,6 +46,11 @@ analysis pipeline, a survey renderer) can then work from that one structure.
   test surveys load, export and simulate. In every one of its response archives, the
   generated field names match the response file exactly, and replaying the
   recorded answers reproduces them ([docs/parity_limesurvey.md](docs/parity_limesurvey.md)).
+- **Real responses.** `read_responses` reads a Qualtrics or LimeSurvey export into
+  each respondent's randomization and answers, and replaying it walks their path
+  again. When the export has no display-order columns, flow-randomizer arms are
+  reconstructed by searching replays for what the answers pin down
+  ([docs/guide/responses.md](docs/guide/responses.md)).
 - **Language-neutral.** The IR is plain JSON with a published
   [JSON Schema](schema/surveyir.schema.json), so R, JavaScript and other tools
   can consume it without Python.
@@ -94,7 +99,8 @@ Requires Python 3.10+. The only runtime dependency is `pydantic>=2`.
 Start with the [quickstart](docs/quickstart.md), then the guides:
 [loading](docs/guide/loading.md), [exporting](docs/guide/exporting.md),
 [data columns](docs/guide/data-columns.md), [experiments](docs/guide/experiments.md),
-[simulating respondents](docs/guide/simulation.md), [LimeSurvey](docs/guide/limesurvey.md)
+[simulating respondents](docs/guide/simulation.md), [real responses](docs/guide/responses.md),
+[LimeSurvey](docs/guide/limesurvey.md)
 and the [command line](docs/cli.md). [Positioning](docs/positioning.md) compares
 surveyir with related tools. Every example in the docs is run by the test suite,
 and runnable scripts are in [`examples/`](examples).
