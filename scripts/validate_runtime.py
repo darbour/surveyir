@@ -66,7 +66,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from surveyir import load_qsf, response_columns  # noqa: E402
+from surveyir import Recording, load_qsf, read_responses, response_columns  # noqa: E402
 from surveyir.model import (  # noqa: E402
     BlockNode,
     BranchNode,
@@ -80,6 +80,7 @@ from surveyir.model import (  # noqa: E402
     walk,
 )
 from surveyir.model.question import NON_RESPONSE_KINDS  # noqa: E402
+from surveyir.responses import flow_set_fields  # noqa: E402
 from surveyir.runtime import (  # noqa: E402
     Answer,
     ExecutionError,
@@ -222,22 +223,6 @@ def _unknowable(condition, exported_fields: set[str]) -> bool:
     return bool(_embedded_read(condition) - exported_fields)
 
 
-def flow_set_fields(survey: Survey) -> set[str]:
-    """Embedded fields the flow itself sets: their exported value is the final one, which
-    may differ from the value at the point a condition was evaluated."""
-    out: set[str] = set()
-    for node in survey.walk_flow():
-        if isinstance(node, EmbeddedDataNode):
-            out.update(
-                f.name
-                for f in node.fields
-                if f.source in ("custom", "random") and f.value is not None
-            )
-        elif isinstance(node, WebServiceNode):
-            out.update(node.sets_fields)
-    return out
-
-
 def _predict(condition, state: RespondentState, survey: Survey) -> bool | None:
     """The evaluator's verdict, or None if it hit a comparison it cannot evaluate
     (recorded as an approximation; the runtime treats it as false)."""
@@ -347,94 +332,6 @@ REPLAY_FALLBACK = ("choices", "columns", "loop")
 REPLAY_ALLOW = {"javascript", "answer.invalid"}
 
 
-def _positions(row: dict, cols: list[tuple[str, str]]) -> tuple[str, ...]:
-    """Options with a display position in ``row``, in display order."""
-    shown = []
-    for option, key in cols:
-        value = row.get(key, "")
-        if value.strip():
-            try:
-                shown.append((float(value), option))
-            except ValueError:
-                continue
-    return tuple(o for _, o in sorted(shown))
-
-
-def order_columns(survey: Survey, columns) -> dict[tuple, list[tuple[str, str]]]:
-    """Replay keys -> [(option, column key)] for every display-order column present."""
-    out: dict[tuple, list[tuple[str, str]]] = {}
-    for col in columns:
-        if col.part != "display_order" or col.choice_id is None:
-            continue
-        if col.question_id is None and col.import_id.startswith("FL_"):
-            key, option = ("flow", col.import_id[:-3], None), col.choice_id
-        elif col.question_id is None:
-            block = survey.blocks.get(col.import_id[:-3])
-            if block is None:
-                continue
-            tags = {
-                survey.questions[q].export_tag: q
-                for q in block.question_ids
-                if q in survey.questions
-            }
-            key, option = ("block", block.id, None), tags.get(col.choice_id, col.choice_id)
-        else:
-            q = survey.questions.get(col.question_id)
-            if isinstance(q, MatrixQuestion):  # keyed by row position
-                pos = int(col.choice_id) - 1
-                if not 0 <= pos < len(q.rows):
-                    continue
-                option = q.rows[pos].id
-            else:
-                option = col.choice_id
-            key = ("choices", col.question_id, col.loop)
-        out.setdefault(key, []).append((option, col_key(col)))
-    return out
-
-
-def recorded_answers(survey: Survey, row: dict, columns) -> dict[tuple, Answer]:
-    """Answers keyed (question id, loop id), as ``Answer`` values (see ``state.Answer``)."""
-    parts: dict[tuple, dict] = {}
-    for col in columns:
-        value = row.get(col_key(col), "")
-        if not value or col.question_id is None or col.part not in ("response", "text"):
-            continue
-        qid = col.question_id
-        q = survey.questions.get(qid) or survey.questions.get(qid.split("#")[0])
-        a = parts.setdefault((qid, col.loop), {})
-        if col.part == "text":
-            a.setdefault("text", {})[col.choice_id or col.row_id or ""] = value
-        elif isinstance(q, ChoiceQuestion):
-            if col.choice_id is not None:
-                a.setdefault("multi", []).append(col.choice_id)
-            else:
-                code = {str(c.recode if c.recode is not None else c.id): c.id for c in q.choices}
-                a["single"] = code.get(value, value)
-        elif isinstance(q, MatrixQuestion) and col.row_id:
-            if col.answer_id is not None and q.mode == "multiple":
-                a.setdefault("rows", {}).setdefault(col.row_id, []).append(col.answer_id)
-            elif col.answer_id is not None:
-                a.setdefault("rows", {}).setdefault(col.row_id, {})[col.answer_id] = value
-            else:
-                scale = q.row_columns.get(col.row_id) or q.columns
-                code = {str(x.recode if x.recode is not None else x.id): x.id for x in scale}
-                a.setdefault("rows", {})[col.row_id] = code.get(value, value)
-        elif col.choice_id is not None:
-            a.setdefault("by_choice", {})[col.choice_id] = value
-        else:
-            a["plain"] = value
-    out: dict[tuple, Answer] = {}
-    for (qid, loop), a in parts.items():
-        value = a.get("multi", a.get("single", a.get("rows", a.get("by_choice", a.get("plain")))))
-        base = qid.split("#")[0]
-        if base != qid:  # a side-by-side sub-question: one part of the parent's answer
-            parent = out.setdefault((base, loop), Answer(value={}))
-            parent.value[qid] = value
-            continue
-        out[(qid, loop)] = Answer(value=value, text=a.get("text", {}))
-    return out
-
-
 def undeclared_reads(survey: Survey) -> tuple[set[str], dict[str, set[str]]]:
     """Embedded fields logic reads that the flow neither declares nor sets (they can
     only come from outside, e.g. a URL, and are not exported), and where:
@@ -477,7 +374,9 @@ def _replay_tally() -> dict:
     }
 
 
-def replay_check(survey: Survey, header: list[str], rows: list[dict]) -> dict:
+def replay_check(
+    survey: Survey, header: list[str], rows: list[dict], recordings: list[Recording]
+) -> dict:
     """Re-administer each finished respondent with their recorded orders, answers and
     inputs, and compare what the replay displayed with what they answered (see the
     module docstring)."""
@@ -489,10 +388,8 @@ def replay_check(survey: Survey, header: list[str], rows: list[dict]) -> dict:
             answer_cols.setdefault((col.question_id.split("#")[0], col.loop), []).append(
                 col_key(col)
             )
-    orders = order_columns(survey, columns)
     exported = {c.name: col_key(c) for c in columns if c.part == "embedded_data"}
     set_in_flow = flow_set_fields(survey) & set(exported)
-    inputs = {n: k for n, k in exported.items() if n not in set_in_flow}
     # fields whose flow value pipes a field nothing declares and the export lacks
     # (one question JavaScript sets): no replay can know that value
     declared = {
@@ -516,47 +413,24 @@ def replay_check(survey: Survey, header: list[str], rows: list[dict]) -> dict:
         if b.randomization is not None and b.randomization.mode != "none"
         for q in b.question_ids
     }
-    # randomized blocks and loops without display-order columns: the questions or
-    # iterations shown are inferred from those with answers (their order is not known)
-    inferred: dict[tuple, dict[str, list[tuple]]] = {}
-    for b in survey.blocks.values():
-        if (
-            b.randomization is not None
-            and b.randomization.mode != "none"
-            and ("block", b.id, None) not in orders
-        ):
-            inferred[("block", b.id, None)] = {
-                q: [k for k in answer_cols if k[0] == q] for q in b.question_ids
-            }
-        if (
-            b.loop is not None
-            and b.loop.randomization is not None
-            and b.loop.randomization.mode != "none"
-        ):
-            iterations: dict[str, list[tuple]] = {}
-            for k in answer_cols:
-                if k[1] is not None and k[0] in b.question_ids:
-                    iterations.setdefault(k[1], []).append(k)
-            inferred[("loop", b.id, None)] = iterations
     undeclared_nodes, undeclared_questions = undeclared_reads(survey)
     replayer = Replayer(survey, fallback_kinds=REPLAY_FALLBACK, allow=REPLAY_ALLOW)
     t = _replay_tally()
-    finished = [r for r in rows if r.get(_canon({"ImportId": "finished"})) == "1"]
-    for n, row in enumerate(finished):
+    finished = [
+        (row, rec)
+        for row, rec in zip(rows, recordings, strict=True)
+        if row.get(_canon({"ImportId": "finished"})) == "1"
+    ]
+    for n, (row, rec) in enumerate(finished):
         answered = {k for k, cols in answer_cols.items() if any(row.get(c) for c in cols)}
-        recorded = {}
-        for key, cols in orders.items():
-            shown = _positions(row, cols)
-            if shown or key[0] != "flow":  # an unreached randomizer is left unrecorded
-                recorded[key] = shown
-        for key, options in inferred.items():
-            recorded[key] = tuple(o for o, ks in options.items() if set(ks) & answered)
+        recorded = rec.orders
+        for key in rec.inferred:
             t["inferred_orders"][key[0]] = t["inferred_orders"].get(key[0], 0) + 1
         try:
             run = replayer.respondent(
                 recorded,
-                recorded_answers(survey, row, columns),
-                embedded={name: row.get(k, "") for name, k in inputs.items()},
+                rec.answers,
+                embedded=rec.embedded,
                 seed=n,
             )
         except ReplayGap as e:
@@ -606,7 +480,7 @@ def replay_check(survey: Survey, header: list[str], rows: list[dict]) -> dict:
                 t["not_in_display_order"] += 1
         screens = {(d.qid, d.loop_id) for d in run.trace if isinstance(d, Display)}
         for key, shown in recorded.items():  # Qualtrics showed these; did the replay?
-            if key[0] == "block" and key not in inferred:
+            if key[0] == "block" and key not in rec.inferred:
                 t["in_display_order_not_displayed"] += sum(
                     1 for q in shown if (q, None) not in screens
                 )
@@ -643,7 +517,7 @@ def main(dat: Path) -> None:
             "randomizers": randomizer_counts(survey, header, rows),
             "blocks": block_counts(survey, header, rows),
             "consistency": consistency(survey, header, rows),
-            "replay": replay_check(survey, header, rows),
+            "replay": replay_check(survey, header, rows, read_responses(csv_path, survey)),
         }
         c = report[qsf.stem]["consistency"]
         lines = [x for x in (_line(k, c[k]) for k in ("display", "branch")) if x]

@@ -192,12 +192,29 @@ class ReplayAnswerer:
 
 @dataclass
 class Recording:
-    """What a replay needs from one respondent (see ``record``)."""
+    """What a replay needs from one respondent (see ``record``, and
+    ``surveyir.read_responses`` for real exports).
+
+    A recording read from an export also says which response it is (``id``),
+    whether it was finished (None: the export does not say), which orders were
+    reconstructed rather than read from display-order columns (``inferred``: see
+    ``responses`` and ``reconstruct``), what the export held that a replay cannot
+    use or recover (``unrecoverable``), and the exported values of embedded fields
+    the flow itself sets (``outputs``: final values, compared, never supplied).
+    ``drawn`` holds the ones the flow draws at random (``${rand://...}``): the
+    respondent's actual draw, which a replay takes instead of drawing again.
+    """
 
     orders: dict[RecordKey, tuple[str, ...]]
     answers: dict[tuple[str, str | None], Answer]
     embedded: dict[str, str] = field(default_factory=dict)
     seed: int | None = None
+    id: str | None = None
+    finished: bool | None = None
+    inferred: tuple[RecordKey, ...] = ()
+    unrecoverable: tuple[str, ...] = ()
+    outputs: dict[str, str] = field(default_factory=dict)
+    drawn: dict[str, str] = field(default_factory=dict)
 
 
 def record(run: RespondentRun) -> Recording:
@@ -254,15 +271,16 @@ class Replayer:
         *,
         embedded: Mapping[str, str] | None = None,
         seed: int | None = None,
+        drawn: Mapping[str, str] | None = None,
     ) -> RespondentRun:
-        """Replay one respondent. Raises ``ExecutionError`` (``ReplayGap`` for a
-        missing decision) where a strict replay cannot proceed; the partial run is
-        on the error's ``run``."""
+        """Replay one respondent (``drawn``: see ``Recording.drawn``). Raises
+        ``ExecutionError`` (``ReplayGap`` for a missing decision) where a strict
+        replay cannot proceed; the partial run is on the error's ``run``."""
         chooser = self.chooser
         chooser.recorded = {k: tuple(v) for k, v in orders.items()}
         chooser.gaps, chooser.fallbacks = [], []
         run = self.simulator.respondent(
-            ReplayAnswerer(answers), embedded=dict(embedded or {}), seed=seed
+            ReplayAnswerer(answers), embedded=dict(embedded or {}), seed=seed, drawn=drawn
         )
         if chooser.gaps:  # allowed or permissive gaps, recorded like any approximation
             audit = list(run.audit)

@@ -801,7 +801,10 @@ def infer_options(header: Sequence[tuple[str, dict[str, Any]]]) -> ColumnOptions
     def is_do(o: dict[str, Any]) -> bool:
         return str(o.get("ImportId", "")).endswith("_DO")
 
-    split_cols = any("choiceId" in o and not is_do(o) for o in objs)
+    def is_group(o: dict[str, Any]) -> bool:  # pick-group-rank placements: always split
+        return re.search(r"_\d+_GROUP$", str(o.get("ImportId", ""))) is not None
+
+    split_cols = any("choiceId" in o and not is_do(o) and not is_group(o) for o in objs)
     do_cols = [o for o in objs if is_do(o)]
     if do_cols:
         do_layout = "split" if any("choiceId" in o for o in do_cols) else "single"

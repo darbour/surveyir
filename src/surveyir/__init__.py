@@ -27,13 +27,23 @@ from .loaders import available_loaders, load
 from .loaders.limesurvey import load_lss
 from .loaders.qualtrics import LoadError, load_qsf
 from .model import SCHEMA_VERSION, Survey
-from .runtime import RandomAnswerer, Simulator, design, write_responses_csv
+from .responses import read_responses
+from .runtime import (
+    RandomAnswerer,
+    Recording,
+    Replayer,
+    Simulator,
+    design,
+    write_responses_csv,
+)
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 __all__ = [
     "SCHEMA_VERSION",
     "RandomAnswerer",
+    "Recording",
+    "Replayer",
     "Simulator",
     "Column",
     "ColumnOptions",
@@ -49,6 +59,7 @@ __all__ = [
     "get_exporter",
     "infer_options",
     "read_header",
+    "read_responses",
     "load",
     "load_lss",
     "load_qsf",

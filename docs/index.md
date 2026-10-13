@@ -22,6 +22,7 @@ The output shown under an example is what it actually prints.
 | [Data columns](guide/data-columns.md) | Qualtrics export columns, export settings, reading real exports |
 | [Experiments](guide/experiments.md) | What a survey randomizes: factors, arms, crossing, cells; exposure histories |
 | [Simulating respondents](guide/simulation.md) | Running answerers (rules, random, LLMs) through a survey |
+| [Real responses](guide/responses.md) | Reading a response export into each respondent's randomization and answers; replaying it; reconstructing what the export leaves out |
 | [LimeSurvey](guide/limesurvey.md) | LimeSurvey files, ExpressionScript logic, LimeSurvey export columns, replaying real responses |
 | [Command line](cli.md) | `inspect`, `convert`, `design`, `simulate`, `formats`, `schema` |
 | [Design](design.md) | Why the library is built the way it is, and what it claims on what evidence |

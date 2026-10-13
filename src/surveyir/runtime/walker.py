@@ -912,9 +912,15 @@ class Simulator:
         embedded: dict[str, str] | None = None,
         seed: int | None = None,
         index: int | None = None,
+        drawn: Mapping[str, str] | None = None,
     ) -> RespondentRun:
         """Walk one respondent. ``answerer`` is a ``Respondent`` (has ``answer(ctx)``)
         or a legacy ``(view, state)`` callable, which makes the run ``privileged``.
+
+        ``drawn`` gives embedded fields the flow sets from a random draw
+        (``${rand://...}``) the value the respondent actually got, as a real export
+        records it: the draw still happens (so the random stream is unchanged), and
+        the field takes the given value. Replays of real responses use it.
 
         ``index`` walks respondent ``index`` of a sequential run directly, without
         walking the ones before it: its seed is ``seed_for(index)`` (unless ``seed=``
@@ -956,6 +962,7 @@ class Simulator:
         self._quota_status(state)
         run = RespondentRun(index=index, seed=seed, state=state)
         walk = _Walk(self, run, random.Random(seed), answerer, out_of_order=out_of_order)
+        walk.drawn = dict(drawn or {})
         try:
             if out_of_order:
                 for quota in self.survey.quotas:
@@ -1045,6 +1052,8 @@ class _Walk:
         self.sim, self.survey, self.run, self.rng = sim, sim.survey, run, rng
         #: out of order (``respondent(index=)``): balanced draws use a copy of the counts
         self.out_of_order = out_of_order
+        #: field -> the value a real respondent drew (see ``Simulator.respondent``)
+        self.drawn: dict[str, str] = {}
         self.balancer = (
             Counterbalancer.from_dict(sim.balancer.to_dict()) if out_of_order else sim.balancer
         )
@@ -1148,6 +1157,8 @@ class _Walk:
                         self.sim._field_affects(f.name),
                         as_typed=True,
                     )
+                    if f.name in self.drawn and any(p.kind == "random" for p in f.value.pipes):
+                        value = self.drawn[f.name]  # what the respondent actually drew
                     self.set_embedded(f.name, value, node.id)
                 elif f.name not in state.embedded:
                     # a panel / recipient / URL field nobody supplied: empty, and
