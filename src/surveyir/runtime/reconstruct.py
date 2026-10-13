@@ -23,7 +23,8 @@ replaying the respondent under candidate decisions and keeping the ones that fit
   noted in ``Recording.unrecoverable``, so a replay draws it and says so; the
   decisions under it are settled under each equally good choice and recorded
   when they agree, so whichever arm a replay draws, the respondent's inner
-  conditions follow.
+  conditions follow. Those are listed in ``Recording.conditional``: the respondent
+  reached only one of them, and which is not known.
 
 The same block can sit under several randomizers or arms: replays walk the
 actual flow, so which placement showed a block follows from the decisions.
@@ -188,6 +189,8 @@ def reconstruct(
             k = _key(req)
             trial[k] = min(candidates(req, trial), key=lambda o: run({**trial, k: o})[0])
 
+    conditional: set[RecordKey] = set()
+
     def settle(trial: Trial, within: set[str] | None) -> tuple[Trial, list[str]]:
         """The decisions reached under ``trial`` (only those under the nodes
         ``within``, if given) that the response pins down, and notes on the rest.
@@ -223,6 +226,7 @@ def reconstruct(
             for key, values in inner.items():
                 if len(values) == 1:
                     decided[key] = next(iter(values))
+                    conditional.add(key)  # holds only if the respondent reached it
                 else:
                     notes.append(f"{key[0]} {key[1]}: depends on {k[1]}; not recovered")
         return decided, notes
@@ -252,7 +256,13 @@ def reconstruct(
     orders = {**rec.orders, **decided}
     inferred = [*rec.inferred, *decided]
     notes += unsettled
-    return replace(rec, orders=orders, inferred=tuple(inferred), unrecoverable=tuple(notes))
+    return replace(
+        rec,
+        orders=orders,
+        inferred=tuple(inferred),
+        unrecoverable=tuple(notes),
+        conditional=(*rec.conditional, *sorted(conditional, key=str)),
+    )
 
 
 class _OutOfReplays(Exception):

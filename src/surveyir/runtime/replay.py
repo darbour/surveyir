@@ -203,6 +203,9 @@ class Recording:
     the flow itself sets (``outputs``: final values, compared, never supplied).
     ``drawn`` holds the ones the flow draws at random (``${rand://...}``): the
     respondent's actual draw, which a replay takes instead of drawing again.
+    ``conditional`` lists reconstructed decisions of randomizers the respondent may
+    not have reached (they sit under a decision the export could not tell apart):
+    a replay follows whichever it reaches, but none is known to be theirs.
     """
 
     orders: dict[RecordKey, tuple[str, ...]]
@@ -215,6 +218,7 @@ class Recording:
     unrecoverable: tuple[str, ...] = ()
     outputs: dict[str, str] = field(default_factory=dict)
     drawn: dict[str, str] = field(default_factory=dict)
+    conditional: tuple[RecordKey, ...] = ()
 
 
 def record(run: RespondentRun) -> Recording:

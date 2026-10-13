@@ -128,6 +128,9 @@ def test_inner_decisions_follow_whichever_outer_arm_is_drawn(simulated, tmp_path
     for run, rec in zip(runs, _export(survey, runs, tmp_path, options), strict=True):
         assert ("flow", "FL_344", None) not in rec.orders
         assert any("FL_344" in n for n in rec.unrecoverable)
+        # the inner decisions are kept for whichever outer arm is drawn, and marked:
+        # the respondent reached only one of the two inner randomizers of each kind
+        assert rec.conditional and set(rec.conditional) <= set(rec.orders)
         inner = [v for f, v in run.flow_order.items() if f != "FL_344"]
         for _ in range(3):  # whichever outer arm a replay draws
             again = Replayer(survey, strict=False, fallback_kinds=("flow", *REPLAY_FALLBACK))
