@@ -27,7 +27,7 @@ import re
 from collections.abc import Callable
 from typing import Any, Final
 
-from ..model import And, Comparison, Condition, Operand, Or, Survey
+from ..model import And, Comparison, Condition, Expression, Not, Operand, Or, Survey
 from .state import RespondentState
 
 
@@ -66,6 +66,8 @@ def unevaluable(c: Comparison, location: dict[str, str] | None = None) -> tuple[
     if op in ("quota_met", "quota_not_met"):
         return None
     kind = left.kind
+    if op in ("relevant", "not_relevant") and kind in ("embedded_data", "loop_field", "device"):
+        return "logic.other_operator", f"relevance of {left.raw!r} is not defined; treated as false"
     if kind in ("embedded_data", "loop_field", "device", "constant"):
         return None
     if kind == "question" and left.question_id:
@@ -217,6 +219,12 @@ def evaluate(
         return all(evaluate(t, state, survey) for t in condition.terms)
     if isinstance(condition, Or):
         return any(evaluate(t, state, survey) for t in condition.terms)
+    if isinstance(condition, Not):
+        return not evaluate(condition.term, state, survey)
+    if isinstance(condition, Expression):
+        from .expressions import evaluate_boolean
+
+        return evaluate_boolean(condition, state, survey)
     c = condition
     op = c.operator
 
@@ -233,6 +241,9 @@ def evaluate(
     if op in ("displayed", "not_displayed"):
         hit = _displayed(c, state)
         return hit if op == "displayed" else not hit
+    if op in ("relevant", "not_relevant"):
+        hit = state.is_relevant(c.left.question_id or "", c.left.loop_iteration)
+        return hit if op == "relevant" else not hit
     if op in ("quota_met", "quota_not_met"):
         met = (c.left.name or c.left.raw) in state.quotas_met
         return met if op == "quota_met" else not met

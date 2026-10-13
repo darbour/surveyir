@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import random
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
@@ -59,6 +60,11 @@ class RespondentState:
     device: str = "desktop"
     location: dict[str, str] = field(default_factory=dict)  # for ${loc://City} etc.
     quotas_met: set[str] = field(default_factory=set)
+    #: questions hidden by their own or their group's logic (LimeSurvey: irrelevant);
+    #: a question not reached yet is relevant
+    irrelevant: set[tuple[str, str | None]] = field(default_factory=set)
+    #: draws made by logic and computed values (ExpressionScript ``rand()``)
+    rng: random.Random | None = field(default=None, repr=False, compare=False)
     #: panel / recipient / URL fields declared in the flow but not supplied; reading
     #: one (in logic or piped text) records an ``embedded.unset`` approximation
     unsupplied: set[str] = field(default_factory=set)
@@ -87,6 +93,10 @@ class RespondentState:
         return self.key(question_id, loop) in self.displayed or (
             loop is None and (question_id, None) in self.displayed
         )
+
+    def is_relevant(self, question_id: str, loop: int | str | None = None) -> bool:
+        """False if the question was hidden by its own or its group's logic."""
+        return self.key(question_id, loop) not in self.irrelevant
 
     def set_embedded(self, name: str, value: str) -> None:
         """Set an embedded field (it is then no longer unsupplied)."""

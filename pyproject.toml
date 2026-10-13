@@ -32,6 +32,7 @@ codebook = "surveyir.exporters.codebook:CodebookExporter"
 
 [project.entry-points."surveyir.loaders"]
 qualtrics = "surveyir.loaders.qualtrics:QualtricsLoader"
+limesurvey = "surveyir.loaders.limesurvey:LimeSurveyLoader"
 
 [dependency-groups]
 dev = [

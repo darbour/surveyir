@@ -17,9 +17,12 @@ import html as _html
 import json
 import re
 from collections.abc import Iterator, Mapping, Sequence
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field, computed_field
+
+if TYPE_CHECKING:
+    from .columns_limesurvey import LimeColumnOptions
 
 from .model import (
     Block,
@@ -449,13 +452,24 @@ def _flow_display_order(survey: Survey, options: ColumnOptions) -> Iterator[Colu
 
 
 def response_columns(
-    survey: Survey, *, include_embedded: bool = True, options: ColumnOptions | None = None
+    survey: Survey,
+    *,
+    include_embedded: bool = True,
+    options: ColumnOptions | LimeColumnOptions | None = None,
 ) -> list[Column]:
     """Every response column the survey can produce.
 
     Naming follows a Qualtrics CSV export with default settings; pass
-    ``options`` to match exports made with other settings.
+    ``options`` to match exports made with other settings. A LimeSurvey survey's
+    columns follow LimeSurvey's export instead (``columns_limesurvey``; pass a
+    ``LimeColumnOptions``).
     """
+    if survey.source.format.startswith("limesurvey"):
+        from .columns_limesurvey import LimeColumnOptions, lime_columns
+
+        return lime_columns(survey, options if isinstance(options, LimeColumnOptions) else None)
+    if not isinstance(options, ColumnOptions):
+        options = None
     options = options or ColumnOptions()
     cols: list[Column] = []
     if options.include_metadata:
@@ -599,6 +613,10 @@ def column_label(survey: Survey, column: Column) -> str:
     Text"``), and a choice question with text-entry choices repeats the question
     on its choice columns (``"Q - TikTok - Q - Selected Choice - Other"``).
     """
+    if survey.source.format.startswith("limesurvey"):
+        from .columns_limesurvey import lime_label
+
+        return lime_label(survey, column)
     if column.part == "metadata":
         return METADATA_LABELS.get(column.name, column.name)
     if column.part in ("embedded_data", "key"):
@@ -698,15 +716,20 @@ def response_header_rows(
     survey: Survey,
     columns: Sequence[Column] | None = None,
     *,
-    options: ColumnOptions | None = None,
+    options: ColumnOptions | LimeColumnOptions | None = None,
     key: Sequence[str] = (),
 ) -> list[list[str]]:
     """The three header rows of a Qualtrics CSV export: column names, labels
     (``column_label``) and the ImportId objects, as compact JSON as Qualtrics writes
-    them. ``columns`` defaults to ``response_columns(survey, options=options)``;
+    them (a LimeSurvey survey's export has one row: the names). ``columns`` defaults
+    to ``response_columns(survey, options=options)``;
     ``key`` names extra columns appended at the end (a respondent id to merge on,
     e.g. ``TWIN_ID``), labelled with their name and ``{"ImportId": name}``."""
     cols = list(columns) if columns is not None else response_columns(survey, options=options)
+    if survey.source.format.startswith("limesurvey"):
+        from .columns_limesurvey import lime_header
+
+        return lime_header(survey, cols, key)
     cols += key_columns(key)
     return [
         [c.name for c in cols],

@@ -15,6 +15,8 @@
               "mapping": {
                 "and": "#/$defs/And",
                 "comparison": "#/$defs/Comparison",
+                "expression": "#/$defs/Expression",
+                "not": "#/$defs/Not",
                 "or": "#/$defs/Or"
               },
               "propertyName": "type"
@@ -28,6 +30,12 @@
               },
               {
                 "$ref": "#/$defs/Or"
+              },
+              {
+                "$ref": "#/$defs/Not"
+              },
+              {
+                "$ref": "#/$defs/Expression"
               }
             ]
           },
@@ -39,6 +47,65 @@
         "terms"
       ],
       "title": "And",
+      "type": "object"
+    },
+    "Assign": {
+      "additionalProperties": false,
+      "description": "``target = value``: sets a variable (LimeSurvey equations can).",
+      "properties": {
+        "node": {
+          "const": "assign",
+          "default": "assign",
+          "title": "Node",
+          "type": "string"
+        },
+        "target": {
+          "$ref": "#/$defs/Var"
+        },
+        "value": {
+          "discriminator": {
+            "mapping": {
+              "assign": "#/$defs/Assign",
+              "binary": "#/$defs/Binary",
+              "call": "#/$defs/Call",
+              "const": "#/$defs/Const",
+              "sequence": "#/$defs/Sequence",
+              "unary": "#/$defs/Unary",
+              "var": "#/$defs/Var"
+            },
+            "propertyName": "node"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Var"
+            },
+            {
+              "$ref": "#/$defs/Const"
+            },
+            {
+              "$ref": "#/$defs/Unary"
+            },
+            {
+              "$ref": "#/$defs/Binary"
+            },
+            {
+              "$ref": "#/$defs/Call"
+            },
+            {
+              "$ref": "#/$defs/Assign"
+            },
+            {
+              "$ref": "#/$defs/Sequence"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "target",
+        "value"
+      ],
+      "title": "Assign",
       "type": "object"
     },
     "AuthenticatorNode": {
@@ -139,6 +206,124 @@
         "id"
       ],
       "title": "AuthenticatorNode",
+      "type": "object"
+    },
+    "Binary": {
+      "additionalProperties": false,
+      "properties": {
+        "node": {
+          "const": "binary",
+          "default": "binary",
+          "title": "Node",
+          "type": "string"
+        },
+        "op": {
+          "enum": [
+            "or",
+            "and",
+            "==",
+            "!=",
+            "<",
+            "<=",
+            ">",
+            ">=",
+            "+",
+            "-",
+            "*",
+            "/"
+          ],
+          "title": "Op",
+          "type": "string"
+        },
+        "source_op": {
+          "description": "As written: 'eq', '&&', ...",
+          "title": "Source Op",
+          "type": "string"
+        },
+        "left": {
+          "discriminator": {
+            "mapping": {
+              "assign": "#/$defs/Assign",
+              "binary": "#/$defs/Binary",
+              "call": "#/$defs/Call",
+              "const": "#/$defs/Const",
+              "sequence": "#/$defs/Sequence",
+              "unary": "#/$defs/Unary",
+              "var": "#/$defs/Var"
+            },
+            "propertyName": "node"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Var"
+            },
+            {
+              "$ref": "#/$defs/Const"
+            },
+            {
+              "$ref": "#/$defs/Unary"
+            },
+            {
+              "$ref": "#/$defs/Binary"
+            },
+            {
+              "$ref": "#/$defs/Call"
+            },
+            {
+              "$ref": "#/$defs/Assign"
+            },
+            {
+              "$ref": "#/$defs/Sequence"
+            }
+          ],
+          "title": "Left"
+        },
+        "right": {
+          "discriminator": {
+            "mapping": {
+              "assign": "#/$defs/Assign",
+              "binary": "#/$defs/Binary",
+              "call": "#/$defs/Call",
+              "const": "#/$defs/Const",
+              "sequence": "#/$defs/Sequence",
+              "unary": "#/$defs/Unary",
+              "var": "#/$defs/Var"
+            },
+            "propertyName": "node"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Var"
+            },
+            {
+              "$ref": "#/$defs/Const"
+            },
+            {
+              "$ref": "#/$defs/Unary"
+            },
+            {
+              "$ref": "#/$defs/Binary"
+            },
+            {
+              "$ref": "#/$defs/Call"
+            },
+            {
+              "$ref": "#/$defs/Assign"
+            },
+            {
+              "$ref": "#/$defs/Sequence"
+            }
+          ],
+          "title": "Right"
+        }
+      },
+      "required": [
+        "op",
+        "source_op",
+        "left",
+        "right"
+      ],
+      "title": "Binary",
       "type": "object"
     },
     "Block": {
@@ -301,6 +486,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -314,6 +501,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -394,6 +587,67 @@
       "title": "BranchNode",
       "type": "object"
     },
+    "Call": {
+      "additionalProperties": false,
+      "properties": {
+        "node": {
+          "const": "call",
+          "default": "call",
+          "title": "Node",
+          "type": "string"
+        },
+        "fn": {
+          "title": "Fn",
+          "type": "string"
+        },
+        "args": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "assign": "#/$defs/Assign",
+                "binary": "#/$defs/Binary",
+                "call": "#/$defs/Call",
+                "const": "#/$defs/Const",
+                "sequence": "#/$defs/Sequence",
+                "unary": "#/$defs/Unary",
+                "var": "#/$defs/Var"
+              },
+              "propertyName": "node"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/Var"
+              },
+              {
+                "$ref": "#/$defs/Const"
+              },
+              {
+                "$ref": "#/$defs/Unary"
+              },
+              {
+                "$ref": "#/$defs/Binary"
+              },
+              {
+                "$ref": "#/$defs/Call"
+              },
+              {
+                "$ref": "#/$defs/Assign"
+              },
+              {
+                "$ref": "#/$defs/Sequence"
+              }
+            ]
+          },
+          "title": "Args",
+          "type": "array"
+        }
+      },
+      "required": [
+        "fn"
+      ],
+      "title": "Call",
+      "type": "object"
+    },
     "CaptchaQuestion": {
       "additionalProperties": false,
       "properties": {
@@ -439,6 +693,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -452,6 +708,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -469,6 +731,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -482,6 +746,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -542,6 +812,12 @@
           "default": null,
           "description": "Custom question JavaScript.",
           "title": "Javascript"
+        },
+        "hidden": {
+          "default": false,
+          "description": "Never shown, but relevant: its default value (or computed value) is still recorded (LimeSurvey's 'hidden' attribute).",
+          "title": "Hidden",
+          "type": "boolean"
         },
         "kind": {
           "const": "captcha",
@@ -738,6 +1014,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -751,6 +1029,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -866,6 +1150,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -879,6 +1165,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -896,6 +1188,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -909,6 +1203,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -969,6 +1269,12 @@
           "default": null,
           "description": "Custom question JavaScript.",
           "title": "Javascript"
+        },
+        "hidden": {
+          "default": false,
+          "description": "Never shown, but relevant: its default value (or computed value) is still recorded (LimeSurvey's 'hidden' attribute).",
+          "title": "Hidden",
+          "type": "boolean"
         },
         "kind": {
           "const": "choice",
@@ -1096,6 +1402,8 @@
             "is_not",
             "quota_met",
             "quota_not_met",
+            "relevant",
+            "not_relevant",
             "other"
           ],
           "title": "Operator",
@@ -1286,6 +1594,33 @@
       "title": "ConjointFeature",
       "type": "object"
     },
+    "Const": {
+      "additionalProperties": false,
+      "properties": {
+        "node": {
+          "const": "const",
+          "default": "const",
+          "title": "Node",
+          "type": "string"
+        },
+        "value": {
+          "description": "The literal as text: numbers stay as written.",
+          "title": "Value",
+          "type": "string"
+        },
+        "quoted": {
+          "description": "True for a string literal, false for a number.",
+          "title": "Quoted",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "value",
+        "quoted"
+      ],
+      "title": "Const",
+      "type": "object"
+    },
     "ConstantSumQuestion": {
       "additionalProperties": false,
       "properties": {
@@ -1331,6 +1666,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -1344,6 +1681,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -1361,6 +1704,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -1374,6 +1719,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -1434,6 +1785,12 @@
           "default": null,
           "description": "Custom question JavaScript.",
           "title": "Javascript"
+        },
+        "hidden": {
+          "default": false,
+          "description": "Never shown, but relevant: its default value (or computed value) is still recorded (LimeSurvey's 'hidden' attribute).",
+          "title": "Hidden",
+          "type": "boolean"
         },
         "kind": {
           "const": "constant_sum",
@@ -1589,6 +1946,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -1602,6 +1961,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -1619,6 +1984,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -1632,6 +1999,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -1692,6 +2065,12 @@
           "default": null,
           "description": "Custom question JavaScript.",
           "title": "Javascript"
+        },
+        "hidden": {
+          "default": false,
+          "description": "Never shown, but relevant: its default value (or computed value) is still recorded (LimeSurvey's 'hidden' attribute).",
+          "title": "Hidden",
+          "type": "boolean"
         },
         "kind": {
           "const": "descriptive",
@@ -1809,6 +2188,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -1822,6 +2203,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -1839,6 +2226,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -1852,6 +2241,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -1912,6 +2307,12 @@
           "default": null,
           "description": "Custom question JavaScript.",
           "title": "Javascript"
+        },
+        "hidden": {
+          "default": false,
+          "description": "Never shown, but relevant: its default value (or computed value) is still recorded (LimeSurvey's 'hidden' attribute).",
+          "title": "Hidden",
+          "type": "boolean"
         },
         "kind": {
           "const": "drill_down",
@@ -2144,9 +2545,9 @@
       "title": "EndSurveyNode",
       "type": "object"
     },
-    "FileUploadQuestion": {
+    "EquationQuestion": {
       "additionalProperties": false,
-      "description": "Respondent uploads a file (allowed type is in ``validation.file_type``).",
+      "description": "A value computed from an expression when the respondent reaches it, and\nrecorded like an answer (LimeSurvey equation questions).\n\n``expression`` is evaluated as text: its references are replaced and the result\n(markup stripped) is the recorded value. Shown as text unless ``hidden``.",
       "properties": {
         "extras": {
           "additionalProperties": true,
@@ -2190,6 +2591,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -2203,6 +2606,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -2220,6 +2629,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -2233,6 +2644,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -2293,6 +2710,298 @@
           "default": null,
           "description": "Custom question JavaScript.",
           "title": "Javascript"
+        },
+        "hidden": {
+          "default": false,
+          "description": "Never shown, but relevant: its default value (or computed value) is still recorded (LimeSurvey's 'hidden' attribute).",
+          "title": "Hidden",
+          "type": "boolean"
+        },
+        "kind": {
+          "const": "equation",
+          "default": "equation",
+          "title": "Kind",
+          "type": "string"
+        },
+        "expression": {
+          "$ref": "#/$defs/Text"
+        }
+      },
+      "required": [
+        "id",
+        "export_tag",
+        "origin",
+        "text",
+        "expression"
+      ],
+      "title": "EquationQuestion",
+      "type": "object"
+    },
+    "Expression": {
+      "additionalProperties": false,
+      "description": "A condition written in an expression language, kept whole.\n\n``tree`` is None when the source could not be parsed (a loader diagnostic says\nwhy); the runtime then treats the condition as false and records it.",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "type": {
+          "const": "expression",
+          "default": "expression",
+          "title": "Type",
+          "type": "string"
+        },
+        "language": {
+          "const": "expression_script",
+          "description": "'expression_script' is LimeSurvey's ExpressionScript (Expression Manager).",
+          "title": "Language",
+          "type": "string"
+        },
+        "source": {
+          "description": "The expression exactly as written in the source.",
+          "title": "Source",
+          "type": "string"
+        },
+        "tree": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "assign": "#/$defs/Assign",
+                  "binary": "#/$defs/Binary",
+                  "call": "#/$defs/Call",
+                  "const": "#/$defs/Const",
+                  "sequence": "#/$defs/Sequence",
+                  "unary": "#/$defs/Unary",
+                  "var": "#/$defs/Var"
+                },
+                "propertyName": "node"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Var"
+                },
+                {
+                  "$ref": "#/$defs/Const"
+                },
+                {
+                  "$ref": "#/$defs/Unary"
+                },
+                {
+                  "$ref": "#/$defs/Binary"
+                },
+                {
+                  "$ref": "#/$defs/Call"
+                },
+                {
+                  "$ref": "#/$defs/Assign"
+                },
+                {
+                  "$ref": "#/$defs/Sequence"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tree"
+        },
+        "location": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Where it belongs (a question or group id): where the runtime reports what it could not evaluate.",
+          "title": "Location"
+        }
+      },
+      "required": [
+        "language",
+        "source"
+      ],
+      "title": "Expression",
+      "type": "object"
+    },
+    "FileUploadQuestion": {
+      "additionalProperties": false,
+      "description": "Respondent uploads a file (allowed type is in ``validation.file_type``).",
+      "properties": {
+        "extras": {
+          "additionalProperties": true,
+          "description": "Source-format fields with no typed equivalent, preserved verbatim.",
+          "title": "Extras",
+          "type": "object"
+        },
+        "id": {
+          "description": "Stable source id, e.g. 'QID12'.",
+          "title": "Id",
+          "type": "string"
+        },
+        "export_tag": {
+          "description": "Data export name, e.g. 'Q12' or 'age'.",
+          "title": "Export Tag",
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Origin"
+        },
+        "text": {
+          "$ref": "#/$defs/Text"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short label shown in editors.",
+          "title": "Description"
+        },
+        "display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Logic"
+        },
+        "in_page_display_logic": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display logic Qualtrics evaluates on the page itself, as earlier questions on the same page are answered (``InPageDisplayLogic``).",
+          "title": "In Page Display Logic"
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Validation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "translations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Translation"
+          },
+          "title": "Translations",
+          "type": "object"
+        },
+        "media": {
+          "items": {
+            "$ref": "#/$defs/Media"
+          },
+          "title": "Media",
+          "type": "array"
+        },
+        "scoring": {
+          "items": {
+            "$ref": "#/$defs/Score"
+          },
+          "title": "Scoring",
+          "type": "array"
+        },
+        "default_value": {
+          "default": null,
+          "description": "Pre-filled response, source format.",
+          "title": "Default Value"
+        },
+        "javascript": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Custom question JavaScript.",
+          "title": "Javascript"
+        },
+        "hidden": {
+          "default": false,
+          "description": "Never shown, but relevant: its default value (or computed value) is still recorded (LimeSurvey's 'hidden' attribute).",
+          "title": "Hidden",
+          "type": "boolean"
         },
         "kind": {
           "const": "file_upload",
@@ -2356,6 +3065,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -2369,6 +3080,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -2386,6 +3103,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -2399,6 +3118,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -2459,6 +3184,12 @@
           "default": null,
           "description": "Custom question JavaScript.",
           "title": "Javascript"
+        },
+        "hidden": {
+          "default": false,
+          "description": "Never shown, but relevant: its default value (or computed value) is still recorded (LimeSurvey's 'hidden' attribute).",
+          "title": "Hidden",
+          "type": "boolean"
         },
         "kind": {
           "const": "graphic_slider",
@@ -2670,6 +3401,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -2683,6 +3416,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -2700,6 +3439,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -2713,6 +3454,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -2773,6 +3520,12 @@
           "default": null,
           "description": "Custom question JavaScript.",
           "title": "Javascript"
+        },
+        "hidden": {
+          "default": false,
+          "description": "Never shown, but relevant: its default value (or computed value) is still recorded (LimeSurvey's 'hidden' attribute).",
+          "title": "Hidden",
+          "type": "boolean"
         },
         "kind": {
           "const": "heat_map",
@@ -2866,6 +3619,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -2879,6 +3634,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -2896,6 +3657,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -2909,6 +3672,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -2969,6 +3738,12 @@
           "default": null,
           "description": "Custom question JavaScript.",
           "title": "Javascript"
+        },
+        "hidden": {
+          "default": false,
+          "description": "Never shown, but relevant: its default value (or computed value) is still recorded (LimeSurvey's 'hidden' attribute).",
+          "title": "Hidden",
+          "type": "boolean"
         },
         "kind": {
           "const": "highlight",
@@ -3055,6 +3830,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -3068,6 +3845,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -3085,6 +3868,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -3098,6 +3883,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -3158,6 +3949,12 @@
           "default": null,
           "description": "Custom question JavaScript.",
           "title": "Javascript"
+        },
+        "hidden": {
+          "default": false,
+          "description": "Never shown, but relevant: its default value (or computed value) is still recorded (LimeSurvey's 'hidden' attribute).",
+          "title": "Hidden",
+          "type": "boolean"
         },
         "kind": {
           "const": "hot_spot",
@@ -3388,6 +4185,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -3401,6 +4200,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -3418,6 +4223,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -3431,6 +4238,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -3491,6 +4304,12 @@
           "default": null,
           "description": "Custom question JavaScript.",
           "title": "Javascript"
+        },
+        "hidden": {
+          "default": false,
+          "description": "Never shown, but relevant: its default value (or computed value) is still recorded (LimeSurvey's 'hidden' attribute).",
+          "title": "Hidden",
+          "type": "boolean"
         },
         "kind": {
           "const": "matrix",
@@ -3672,6 +4491,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -3685,6 +4506,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -3702,6 +4529,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -3715,6 +4544,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -3776,6 +4611,12 @@
           "description": "Custom question JavaScript.",
           "title": "Javascript"
         },
+        "hidden": {
+          "default": false,
+          "description": "Never shown, but relevant: its default value (or computed value) is still recorded (LimeSurvey's 'hidden' attribute).",
+          "title": "Hidden",
+          "type": "boolean"
+        },
         "kind": {
           "const": "meta_info",
           "default": "meta_info",
@@ -3790,6 +4631,52 @@
         "text"
       ],
       "title": "MetaInfoQuestion",
+      "type": "object"
+    },
+    "Not": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "not",
+          "default": "not",
+          "title": "Type",
+          "type": "string"
+        },
+        "term": {
+          "discriminator": {
+            "mapping": {
+              "and": "#/$defs/And",
+              "comparison": "#/$defs/Comparison",
+              "expression": "#/$defs/Expression",
+              "not": "#/$defs/Not",
+              "or": "#/$defs/Or"
+            },
+            "propertyName": "type"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Comparison"
+            },
+            {
+              "$ref": "#/$defs/And"
+            },
+            {
+              "$ref": "#/$defs/Or"
+            },
+            {
+              "$ref": "#/$defs/Not"
+            },
+            {
+              "$ref": "#/$defs/Expression"
+            }
+          ],
+          "title": "Term"
+        }
+      },
+      "required": [
+        "term"
+      ],
+      "title": "Not",
       "type": "object"
     },
     "NumberRange": {
@@ -3876,7 +4763,7 @@
             }
           ],
           "default": null,
-          "description": "Which part of the question response: 'SelectableChoice', 'ChoiceTextEntryValue', 'ChoiceNumericEntryValue', 'SelectableAnswer', 'Displayed', ...",
+          "description": "Which part of the question response, in the source platform's terms: Qualtrics 'SelectableChoice', 'ChoiceTextEntryValue', 'ChoiceNumericEntryValue', 'SelectableAnswer', 'Displayed', ...; loaders for other platforms use the same names for the same parts.",
           "title": "Selector"
         },
         "choice_id": {
@@ -3964,6 +4851,8 @@
               "mapping": {
                 "and": "#/$defs/And",
                 "comparison": "#/$defs/Comparison",
+                "expression": "#/$defs/Expression",
+                "not": "#/$defs/Not",
                 "or": "#/$defs/Or"
               },
               "propertyName": "type"
@@ -3977,6 +4866,12 @@
               },
               {
                 "$ref": "#/$defs/Or"
+              },
+              {
+                "$ref": "#/$defs/Not"
+              },
+              {
+                "$ref": "#/$defs/Expression"
               }
             ]
           },
@@ -4097,6 +4992,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -4110,6 +5007,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -4127,6 +5030,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -4140,6 +5045,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -4200,6 +5111,12 @@
           "default": null,
           "description": "Custom question JavaScript.",
           "title": "Javascript"
+        },
+        "hidden": {
+          "default": false,
+          "description": "Never shown, but relevant: its default value (or computed value) is still recorded (LimeSurvey's 'hidden' attribute).",
+          "title": "Hidden",
+          "type": "boolean"
         },
         "kind": {
           "const": "pick_group_rank",
@@ -4278,6 +5195,7 @@
             "scoring",
             "random",
             "date",
+            "expression",
             "other"
           ],
           "title": "Kind",
@@ -4355,6 +5273,53 @@
           "default": null,
           "description": "Embedded-data field name, loop field number, etc.",
           "title": "Name"
+        },
+        "expression": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "assign": "#/$defs/Assign",
+                  "binary": "#/$defs/Binary",
+                  "call": "#/$defs/Call",
+                  "const": "#/$defs/Const",
+                  "sequence": "#/$defs/Sequence",
+                  "unary": "#/$defs/Unary",
+                  "var": "#/$defs/Var"
+                },
+                "propertyName": "node"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Var"
+                },
+                {
+                  "$ref": "#/$defs/Const"
+                },
+                {
+                  "$ref": "#/$defs/Unary"
+                },
+                {
+                  "$ref": "#/$defs/Binary"
+                },
+                {
+                  "$ref": "#/$defs/Call"
+                },
+                {
+                  "$ref": "#/$defs/Assign"
+                },
+                {
+                  "$ref": "#/$defs/Sequence"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Parsed expression (kind 'expression'); its source is `path`.",
+          "title": "Expression"
         }
       },
       "required": [
@@ -4431,6 +5396,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -4444,6 +5411,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -4465,7 +5438,7 @@
             }
           ],
           "default": null,
-          "description": "Source action when full, e.g. 'EndCurrentSurvey', 'ForBranching'.",
+          "description": "Action when full: Qualtrics 'EndCurrentSurvey' or 'ForBranching' as written; for other platforms 'end_survey' (the respondent is screened out) or 'allow_change' (the respondent may change the answers that filled it).",
           "title": "Action"
         },
         "over_quota_action": {
@@ -4581,6 +5554,17 @@
             "type": "string"
           },
           "title": "Randomized",
+          "type": "array"
+        },
+        "groups": {
+          "description": "Advanced mode without slots: further pools, each shuffled among its own positions independently of `randomized` (LimeSurvey question random groups).",
+          "items": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": "Groups",
           "type": "array"
         },
         "undisplayed": {
@@ -4780,6 +5764,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -4793,6 +5779,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -4810,6 +5802,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -4823,6 +5817,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -4883,6 +5883,12 @@
           "default": null,
           "description": "Custom question JavaScript.",
           "title": "Javascript"
+        },
+        "hidden": {
+          "default": false,
+          "description": "Never shown, but relevant: its default value (or computed value) is still recorded (LimeSurvey's 'hidden' attribute).",
+          "title": "Hidden",
+          "type": "boolean"
         },
         "kind": {
           "const": "rank_order",
@@ -5165,6 +6171,64 @@
       "title": "ScoringCategory",
       "type": "object"
     },
+    "Sequence": {
+      "additionalProperties": false,
+      "description": "Comma-separated expressions; the value is the last one's.",
+      "properties": {
+        "node": {
+          "const": "sequence",
+          "default": "sequence",
+          "title": "Node",
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "assign": "#/$defs/Assign",
+                "binary": "#/$defs/Binary",
+                "call": "#/$defs/Call",
+                "const": "#/$defs/Const",
+                "sequence": "#/$defs/Sequence",
+                "unary": "#/$defs/Unary",
+                "var": "#/$defs/Var"
+              },
+              "propertyName": "node"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/Var"
+              },
+              {
+                "$ref": "#/$defs/Const"
+              },
+              {
+                "$ref": "#/$defs/Unary"
+              },
+              {
+                "$ref": "#/$defs/Binary"
+              },
+              {
+                "$ref": "#/$defs/Call"
+              },
+              {
+                "$ref": "#/$defs/Assign"
+              },
+              {
+                "$ref": "#/$defs/Sequence"
+              }
+            ]
+          },
+          "title": "Items",
+          "type": "array"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "title": "Sequence",
+      "type": "object"
+    },
     "SideBySideQuestion": {
       "additionalProperties": false,
       "description": "Several questions about the same statements, shown as adjacent column groups.\n\nEach entry in ``questions`` is a full question (usually a matrix) whose rows\nrepeat ``rows``. Sub-question ids look like ``QID5#1``.",
@@ -5211,6 +6275,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -5224,6 +6290,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -5241,6 +6313,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -5254,6 +6328,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -5315,6 +6395,12 @@
           "description": "Custom question JavaScript.",
           "title": "Javascript"
         },
+        "hidden": {
+          "default": false,
+          "description": "Never shown, but relevant: its default value (or computed value) is still recorded (LimeSurvey's 'hidden' attribute).",
+          "title": "Hidden",
+          "type": "boolean"
+        },
         "kind": {
           "const": "side_by_side",
           "default": "side_by_side",
@@ -5337,6 +6423,7 @@
                 "constant_sum": "#/$defs/ConstantSumQuestion",
                 "descriptive": "#/$defs/DescriptiveQuestion",
                 "drill_down": "#/$defs/DrillDownQuestion",
+                "equation": "#/$defs/EquationQuestion",
                 "file_upload": "#/$defs/FileUploadQuestion",
                 "graphic_slider": "#/$defs/GraphicSliderQuestion",
                 "heat_map": "#/$defs/HeatMapQuestion",
@@ -5406,6 +6493,9 @@
               },
               {
                 "$ref": "#/$defs/GraphicSliderQuestion"
+              },
+              {
+                "$ref": "#/$defs/EquationQuestion"
               },
               {
                 "$ref": "#/$defs/FileUploadQuestion"
@@ -5501,6 +6591,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -5514,6 +6606,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -5531,6 +6629,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -5544,6 +6644,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -5605,6 +6711,12 @@
           "description": "Custom question JavaScript.",
           "title": "Javascript"
         },
+        "hidden": {
+          "default": false,
+          "description": "Never shown, but relevant: its default value (or computed value) is still recorded (LimeSurvey's 'hidden' attribute).",
+          "title": "Hidden",
+          "type": "boolean"
+        },
         "kind": {
           "const": "signature",
           "default": "signature",
@@ -5636,6 +6748,8 @@
             "mapping": {
               "and": "#/$defs/And",
               "comparison": "#/$defs/Comparison",
+              "expression": "#/$defs/Expression",
+              "not": "#/$defs/Not",
               "or": "#/$defs/Or"
             },
             "propertyName": "type"
@@ -5649,6 +6763,12 @@
             },
             {
               "$ref": "#/$defs/Or"
+            },
+            {
+              "$ref": "#/$defs/Not"
+            },
+            {
+              "$ref": "#/$defs/Expression"
             }
           ],
           "title": "Condition"
@@ -5728,6 +6848,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -5741,6 +6863,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -5758,6 +6886,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -5771,6 +6901,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -5831,6 +6967,12 @@
           "default": null,
           "description": "Custom question JavaScript.",
           "title": "Javascript"
+        },
+        "hidden": {
+          "default": false,
+          "description": "Never shown, but relevant: its default value (or computed value) is still recorded (LimeSurvey's 'hidden' attribute).",
+          "title": "Hidden",
+          "type": "boolean"
         },
         "kind": {
           "const": "slider",
@@ -6121,6 +7263,16 @@
           },
           "title": "Pipes",
           "type": "array"
+        },
+        "syntax": {
+          "default": "qualtrics",
+          "description": "How references are written: Qualtrics '${scheme://path}', or LimeSurvey ExpressionScript '{expression}' (each pipe's `raw` is what is replaced).",
+          "enum": [
+            "qualtrics",
+            "expression_script"
+          ],
+          "title": "Syntax",
+          "type": "string"
         }
       },
       "title": "Text",
@@ -6171,6 +7323,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -6184,6 +7338,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -6201,6 +7361,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -6214,6 +7376,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -6275,6 +7443,12 @@
           "description": "Custom question JavaScript.",
           "title": "Javascript"
         },
+        "hidden": {
+          "default": false,
+          "description": "Never shown, but relevant: its default value (or computed value) is still recorded (LimeSurvey's 'hidden' attribute).",
+          "title": "Hidden",
+          "type": "boolean"
+        },
         "kind": {
           "const": "text_entry",
           "default": "text_entry",
@@ -6301,6 +7475,18 @@
           },
           "title": "Fields",
           "type": "array"
+        },
+        "randomization": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Randomization"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Field order randomization (form mode)."
         }
       },
       "required": [
@@ -6359,6 +7545,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -6372,6 +7560,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -6389,6 +7583,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -6402,6 +7598,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -6462,6 +7664,12 @@
           "default": null,
           "description": "Custom question JavaScript.",
           "title": "Javascript"
+        },
+        "hidden": {
+          "default": false,
+          "description": "Never shown, but relevant: its default value (or computed value) is still recorded (LimeSurvey's 'hidden' attribute).",
+          "title": "Hidden",
+          "type": "boolean"
         },
         "kind": {
           "const": "timing",
@@ -6559,6 +7767,70 @@
         }
       },
       "title": "Translation",
+      "type": "object"
+    },
+    "Unary": {
+      "additionalProperties": false,
+      "properties": {
+        "node": {
+          "const": "unary",
+          "default": "unary",
+          "title": "Node",
+          "type": "string"
+        },
+        "op": {
+          "enum": [
+            "!",
+            "-",
+            "+"
+          ],
+          "title": "Op",
+          "type": "string"
+        },
+        "arg": {
+          "discriminator": {
+            "mapping": {
+              "assign": "#/$defs/Assign",
+              "binary": "#/$defs/Binary",
+              "call": "#/$defs/Call",
+              "const": "#/$defs/Const",
+              "sequence": "#/$defs/Sequence",
+              "unary": "#/$defs/Unary",
+              "var": "#/$defs/Var"
+            },
+            "propertyName": "node"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Var"
+            },
+            {
+              "$ref": "#/$defs/Const"
+            },
+            {
+              "$ref": "#/$defs/Unary"
+            },
+            {
+              "$ref": "#/$defs/Binary"
+            },
+            {
+              "$ref": "#/$defs/Call"
+            },
+            {
+              "$ref": "#/$defs/Assign"
+            },
+            {
+              "$ref": "#/$defs/Sequence"
+            }
+          ],
+          "title": "Arg"
+        }
+      },
+      "required": [
+        "op",
+        "arg"
+      ],
+      "title": "Unary",
       "type": "object"
     },
     "UnsupportedNode": {
@@ -6713,6 +7985,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -6726,6 +8000,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -6743,6 +8023,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -6756,6 +8038,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -6816,6 +8104,12 @@
           "default": null,
           "description": "Custom question JavaScript.",
           "title": "Javascript"
+        },
+        "hidden": {
+          "default": false,
+          "description": "Never shown, but relevant: its default value (or computed value) is still recorded (LimeSurvey's 'hidden' attribute).",
+          "title": "Hidden",
+          "type": "boolean"
         },
         "kind": {
           "const": "unsupported",
@@ -6971,6 +8265,8 @@
                 "mapping": {
                   "and": "#/$defs/And",
                   "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
                   "or": "#/$defs/Or"
                 },
                 "propertyName": "type"
@@ -6984,6 +8280,12 @@
                 },
                 {
                   "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
                 }
               ]
             },
@@ -7005,9 +8307,185 @@
           ],
           "default": null,
           "title": "Custom Message"
+        },
+        "pattern": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Regular expression every entered text must match (LimeSurvey 'preg'), as written in the source, delimiters included.",
+          "title": "Pattern"
+        },
+        "expression": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Condition the answer must satisfy, checked by the runtime once the question is answered (LimeSurvey 'em_validation_q').",
+          "title": "Expression"
+        },
+        "item_expression": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "and": "#/$defs/And",
+                  "comparison": "#/$defs/Comparison",
+                  "expression": "#/$defs/Expression",
+                  "not": "#/$defs/Not",
+                  "or": "#/$defs/Or"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Comparison"
+                },
+                {
+                  "$ref": "#/$defs/And"
+                },
+                {
+                  "$ref": "#/$defs/Or"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Expression"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Condition each answered item must satisfy, the item being 'self' (LimeSurvey 'em_validation_sq').",
+          "title": "Item Expression"
         }
       },
       "title": "Validation",
+      "type": "object"
+    },
+    "Var": {
+      "additionalProperties": false,
+      "description": "A variable reference, resolved by the loader where it can be.",
+      "properties": {
+        "node": {
+          "const": "var",
+          "default": "var",
+          "title": "Node",
+          "type": "string"
+        },
+        "name": {
+          "description": "As written, e.g. 'Q1_SQ001.NAOK' or 'TOKEN:FIRSTNAME'.",
+          "title": "Name",
+          "type": "string"
+        },
+        "kind": {
+          "default": "unknown",
+          "enum": [
+            "question",
+            "participant",
+            "survey",
+            "self",
+            "unknown"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "question_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Question Id"
+        },
+        "part": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Which part of the question's answer: a subquestion code ('SQ001'), 'SQ001_SQ002' (text and number arrays), 'SQ001#1' (dual scale), 'other', 'comment', 'SQ001comment', or a rank ('1').",
+          "title": "Part"
+        },
+        "attribute": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Suffix after the dot: 'NAOK', 'shown', 'code', 'value', 'relevanceStatus', 'qid', 'question', ...",
+          "title": "Attribute"
+        },
+        "field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Participant attribute or survey value name, e.g. 'FIRSTNAME'.",
+          "title": "Field"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Var",
       "type": "object"
     },
     "WebServiceNode": {
@@ -7100,7 +8578,7 @@
       "type": "object"
     },
     "schema_version": {
-      "default": "0.2",
+      "default": "0.3",
       "title": "Schema Version",
       "type": "string"
     },
@@ -7187,6 +8665,7 @@
             "constant_sum": "#/$defs/ConstantSumQuestion",
             "descriptive": "#/$defs/DescriptiveQuestion",
             "drill_down": "#/$defs/DrillDownQuestion",
+            "equation": "#/$defs/EquationQuestion",
             "file_upload": "#/$defs/FileUploadQuestion",
             "graphic_slider": "#/$defs/GraphicSliderQuestion",
             "heat_map": "#/$defs/HeatMapQuestion",
@@ -7256,6 +8735,9 @@
           },
           {
             "$ref": "#/$defs/GraphicSliderQuestion"
+          },
+          {
+            "$ref": "#/$defs/EquationQuestion"
           },
           {
             "$ref": "#/$defs/FileUploadQuestion"

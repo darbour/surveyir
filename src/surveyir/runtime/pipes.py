@@ -1,4 +1,4 @@
-"""Resolve piped text (``${...}``) against a respondent's state.
+"""Resolve piped text (``${...}``, or ExpressionScript ``{...}``) against a respondent's state.
 
 References the runtime cannot reproduce exactly are recorded as approximations
 (``pipe.*`` codes, located at the reference path; see ``runtime.execution``):
@@ -17,7 +17,6 @@ import re
 from datetime import date
 
 from ..model import Pipe, Survey, Text
-from ..model.text import PIPE_PATTERN
 from .state import RespondentState
 from .trace import Affects
 
@@ -39,6 +38,18 @@ def resolve_pipe(
     affects: Affects = "exposure",
 ) -> str | None:
     """The value of one reference, or None if it cannot be resolved."""
+    if pipe.kind == "expression":
+        from .expressions import evaluate_value
+
+        if pipe.expression is None:
+            state.approximate(
+                "expression.parse_error",
+                pipe.path,
+                affects,
+                f"expression {pipe.raw} could not be parsed; rendered empty",
+            )
+            return ""
+        return evaluate_value(pipe.expression, state, survey, pipe.path, affects, rng=rng)
     if pipe.kind == "embedded_data":
         return state.read_embedded(pipe.name or "", affects)
     if pipe.kind == "loop_merge":
@@ -147,4 +158,4 @@ def render_display(
         value = resolve(pipe) if pipe is not None else None
         return match.group(0) if value is None else value
 
-    return plain, PIPE_PATTERN.sub(sub, text.html)
+    return plain, text.pattern().sub(sub, text.html)

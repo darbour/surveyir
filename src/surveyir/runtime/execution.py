@@ -27,6 +27,9 @@ quota.action_ignored,           quota id
 quota.snapshot
 pipe.*                          the reference path (``CountryName`` for
                                 ``${loc://CountryName}``)
+expression.*                    the question or group the expression belongs
+                                to (``Expression.location``); for piped text,
+                                the expression's source
 replay.gap,                     ``kind:node_id`` (``flow:FL_3``, ``block:BL_x``),
 respondent.out_of_order         with ``#loop_id`` inside a loop; the quota id
                                 for a quota checked out of order
@@ -95,6 +98,23 @@ APPROXIMATIONS: dict[str, tuple[Affects, str]] = {
     "logic.other_operator": ("routing", "condition with an unknown or invalid operator; false"),
     "logic.regex_invalid": ("routing", "invalid regular expression; the condition is false"),
     "logic.non_numeric": ("routing", "ordering comparison on a non-numeric value; false"),
+    # expressions (LimeSurvey ExpressionScript)
+    "expression.parse_error": (
+        "routing",
+        "expression could not be parsed; false as a condition, empty as text",
+    ),
+    "expression.unknown_function": (
+        "routing",
+        "expression calls a function the simulator does not implement; false",
+    ),
+    "expression.unknown_variable": (
+        "routing",
+        "expression reads a variable the simulator cannot know; the expression fails",
+    ),
+    "expression.clock": (
+        "routing",
+        "expression reads the current date or time; evaluated at simulation time",
+    ),
     # replay
     "replay.gap": (
         "exposure",

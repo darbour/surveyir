@@ -98,6 +98,11 @@ class Randomization(IRModel):
         ),
     )
     randomized: list[str] = Field(default_factory=list)
+    groups: list[list[str]] = Field(
+        default_factory=list,
+        description="Advanced mode without slots: further pools, each shuffled among its own "
+        "positions independently of `randomized` (LimeSurvey question random groups).",
+    )
     undisplayed: list[str] = Field(default_factory=list)
     per_page: int | None = Field(default=None, description="Questions per page (blocks only).")
     flip_scale: bool = Field(
@@ -168,6 +173,21 @@ class Validation(Extensible):
     total: float | None = Field(default=None, description="Required sum (constant sum).")
     custom: Condition | None = None
     custom_message: str | None = None
+    pattern: str | None = Field(
+        default=None,
+        description="Regular expression every entered text must match (LimeSurvey 'preg'), "
+        "as written in the source, delimiters included.",
+    )
+    expression: Condition | None = Field(
+        default=None,
+        description="Condition the answer must satisfy, checked by the runtime once the "
+        "question is answered (LimeSurvey 'em_validation_q').",
+    )
+    item_expression: Condition | None = Field(
+        default=None,
+        description="Condition each answered item must satisfy, the item being 'self' "
+        "(LimeSurvey 'em_validation_sq').",
+    )
 
 
 class Translation(Extensible):
@@ -208,6 +228,11 @@ class QuestionBase(Extensible):
     scoring: list[Score] = Field(default_factory=list)
     default_value: Any = Field(default=None, description="Pre-filled response, source format.")
     javascript: str | None = Field(default=None, description="Custom question JavaScript.")
+    hidden: bool = Field(
+        default=False,
+        description="Never shown, but relevant: its default value (or computed value) is "
+        "still recorded (LimeSurvey's 'hidden' attribute).",
+    )
 
 
 class ChoiceQuestion(QuestionBase):
@@ -256,6 +281,9 @@ class TextEntryQuestion(QuestionBase):
     kind: Literal["text_entry"] = "text_entry"
     mode: Literal["single_line", "multi_line", "essay", "form", "password", "autocomplete", "other"]
     fields: list[Choice] = Field(default_factory=list, description="Form fields (form mode).")
+    randomization: Randomization | None = Field(
+        default=None, description="Field order randomization (form mode)."
+    )
 
 
 class SliderQuestion(QuestionBase):
@@ -405,6 +433,18 @@ class GraphicSliderQuestion(QuestionBase):
     direction: str | None = None
 
 
+class EquationQuestion(QuestionBase):
+    """A value computed from an expression when the respondent reaches it, and
+    recorded like an answer (LimeSurvey equation questions).
+
+    ``expression`` is evaluated as text: its references are replaced and the result
+    (markup stripped) is the recorded value. Shown as text unless ``hidden``.
+    """
+
+    kind: Literal["equation"] = "equation"
+    expression: Text
+
+
 class FileUploadQuestion(QuestionBase):
     """Respondent uploads a file (allowed type is in ``validation.file_type``)."""
 
@@ -441,6 +481,7 @@ Question = Annotated[
     | HotSpotQuestion
     | HeatMapQuestion
     | GraphicSliderQuestion
+    | EquationQuestion
     | FileUploadQuestion
     | SignatureQuestion
     | UnsupportedQuestion,
@@ -450,4 +491,4 @@ Question = Annotated[
 SideBySideQuestion.model_rebuild()
 
 #: Kinds that never collect a respondent answer.
-NON_RESPONSE_KINDS = frozenset({"descriptive", "timing", "meta_info", "captcha"})
+NON_RESPONSE_KINDS = frozenset({"descriptive", "timing", "meta_info", "captcha", "equation"})

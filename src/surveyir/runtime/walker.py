@@ -46,6 +46,7 @@ from ..model import (
     DrillDownQuestion,
     EmbeddedDataNode,
     EndSurveyNode,
+    EquationQuestion,
     FileUploadQuestion,
     FlowNode,
     GraphicSliderQuestion,
@@ -321,6 +322,9 @@ def _text_answer(v: Mapping[str, Any], rng: random.Random) -> str:
             lo = 0.0 if hi is None or hi >= 0 else hi - 100
         if hi is None or hi < lo:
             hi = lo + 100
+        width = _int(v.get("max_chars"))
+        if width is not None and width > 0 and hi >= 10**width:
+            hi = max(lo, 10**width - 1)  # fit the field
         a, b = math.ceil(lo), math.floor(hi)
         if a <= b:  # whole numbers satisfy any decimal-places limit
             return str(rng.randint(a, b))
@@ -371,6 +375,12 @@ def validation_errors(d: Display, value: Any) -> list[str]:
             errors.append(f"{where}{s!r} is not an e-mail address")
         if content == "ValidZip" and not _ZIP.match(s):
             errors.append(f"{where}{s!r} is not a ZIP code")
+        if v.get("pattern"):
+            from .expressions import _php_regex
+
+            rx = _php_regex(str(v["pattern"]))
+            if rx is not None and not rx.search(s):
+                errors.append(f"{where}{s!r} does not match {v['pattern']}")
         lo_c, hi_c = _int(v.get("min_chars")), _int(v.get("max_chars"))
         if lo_c is not None and len(s) < lo_c:
             errors.append(f"{where}{len(s)} characters, fewer than {lo_c}")
@@ -473,6 +483,10 @@ def _presentation(q: Question, text: Callable[[Text], str]) -> dict[str, Any]:
     )
     if v is not None and v.number is not None:
         rules.update({f"number_{k}": x for k, x in v.number.model_dump().items() if x is not None})
+    if v is not None and v.pattern:
+        rules["pattern"] = v.pattern
+    if v is not None and v.custom_message and (v.expression or v.item_expression):
+        rules["message"] = v.custom_message  # a validation tip, shown with the question
     mode = getattr(q, "mode", None)
     out: dict[str, Any] = {
         "kind": q.kind,
@@ -731,6 +745,12 @@ def _layout(
         out = list(ids)
         for pos, new in zip(positions, pool, strict=False):
             out[pos] = new
+        for group in r.groups:  # further pools, each shuffled among its own positions
+            members = [i for i in group if i in ids and i not in hidden]
+            drawn = pick(members, len(members), "permutation") if len(members) > 1 else members
+            spots = [n for n, i in enumerate(out) if i in set(members)]
+            for pos, new in zip(spots, drawn, strict=False):
+                out[pos] = new
         return [i for i in out if i not in hidden]
     out = []
     for slot in r.slots:
@@ -1043,6 +1063,7 @@ class _Walk:
         self.public: list[Observation] = []
         self.audit: list[AuditEvent] = []
         self.page = 0  # global page number; 0 until the first page renders
+        self.equations: list[EquationQuestion] = []  # loaded on the current page
         self.seq = 0
         self.page_open = False
         if _is_respondent(answerer):
@@ -1052,6 +1073,7 @@ class _Walk:
             self.respondent, self.legacy = None, answerer  # type: ignore[assignment]
             run.privileged = True
         self.state.on_approximation = self._approximated
+        self.state.rng = rng  # ExpressionScript rand() in logic and computed values
         for name, value in self.state.embedded.items():
             self.audit.append(EmbeddedSet(name, value, "respondent"))
 
@@ -1139,6 +1161,8 @@ class _Walk:
                 self.audit.append(BranchEval(node.id, result))
                 if result:
                     self.nodes(node.children)
+                else:
+                    self._irrelevant(node.children)
         elif isinstance(node, RandomizerNode):
             self.randomizer(node)
         elif isinstance(node, AuthenticatorNode):
@@ -1178,7 +1202,7 @@ class _Walk:
             for quota in self.survey.quotas:
                 if quota.id not in state.quotas_met:
                     continue
-                if quota.action == "EndCurrentSurvey":
+                if quota.action in ("EndCurrentSurvey", "end_survey"):
                     if evaluate(quota.condition, state, self.survey):
                         self.run.ended_by = f"quota {quota.id}"
                         self.run.finished = False
@@ -1199,6 +1223,16 @@ class _Walk:
                 f"unsupported flow element {node.source_type} skipped; its children are run",
             )
             self.nodes(node.children)
+
+    def _irrelevant(self, nodes: Sequence[FlowNode]) -> None:
+        """Mark every question in the blocks under ``nodes`` irrelevant (a branch that
+        did not hold: LimeSurvey group relevance)."""
+        from ..model import walk
+
+        for node in walk(list(nodes)):
+            if isinstance(node, BlockNode):
+                for qid in b.question_ids if (b := self.survey.blocks.get(node.block_id)) else []:
+                    self.state.irrelevant.add(self.state.key(qid))
 
     def choose(self, req: ChoiceRequest) -> tuple[str, ...]:
         """Ask the chooser, check its answer, and keep its ``p_given_history``."""
@@ -1485,7 +1519,9 @@ class _Walk:
             if item is None:
                 continue
             items.append(item)
-            if not item.pending:
+            if item.pending:  # not relevant (yet): its value cannot be read
+                self.state.irrelevant.add(item.key)
+            else:
                 self._show(item, block)
         while (item := next((i for i in items if i.shown and not i.asked), None)) is not None:
             item.asked = True
@@ -1494,9 +1530,17 @@ class _Walk:
                 if not later.shown and evaluate(
                     later.q.in_page_display_logic, self.state, self.survey
                 ):
+                    self.state.irrelevant.discard(later.key)
                     self._show(later, block, revealed=True)
         never = [i.q.id for i in items if not i.shown]
         self._hide(never, "in_page_display_logic")
+        # equations take their value as the page is submitted, from its final answers
+        equations, self.equations = self.equations, []
+        for q in equations:
+            if self.state.is_relevant(q.id):
+                self._compute(q)
+            else:
+                self.state.answers.pop(self.state.key(q.id), None)
         return items
 
     def _skip(
@@ -1534,6 +1578,17 @@ class _Walk:
         state = self.state
         if not evaluate(q.display_logic, state, self.survey):
             self.audit.append(Hidden(q.id, self.loop_id, "display_logic"))
+            state.irrelevant.add(state.key(q.id))
+            return None
+        state.irrelevant.discard(state.key(q.id))
+        if isinstance(q, EquationQuestion):  # its value so far; recorded at page submit
+            self._compute(q, audit=False)
+            self.equations.append(q)
+        if q.hidden:  # relevant but never shown: its default or computed value is recorded
+            if not evaluate(q.in_page_display_logic, state, self.survey):
+                state.irrelevant.add(state.key(q.id))
+            elif not isinstance(q, EquationQuestion):
+                self._record_default(q)
             return None
         # in-page logic shows the question at load if it already holds, else maybe later
         pending = not evaluate(q.in_page_display_logic, state, self.survey)
@@ -1591,6 +1646,18 @@ class _Walk:
         )
         return _Item(q, key, block_page, display, order, col_ids, bool(items), audit, pending)
 
+    def _compute(self, q: EquationQuestion, *, audit: bool = True) -> None:
+        """Evaluate an equation question and record its value."""
+        value = render(q.expression, self.state, self.survey, self.rng, "outcome")
+        self.state.answers[self.state.key(q.id)] = Answer(value=value)
+        if audit:
+            self.audit.append(EmbeddedSet(q.id, value, f"equation:{q.id}"))
+
+    def _record_default(self, q: Question) -> None:
+        if q.default_value not in (None, "", {}, []):
+            self.state.answers[self.state.key(q.id)] = Answer(value=q.default_value)
+            self.audit.append(EmbeddedSet(q.id, q.default_value, f"default:{q.id}"))
+
     def _show(self, item: _Item, block: Block, *, revealed: bool = False) -> None:
         """Put a prepared question on the respondent's screen, and record it."""
         state, key, q = self.state, item.key, item.q
@@ -1646,6 +1713,8 @@ class _Walk:
 
     def _answer(self, item: _Item, page: Sequence[_Item]) -> None:
         """Ask the respondent for ``item`` (never for text-only screens), and record it."""
+        if item.q.text.syntax == "expression_script":
+            self._refresh(item)
         d, state = item.display, self.state
         if not d.responds:
             return
@@ -1674,15 +1743,82 @@ class _Walk:
             return
         answer = value if isinstance(value, Answer) else Answer(value=value)
         errors = validation_errors(d, answer.value)
+        errors += self._expression_errors(item.q, item.key, answer)
         if errors:
             self.approximate(
                 "answer.invalid",
                 d.qid,
                 f"answer to {d.qid} violates its validation ({'; '.join(errors)}); "
-                "Qualtrics would not have accepted it",
+                "the platform would not have accepted it",
             )
         state.answers[item.key] = answer
         self.observe(Response(d.page, d.seq, d.qid, d.loop_id, answer.value, dict(answer.text)))
+
+    def _expression_errors(
+        self, q: Question, key: tuple[str, str | None], answer: Answer
+    ) -> list[str]:
+        """How ``answer`` fails the question's validation expressions (LimeSurvey
+        ``em_validation_q`` / ``em_validation_sq``), checked with the answer in place."""
+        v = q.validation
+        if v is None or (v.expression is None and v.item_expression is None):
+            return []
+        state = self.state
+        before = state.answers.get(key)
+        state.answers[key] = answer
+        errors: list[str] = []
+        try:
+            if v.expression is not None and not evaluate(v.expression, state, self.survey):
+                errors.append(v.custom_message or "the answer fails the question's validation")
+            if v.item_expression is not None:
+                from ..model import Expression as _Expression
+                from .expressions import evaluate_boolean
+
+                expr = v.item_expression
+                value = answer.value
+                answered = (
+                    [k for k, x in value.items() if x not in (None, "")]
+                    if isinstance(value, dict)
+                    else []
+                )
+                for item in answered:
+                    ok = (
+                        evaluate_boolean(expr, state, self.survey, affects="outcome", item=item)
+                        if isinstance(expr, _Expression)
+                        else evaluate(expr, state, self.survey)
+                    )
+                    if not ok:
+                        errors.append(f"{item} fails the question's item validation")
+        finally:
+            if before is None:
+                state.answers.pop(key, None)
+            else:
+                state.answers[key] = before
+        return errors
+
+    def _refresh(self, item: _Item) -> None:
+        """Re-render text that reads earlier answers on the same page, as LimeSurvey
+        updates it while the page is answered; the trace keeps one display per
+        question, as it read when the respondent answered it."""
+        q, d = item.q, item.display
+        plain, html = render_display(q.text, self.state, self.survey, self.pipe_rng)
+        items, _ = self._items(q)
+        by_id = {c.id: c for c in items}
+        choices = tuple(
+            dataclasses.replace(
+                c, text=render(by_id[c.id].text, self.state, self.survey, self.pipe_rng)
+            )
+            if c.id in by_id
+            else c
+            for c in d.choices
+        )
+        if (plain, html, choices) == (d.text, d.html, d.choices):
+            return
+        new = dataclasses.replace(d, text=plain, html=html, choices=choices)
+        for i, ob in enumerate(self.trace):
+            if ob is d:
+                self.trace[i] = new
+                self.public[i] = _public(new)
+        item.display = new
 
     def _items(self, q: Question) -> tuple[list[Choice], dict[str, tuple[str, str]]]:
         """Options in source order, and {carried choice id: (source qid, source id)}."""

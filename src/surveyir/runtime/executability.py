@@ -48,6 +48,7 @@ from ..model import (
     UnsupportedQuestion,
     WebServiceNode,
     iter_comparisons,
+    iter_expressions,
 )
 from .execution import (
     APPROXIMATIONS,
@@ -57,6 +58,7 @@ from .execution import (
     ExecutionPolicy,
     javascript_affects,
 )
+from .expressions import static_gaps
 from .logic import _num, operand_location, unevaluable
 from .trace import EXECUTION_AFFECTING, Affects, Approximation
 
@@ -211,6 +213,17 @@ def _texts(obj: Any) -> Iterator[Text]:
             yield from _texts(x)
 
 
+def _participant_fields(tree: Any) -> set[str]:
+    """Participant attributes an expression reads, as the embedded fields that hold them."""
+    from ..model import Var, iter_nodes
+
+    return {
+        f"TOKEN:{n.field}"
+        for n in iter_nodes(tree)
+        if isinstance(n, Var) and n.kind == "participant" and n.field
+    }
+
+
 class _Inventory:
     def __init__(self, survey: Survey) -> None:
         self.survey = survey
@@ -225,9 +238,14 @@ class _Inventory:
             for c in iter_comparisons(cond):
                 if c.left.kind == "embedded_data" and c.left.name:
                     self.logic_reads.add(c.left.name)
+            for e in iter_expressions(cond):
+                self.logic_reads.update(_participant_fields(e.tree))
         for where, pipe in self.pipes():
             if pipe.kind == "embedded_data" and pipe.name:
                 self.pipe_reads.setdefault(pipe.name, set()).add(where)
+            elif pipe.kind == "expression":
+                for name in _participant_fields(pipe.expression):
+                    self.pipe_reads.setdefault(name, set()).add(where)
 
     def add(self, feature: Feature) -> None:
         self.rows.append(feature)
@@ -270,6 +288,10 @@ class _Inventory:
                 for c in getattr(q, attr, None) or []:
                     if getattr(c, "display_logic", None) is not None:
                         yield c.display_logic, "choice_display_logic", f"{q.id}/{c.id}"
+            v = q.validation
+            for cond in (v.expression, v.item_expression) if v is not None else ():
+                if cond is not None:
+                    yield cond, "validation_expression", q.id
         for block in self.blocks:
             for e in block.elements:
                 if isinstance(e, QuestionRef):
@@ -398,7 +420,7 @@ class _Inventory:
 
     def quotas(self) -> None:
         for quota in self.survey.quotas:
-            if quota.action in (None, "EndCurrentSurvey", "ForBranching"):
+            if quota.action in (None, "EndCurrentSurvey", "ForBranching", "end_survey"):
                 self.add(
                     Feature(
                         "quota",
@@ -444,6 +466,17 @@ class _Inventory:
                             code,
                             operand_location(c.left),
                             f"{detail} (in {feature} {where})",
+                        )
+                    )
+            for e in iter_expressions(cond):
+                for code, detail in static_gaps(e.tree, e.source):
+                    self.add(
+                        _gap(
+                            "condition",
+                            code,
+                            e.location or e.source,
+                            f"{detail} (in {feature} {where})",
+                            affects="outcome" if feature == "validation_expression" else None,
                         )
                     )
 
@@ -509,6 +542,9 @@ class _Inventory:
                 self.add(_gap("pipe", "pipe.loc", p.path, f"{p.raw} in {where}", affects=affects))
             elif p.kind == "date":
                 self.add(_gap("pipe", "pipe.date", p.path, f"{p.raw} in {where}", affects=affects))
+            elif p.kind == "expression":
+                for code, detail in static_gaps(p.expression, p.path):
+                    self.add(_gap("pipe", code, p.path, f"{detail} in {where}", affects=affects))
             elif p.kind in ("embedded_data", "loop_merge") or (
                 p.kind == "question" and p.question_id
             ):

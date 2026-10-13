@@ -1,0 +1,4 @@
+id;submitdate;lastpage;startlanguage;seed;colour;colour[other];country;brand;brand[comment];five;gender;agree;pets[SQ001];pets[SQ002];pets[SQ003];pets[SQ004];pets[other];media[SQ001];media[SQ001comment];rate[SQ001];rate[SQ002];dual[SQ001][1];dual[SQ001][2];nums[R1_C1];nums[R2_C2];texts[R1_C1];alloc[SQ001];alloc[SQ002];names[SQ001];names[SQ002];short;age;when;rank[1];rank[2];rank[3];score
+1;1980-01-01 00:00:00;3;en;123;A2;;FR;B1;cheap;4;F;Y;Y;;Y;;Parrot;Y;news;A3;A1;A2;B1;3;7;hello;40;60;Ada;Lovelace;short;36;2024-05-01 00:00;R3;R1;R2;37
+2;1980-01-01 00:00:00;3;de;456;-oth-;Purple;;;;;;;;;;Y;;;;;;;;;;;;;;;;70;;;;;71
+3;;1;en;789;A1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

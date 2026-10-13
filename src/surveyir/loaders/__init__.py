@@ -21,9 +21,10 @@ class Loader(Protocol):
 
 
 def _builtin() -> dict[str, type]:
+    from .limesurvey import LimeSurveyLoader
     from .qualtrics import QualtricsLoader
 
-    return {"qualtrics": QualtricsLoader}
+    return {"qualtrics": QualtricsLoader, "limesurvey": LimeSurveyLoader}
 
 
 def available_loaders() -> dict[str, type]:

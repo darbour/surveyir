@@ -19,7 +19,26 @@ from .flow import (
     WebServiceNode,
     walk,
 )
-from .logic import And, Comparison, Condition, Operand, Or, iter_comparisons
+from .logic import (
+    And,
+    Assign,
+    Binary,
+    Call,
+    Comparison,
+    Condition,
+    Const,
+    Expr,
+    Expression,
+    Not,
+    Operand,
+    Or,
+    Sequence,
+    Unary,
+    Var,
+    iter_comparisons,
+    iter_expressions,
+    iter_nodes,
+)
 from .question import (
     NON_RESPONSE_KINDS,
     CaptchaQuestion,
@@ -30,6 +49,7 @@ from .question import (
     ConstantSumQuestion,
     DescriptiveQuestion,
     DrillDownQuestion,
+    EquationQuestion,
     FileUploadQuestion,
     GraphicSliderQuestion,
     HeatMapQuestion,
@@ -68,6 +88,19 @@ from .survey import (
 from .text import Pipe, Text
 
 __all__ = [
+    "Assign",
+    "Binary",
+    "Call",
+    "Const",
+    "EquationQuestion",
+    "Expr",
+    "Expression",
+    "iter_expressions",
+    "iter_nodes",
+    "Not",
+    "Sequence",
+    "Unary",
+    "Var",
     "ConjointDesign",
     "ConjointFeature",
     "ChoiceGroup",

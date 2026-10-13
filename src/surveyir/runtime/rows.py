@@ -33,6 +33,7 @@ from ..model import (
 from .state import Answer
 
 if TYPE_CHECKING:
+    from ..columns_limesurvey import LimeColumnOptions
     from .walker import RespondentRun
 
 
@@ -115,7 +116,7 @@ def _question_value(q: Question, col: Column, answer: Answer | None, order: list
 def to_row(
     run: RespondentRun,
     survey: Survey,
-    options: ColumnOptions | None = None,
+    options: ColumnOptions | LimeColumnOptions | None = None,
     *,
     key: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -131,7 +132,7 @@ def to_row(
 def to_cells(
     run: RespondentRun,
     survey: Survey,
-    options: ColumnOptions | None = None,
+    options: ColumnOptions | LimeColumnOptions | None = None,
     *,
     key: Mapping[str, Any] | None = None,
 ) -> list[tuple[Column, Any]]:
@@ -139,7 +140,16 @@ def to_cells(
 
     ``key`` appends external key columns after them, in order: ``{"TWIN_ID": "T17"}``
     adds a ``TWIN_ID`` column (``part == "key"``) holding ``"T17"``, so simulated
-    rows can be merged with a human export on it."""
+    rows can be merged with a human export on it. A LimeSurvey survey's row follows
+    LimeSurvey's export (``columns_limesurvey.lime_cells``)."""
+    if survey.source.format.startswith("limesurvey"):
+        from ..columns_limesurvey import LimeColumnOptions, lime_cells
+
+        return lime_cells(
+            run, survey, options if isinstance(options, LimeColumnOptions) else None, key=key
+        )
+    if not isinstance(options, ColumnOptions):
+        options = None
     options = options or ColumnOptions()
     row: list[tuple[Column, Any]] = []
     questions = dict(survey.questions)
@@ -191,11 +201,12 @@ def write_responses_csv(
     runs: Iterable[RespondentRun],
     path: str | Path,
     *,
-    options: ColumnOptions | None = None,
+    options: ColumnOptions | LimeColumnOptions | None = None,
     keys: Mapping[str, Sequence[Any]] | None = None,
 ) -> Path:
     """Write ``runs`` as a Qualtrics-shaped CSV export: the three header rows of
-    ``response_header_rows`` (names, labels, ImportIds), then one row per run.
+    ``response_header_rows`` (names, labels, ImportIds), then one row per run. A
+    LimeSurvey survey is written as LimeSurvey exports it: one header row.
 
     ``keys`` maps extra column names to one value per run (in the order of
     ``runs``), appended after the response columns: e.g. ``{"TWIN_ID": ids}`` to

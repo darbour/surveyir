@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
-from .model import And, Comparison, Condition, Survey
+from .model import And, Comparison, Condition, Expression, Not, Survey
 
 _OPERATOR_WORDS = {
     "selected": "is selected",
     "not_selected": "is not selected",
     "displayed": "was displayed",
     "not_displayed": "was not displayed",
+    "relevant": "is relevant",
+    "not_relevant": "is not relevant",
     "equal": "=",
     "not_equal": "≠",
     "greater_than": ">",
@@ -69,6 +71,11 @@ def describe_condition(condition: Condition | None, survey: Survey | None = None
         op = _OPERATOR_WORDS.get(condition.operator, condition.source_operator)
         right = f" {condition.right}" if condition.right not in (None, "") else ""
         return f"{describe_operand(condition, survey)} {op}{right}"
+    if isinstance(condition, Not):
+        inner = describe_condition(condition.term, survey)
+        return f"NOT ({inner})"
+    if isinstance(condition, Expression):
+        return f"`{condition.source}`"
     joiner = " AND " if isinstance(condition, And) else " OR "
     parts = []
     for term in condition.terms:

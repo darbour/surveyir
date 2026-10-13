@@ -1,8 +1,8 @@
 # surveyir
 
 **An intermediate representation (IR) for survey instruments that keeps every
-source key, with a Qualtrics `.qsf` loader, a simulator that records what each
-respondent saw, and pluggable exporters.**
+source key, with Qualtrics `.qsf` and LimeSurvey `.lss` / `.lsa` loaders, a
+simulator that records what each respondent saw, and pluggable exporters.**
 
 Survey platforms export instruments in formats built for their editors, not for
 analysis or simulation. `surveyir` turns them into one typed, documented,
@@ -12,7 +12,9 @@ translations. Any tool (an LLM respondent simulator, a codebook generator, an R
 analysis pipeline, a survey renderer) can then work from that one structure.
 
 ```text
- .qsf ──► loader ──► Survey (IR) ──► exporters ──► JSON · Markdown · codebook CSV · your format
+ .qsf ─┐
+       ├─► loader ──► Survey (IR) ──► exporters ──► JSON · Markdown · codebook CSV · your format
+ .lss ─┘
 ```
 
 ## Why
@@ -22,8 +24,11 @@ analysis pipeline, a survey renderer) can then work from that one structure.
   yet load as `UnsupportedQuestion` with a diagnostic. They are never coerced
   into something else.
 - **Logic is data.** Display, branch, skip and custom-validation logic all
-  become one small expression tree (`And` / `Or` / `Comparison`), with
-  Qualtrics' AND-before-OR precedence already resolved.
+  become one small expression tree (`And` / `Or` / `Not` / `Comparison`), with
+  Qualtrics' AND-before-OR precedence already resolved. LimeSurvey's
+  ExpressionScript is parsed with LimeSurvey's own grammar and lowered to the same
+  comparisons wherever that is exact; the rest stays as typed `Expression` trees
+  that the runtime evaluates with LimeSurvey's rules.
 - **Tested against real surveys, not just the spec.** The loader runs over
   880 real QSFs (19 committed, 861 public files from GitHub). Every
   question type found in them has a typed model, from side-by-side and
@@ -36,6 +41,11 @@ analysis pipeline, a survey renderer) can then work from that one structure.
   with their .qsf, 36,102 of 36,155 question columns (99.85%) are reproduced
   exactly, and 67,641 of 67,697 (99.92%) when metadata, score and
   display-order columns are counted too ([docs/parity.md](docs/parity.md)).
+- **LimeSurvey too.** `.lss`, `.lsa`, `.lsg`, `.lsq` and tab-separated exports from
+  LimeSurvey 2.x to 7.x load to the same IR. All 135 of LimeSurvey's own demo and
+  test surveys load, export and simulate. In every one of its response archives, the
+  generated field names match the response file exactly, and replaying the
+  recorded answers reproduces them ([docs/parity_limesurvey.md](docs/parity_limesurvey.md)).
 - **Language-neutral.** The IR is plain JSON with a published
   [JSON Schema](schema/surveyir.schema.json), so R, JavaScript and other tools
   can consume it without Python.
@@ -84,8 +94,8 @@ Requires Python 3.10+. The only runtime dependency is `pydantic>=2`.
 Start with the [quickstart](docs/quickstart.md), then the guides:
 [loading](docs/guide/loading.md), [exporting](docs/guide/exporting.md),
 [data columns](docs/guide/data-columns.md), [experiments](docs/guide/experiments.md),
-[simulating respondents](docs/guide/simulation.md) and the
-[command line](docs/cli.md). [Positioning](docs/positioning.md) compares
+[simulating respondents](docs/guide/simulation.md), [LimeSurvey](docs/guide/limesurvey.md)
+and the [command line](docs/cli.md). [Positioning](docs/positioning.md) compares
 surveyir with related tools. Every example in the docs is run by the test suite,
 and runnable scripts are in [`examples/`](examples).
 
@@ -94,7 +104,7 @@ and runnable scripts are in [`examples/`](examples).
 ```python
 import surveyir
 
-survey = surveyir.load("study.qsf")
+survey = surveyir.load("study.qsf")        # or a LimeSurvey "study.lss" / "study.lsa"
 
 for q in survey.iter_questions(responses_only=True):
     print(q.export_tag, q.kind, q.text.plain[:60])
@@ -204,7 +214,7 @@ surveyir convert study.qsf -t markdown -o study.md
 surveyir convert study.qsf -t json --opt compact=true
 surveyir convert study.qsf -t codebook -o codebook.csv
 surveyir design study.qsf                # the experimental design
-surveyir simulate study.qsf -n 500 -o sim.csv   # random answers, Qualtrics-style CSV
+surveyir simulate study.qsf -n 500 -o sim.csv   # random answers, CSV as the platform exports
 surveyir formats                         # installed loaders and exporters
 surveyir schema -o surveyir.schema.json  # JSON Schema for the IR
 ```
@@ -249,8 +259,8 @@ Register it from your own package so `surveyir convert -t surveyjs` finds it:
 surveyjs = "my_package.exporters:SurveyJSExporter"
 ```
 
-Loaders for other platforms (LimeSurvey, REDCap, SurveyMonkey, …) plug in the
-same way under `surveyir.loaders`.
+Loaders for other platforms (REDCap, SurveyMonkey, …) plug in the same way under
+`surveyir.loaders`, as the Qualtrics and LimeSurvey loaders do.
 
 ## Status
 
@@ -265,7 +275,7 @@ example is enough to model a type.
 
 - Typed handling for quotas that branch or end the survey based on live counts across
   many simulated respondents (counted today, but only `EndCurrentSurvey` is acted on).
-- Loaders for the Qualtrics v3 survey-definitions API, LimeSurvey and REDCap.
+- Loaders for the Qualtrics v3 survey-definitions API and REDCap.
 - Typed conjoint definitions, and a typed model for each question type that
   still lacks a public example. Video response is next; the plan is in
   [docs/design.md](docs/design.md#deferred-video-response-questions).

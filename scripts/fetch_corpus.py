@@ -6,6 +6,9 @@
 * ``exports``: Qualtrics CSV exports. Only the column-name row and the ImportId
   row are kept (as corpus/external_columns/<sha>.json); response rows are
   discarded without being written to disk.
+* ``limesurvey``: LimeSurvey exports (.lss, .lsa, .lsg, .lsq) from LimeSurvey's
+  own repository (GPL-2.0-or-later), saved to corpus/external/limesurvey/<sha>.<ext>.
+  They are test inputs only and are never committed (corpus/external/ is ignored).
 
 Everything is fetched by git blob SHA from the GitHub API, so it is exactly the
 version that was tested. The files belong to their authors and are not
@@ -31,6 +34,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "corpus" / "manifest.json"
 QSF_DIR = ROOT / "corpus" / "external"
 COLUMNS_DIR = ROOT / "corpus" / "external_columns"
+LIMESURVEY_DIR = QSF_DIR / "limesurvey"
 
 
 def _blob(entry: dict, token: str | None, attempts: int = 4) -> bytes | None:
@@ -87,6 +91,17 @@ def fetch_qsf(entry: dict, token: str | None) -> str:
     return "downloaded"
 
 
+def fetch_limesurvey(entry: dict, token: str | None) -> str:
+    dest = LIMESURVEY_DIR / f"{entry['sha']}{Path(entry['path']).suffix.lower()}"
+    if dest.exists() and dest.stat().st_size:
+        return "cached"
+    data = _blob(entry, token)
+    if data is None:
+        return "failed"
+    dest.write_bytes(data)
+    return "downloaded"
+
+
 def fetch_export(entry: dict, token: str | None) -> str:
     dest = COLUMNS_DIR / f"{entry['sha']}.json"
     if dest.exists() and dest.stat().st_size:
@@ -104,6 +119,9 @@ def main() -> int:
     parser.add_argument("--jobs", type=int, default=8)
     parser.add_argument("--no-exports", action="store_true", help="Only fetch .qsf files.")
     parser.add_argument(
+        "--only", choices=("qualtrics", "limesurvey"), help="Fetch one platform's files only."
+    )
+    parser.add_argument(
         "--strict",
         action="store_true",
         help="Fail if any .qsf can't be fetched (default: tolerate up to 1%%, e.g. files "
@@ -113,10 +131,16 @@ def main() -> int:
     manifest = json.loads(MANIFEST.read_text())
     QSF_DIR.mkdir(parents=True, exist_ok=True)
     COLUMNS_DIR.mkdir(parents=True, exist_ok=True)
+    LIMESURVEY_DIR.mkdir(parents=True, exist_ok=True)
     token = os.environ.get("GITHUB_TOKEN")
-    jobs = [(fetch_qsf, e) for e in manifest["files"]]
-    if not args.no_exports:
+    jobs = []
+    if args.only != "limesurvey":
+        jobs += [(fetch_qsf, e) for e in manifest["files"]]
+    n_qsf = len(jobs)
+    if args.only != "limesurvey" and not args.no_exports:
         jobs += [(fetch_export, e) for e in manifest.get("exports", [])]
+    if args.only != "qualtrics":
+        jobs += [(fetch_limesurvey, e) for e in manifest.get("limesurvey", [])]
     with ThreadPoolExecutor(args.jobs) as pool:
         results = list(pool.map(lambda job: job[0](job[1], token), jobs))
     summary: dict[str, int] = {}
@@ -126,8 +150,7 @@ def main() -> int:
     for (_, entry), r in zip(jobs, results, strict=True):
         if r == "failed":
             print(f"failed: {entry['repo']} {entry.get('path', '')} ({entry['sha']})")
-    # Export headers are a recall oracle; only missing .qsf files can fail the run.
-    n_qsf = len(manifest["files"])
+    # Export headers are a recall oracle; only missing survey files can fail the run.
     qsf_failed = sum(r == "failed" for r in results[:n_qsf])
     if qsf_failed and (args.strict or qsf_failed > n_qsf // 100):
         return 1
