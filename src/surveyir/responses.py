@@ -29,9 +29,10 @@ What an export does not record is reconstructed or reported, never guessed:
 * a flow randomizer's arms, without ``FL_<id>_DO`` columns (or in a LimeSurvey
   export): recovered by searching replays for the decisions the answers and the
   exported embedded fields pin down (``runtime.reconstruct``; ``reconstruct=``);
-* a randomized block's questions without its ``_DO`` column, and a randomized
-  loop's iterations (Qualtrics never exports loop order): the ones with answers.
-  These hold what was shown, not in which order;
+* a randomized block's questions without its ``_DO`` column (the ones with
+  answers first, then the rest, so a replay presents as many as the block does),
+  and a randomized loop's iterations (Qualtrics never exports loop order): the ones
+  with answers. ``runtime.reconstruct`` then reorders them where the response says;
 * all of these are listed in ``Recording.inferred``; decisions the response
   cannot tell apart are left out and noted in ``Recording.unrecoverable``;
 * random numbers the flow draws (``${rand://...}``) are exported as drawn: they
@@ -109,9 +110,11 @@ def read_responses(
     settings read off the file (``ColumnOptions`` or ``LimeColumnOptions``).
     ``finished_only`` drops responses the export marks unfinished.
 
-    ``reconstruct`` (default True): flow randomizer decisions the export does not
-    record are recovered by searching replays (``runtime.reconstruct``); a mapping
-    is passed to it as keyword arguments (``max_replays``, ``implementations``)."""
+    ``reconstruct`` (default True): each response is replayed once, and what the
+    export does not record (flow randomizer decisions, earlier answers to a question
+    shown twice, loop and block orders) is recovered by searching replays when the
+    replay does not reproduce the response (``runtime.reconstruct``); a mapping is
+    passed to it as keyword arguments (``max_replays``, ``implementations``)."""
     if survey.source.format.startswith("limesurvey"):
         from .columns_limesurvey import read_responses as read_lime
 
@@ -120,15 +123,11 @@ def read_responses(
         recordings = read_qualtrics_responses(source, survey, options=options)
     if finished_only:
         recordings = [r for r in recordings if r.finished is not False]
-    if reconstruct and _subset_randomizers(survey):
+    if reconstruct:
         from .runtime.reconstruct import reconstruct as search
 
-        recordings = [
-            search(survey, r, **(reconstruct if isinstance(reconstruct, Mapping) else {}))
-            if _subset_randomizers(survey) - {k[1] for k in r.orders if k[0] == "flow"}
-            else r
-            for r in recordings
-        ]
+        kw = dict(reconstruct) if isinstance(reconstruct, Mapping) else {}
+        recordings = [search(survey, r, **kw) for r in recordings]
     return recordings
 
 
@@ -478,7 +477,10 @@ def read_qualtrics_responses(
         for b in randomized_blocks:
             key = ("block", b.id, None)
             if key not in have_do and key not in orders:
-                orders[key] = tuple(q for q in b.question_ids if (q, None) in answered)
+                # the answered questions first, then the rest: a replay presents as
+                # many as the block does (a shown screen may hold no answer)
+                shown = [q for q in b.question_ids if (q, None) in answered]
+                orders[key] = (*shown, *(q for q in b.question_ids if q not in shown))
                 inferred.append(key)
         for b in looped_blocks:
             loops = list(

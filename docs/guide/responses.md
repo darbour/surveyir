@@ -56,7 +56,8 @@ from surveyir import Replayer
 from surveyir.responses import REPLAY_FALLBACK
 
 replayer = Replayer(survey, strict=False, fallback_kinds=REPLAY_FALLBACK)
-again = replayer.respondent(rec.orders, rec.answers, embedded=rec.embedded, drawn=rec.drawn)
+again = replayer.respondent(rec.orders, rec.answers, embedded=rec.embedded,
+                            drawn=rec.drawn, earlier=rec.earlier)
 print(again.flow_order == people[0].flow_order,
       set(again.state.displayed) == set(people[0].state.displayed))
 ```
@@ -65,7 +66,7 @@ print(again.flow_order == people[0].flow_order,
 True True
 ```
 
-Pass `drawn=rec.drawn`: random numbers the flow draws (a common way to assign conditions) take the respondent's exported value instead of a new draw. Some orders are never in a Qualtrics export: matrix column order, and the scale flip when no flip-scale question shows it. `REPLAY_FALLBACK` lets the replay draw them without counting them as gaps. Anything else the recording lacks is a gap. A strict replay stops at a gap; a permissive one draws it and records it in the run's audit.
+Pass `drawn=rec.drawn` and `earlier=rec.earlier`. Random numbers the flow draws (a common way to assign conditions) then take the respondent's exported value instead of a new draw. A question shown twice gets its recovered earlier answer at its earlier display. Some orders are never in a Qualtrics export: matrix column order, and the scale flip when no flip-scale question shows it. `REPLAY_FALLBACK` lets the replay draw them without counting them as gaps. Anything else the recording lacks is a gap. A strict replay stops at a gap; a permissive one draws it and records it in the run's audit.
 
 ## Exports without display order
 
@@ -80,6 +81,16 @@ When an export has no display-order columns, a recording's orders are reconstruc
 
 Everything reconstructed is listed in `Recording.inferred`.
 
+Every response is checked this way, not only exports without display order.
+`read_responses` replays each one; when the replay does not reproduce the
+response (an answered question it does not display, or an exported embedded field
+that comes out different), it searches what the export cannot hold until it does:
+- flow arms;
+- earlier answers to a question shown more than once;
+- loop orders, and block orders that were not exported.
+
+Anything that still differs is noted in `Recording.unrecoverable`.
+
 ```python
 plain = write_responses_csv(survey, people, Path(tempfile.mkdtemp()) / "plain.csv",
                             options=ColumnOptions(display_order="none", include_metadata=True))
@@ -91,12 +102,14 @@ print(rec.orders[("flow", "FL_491", None)], rec.inferred)
 ('FL_497',) (('flow', 'FL_491', None),)
 ```
 
-**When the answers can't tell arms apart.** This happens with arms that show the same screens and leave no trace in the export, such as a randomizer that only sets the order of later sections. The decision is then:
-- left out of the recording;
-- noted in `Recording.unrecoverable`;
-- drawn by the replay.
+**When the answers can't tell arms apart.** This happens with arms that show the same screens and leave no trace in the export, such as a randomizer that only sets the order of later sections. Every choice then reproduces the response equally well. The search keeps one, preferring the one that leaves the fewest questions displayed but blank, so the replay reproduces the response. The decision is:
+- kept in `Recording.orders`, with the decisions nested under it;
+- listed in `Recording.conditional` (not known to be the respondent's), so a truth built from the recording gives no arm for it;
+- noted in `Recording.unrecoverable`.
 
-Decisions nested under it are settled under each equally good arm. Whichever arm the replay draws, the respondent's own inner conditions follow.
+The recording also keeps every other path decision the best replay made (randomizers that show every arm, block orders), so a replay makes the same ones. These are listed in `conditional` too.
+
+**What no export holds.** When display order is not exported, a randomizer or block that shows one of several text-only screens (descriptive text, a timer) leaves no trace: no export column records a screen without an answer. That choice is kept and flagged like any other undecidable one. Exports with display order hold it.
 
 ## What an export cannot hold
 
@@ -105,8 +118,8 @@ Decisions nested under it are settled under each equally good arm. Whichever arm
 | Matrix column order | Drawn on replay (`REPLAY_FALLBACK`) |
 | The scale flip | Read off a flip-scale question's display order when there is one; otherwise drawn (`REPLAY_FALLBACK`) |
 | Random numbers the flow draws (`${rand://...}`) | Not missing: the exported value is the respondent's draw, kept in `Recording.drawn` and used by the replay (`drawn=`) instead of a new draw |
-| An earlier answer to a question shown twice | Only the last answer is exported; logic that read the earlier one cannot be replayed |
-| Loop order | Iterations with answers, order unknown (`inferred`); logic that reads "the last iteration" can then differ |
+| An earlier answer to a question shown twice | Only the last answer is exported. The earlier one is recovered from what followed it: a "yes" to "another round?" is what led to round two, and a rating below 25 is what opened a branch. It is kept in `Recording.earlier` (for a number: a value on the right side of every threshold the logic uses) and replayed (`earlier=`) |
+| Loop order | Iterations with answers; when the replay would otherwise differ (logic that reads "the last iteration"), reordered until it fits (`inferred`) |
 | Display order, when not exported | Reconstructed as above (`inferred`), or noted (`unrecoverable`) |
 | Heat-map clicks, files, signatures, pick-group-rank placements | Not replayed; noted (`unrecoverable`) |
 | The random seed (Qualtrics) | `Recording.seed` is None |

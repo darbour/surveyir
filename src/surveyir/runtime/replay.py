@@ -174,15 +174,36 @@ class ReplayAnswerer:
 
     ``answers`` maps ``(qid, loop_id)`` to an ``Answer`` or a raw value (as in
     ``Answer.value``). Questions with no recorded answer are left blank.
+
+    A question displayed more than once (its block placed twice in the flow, say)
+    keeps only its last answer in an export. ``earlier`` maps ``(qid, loop_id, n)``
+    to the answer given at its ``n``-th display (0 first), when it differs; the
+    recorded answer is used otherwise.
     """
 
     __respondent_protocol__ = 2
 
-    def __init__(self, answers: Mapping[tuple[str, str | None], Any]) -> None:
+    def __init__(
+        self,
+        answers: Mapping[tuple[str, str | None], Any],
+        earlier: Mapping[tuple[str, str | None, int], Any] | None = None,
+    ) -> None:
         self.answers = dict(answers)
+        self.earlier = dict(earlier or {})
+        #: (qid, loop_id) -> display seqs answered so far (a display is answered once)
+        self.displays: dict[tuple[str, str | None], list[int]] = {}
+
+    def occurrence(self, ctx: ResponseContext) -> int:
+        """Which display of its question ``ctx`` is (0: the first)."""
+        seqs = self.displays.setdefault((ctx.view.qid, ctx.view.loop_id), [])
+        if ctx.view.seq not in seqs:
+            seqs.append(ctx.view.seq)
+        return seqs.index(ctx.view.seq)
 
     def answer(self, ctx: ResponseContext) -> Any:
-        a = self.answers.get((ctx.view.qid, ctx.view.loop_id))
+        n = self.occurrence(ctx)
+        key = (ctx.view.qid, ctx.view.loop_id)
+        a = self.earlier.get((*key, n), self.answers.get(key))
         if a is None:
             return None
         if isinstance(a, Answer):
@@ -203,9 +224,12 @@ class Recording:
     the flow itself sets (``outputs``: final values, compared, never supplied).
     ``drawn`` holds the ones the flow draws at random (``${rand://...}``): the
     respondent's actual draw, which a replay takes instead of drawing again.
-    ``conditional`` lists reconstructed decisions of randomizers the respondent may
-    not have reached (they sit under a decision the export could not tell apart):
-    a replay follows whichever it reaches, but none is known to be theirs.
+    ``conditional`` lists decisions kept so a replay reproduces the response that
+    are not known to be the respondent's: ones the response cannot tell apart, the
+    decisions under them, and other path decisions the best-fitting replay made.
+    ``earlier`` holds answers to earlier displays of a question shown more than
+    once, which the export overwrote and ``reconstruct`` recovered (see
+    ``ReplayAnswerer``).
     """
 
     orders: dict[RecordKey, tuple[str, ...]]
@@ -219,6 +243,7 @@ class Recording:
     outputs: dict[str, str] = field(default_factory=dict)
     drawn: dict[str, str] = field(default_factory=dict)
     conditional: tuple[RecordKey, ...] = ()
+    earlier: dict[tuple[str, str | None, int], Any] = field(default_factory=dict)
 
 
 def record(run: RespondentRun) -> Recording:
@@ -276,15 +301,16 @@ class Replayer:
         embedded: Mapping[str, str] | None = None,
         seed: int | None = None,
         drawn: Mapping[str, str] | None = None,
+        earlier: Mapping[tuple[str, str | None, int], Any] | None = None,
     ) -> RespondentRun:
-        """Replay one respondent (``drawn``: see ``Recording.drawn``). Raises
+        """Replay one respondent (``drawn``, ``earlier``: see ``Recording``). Raises
         ``ExecutionError`` (``ReplayGap`` for a missing decision) where a strict
         replay cannot proceed; the partial run is on the error's ``run``."""
         chooser = self.chooser
         chooser.recorded = {k: tuple(v) for k, v in orders.items()}
         chooser.gaps, chooser.fallbacks = [], []
         run = self.simulator.respondent(
-            ReplayAnswerer(answers), embedded=dict(embedded or {}), seed=seed, drawn=drawn
+            ReplayAnswerer(answers, earlier), embedded=dict(embedded or {}), seed=seed, drawn=drawn
         )
         if chooser.gaps:  # allowed or permissive gaps, recorded like any approximation
             audit = list(run.audit)
@@ -307,6 +333,8 @@ def replay(
     *,
     embedded: Mapping[str, str] | None = None,
     seed: int | None = None,
+    drawn: Mapping[str, str] | None = None,
+    earlier: Mapping[tuple[str, str | None, int], Any] | None = None,
     fallback: Chooser = default_chooser,
     fallback_kinds: Collection[ChoiceKind] = (),
     touch_balancer: bool = True,
@@ -327,7 +355,9 @@ def replay(
         fallback_kinds=fallback_kinds,
         touch_balancer=touch_balancer,
         **simulator_kw,
-    ).respondent(recorded_orders, answers, embedded=embedded, seed=seed)
+    ).respondent(
+        recorded_orders, answers, embedded=embedded, seed=seed, drawn=drawn, earlier=earlier
+    )
 
 
 __all__ = [
