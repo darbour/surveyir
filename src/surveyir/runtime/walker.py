@@ -454,7 +454,14 @@ class ScreenerAwareAnswerer(RandomAnswerer):
 # --------------------------------------------------------------------------- presentation
 
 _IMG = re.compile(r"<img\b[^>]*>", re.IGNORECASE)
-_ATTR = re.compile(r"""\b(src|alt)\s*=\s*["']([^"']*)["']""", re.IGNORECASE)
+_ATTR = re.compile(r"""\b(src|alt|title|aria-label)\s*=\s*["']([^"']*)["']""", re.IGNORECASE)
+#: embedded players: a <video> or <audio> element (its own src, or its first <source>),
+#: or an <iframe> (a YouTube or Vimeo player is a video; anything else an embed)
+_PLAYER = re.compile(
+    r"<(video|audio)\b([^>]*)>(.*?)</\1\s*>|<(iframe)\b([^>]*)>", re.IGNORECASE | re.DOTALL
+)
+_SOURCE = re.compile(r"<source\b[^>]*>", re.IGNORECASE)
+_VIDEO_HOSTS = ("youtube.com", "youtube-nocookie.com", "youtu.be", "vimeo.com")
 
 
 def _presentation(q: Question, text: Callable[[Text], str]) -> dict[str, Any]:
@@ -522,7 +529,31 @@ def _media(q: Question, choices: Sequence[Choice], html: str) -> tuple[MediaRef,
     for tag in _IMG.findall(html):
         attrs = {k.lower(): v for k, v in _ATTR.findall(tag)}
         refs.append(MediaRef("image", url=attrs.get("src"), description=attrs.get("alt") or None))
+    refs += _players(html)
     return tuple(refs)
+
+
+def _players(html: str) -> list[MediaRef]:
+    """The videos, recordings and embeds in a question's HTML, in order."""
+    out: list[MediaRef] = []
+    for m in _PLAYER.finditer(html):
+        if m.group(4):  # an iframe
+            attrs = {k.lower(): v for k, v in _ATTR.findall(m.group(5))}
+            src = attrs.get("src") or ""
+            kind = "video" if any(h in src for h in _VIDEO_HOSTS) else "embed"
+        else:
+            kind = m.group(1).lower()
+            attrs = {k.lower(): v for k, v in _ATTR.findall(m.group(2))}
+            src = attrs.get("src") or ""
+            if not src:
+                source = _SOURCE.search(m.group(3) or "")
+                if source:
+                    src = dict((k.lower(), v) for k, v in _ATTR.findall(source.group(0))).get(
+                        "src", ""
+                    )
+        words = attrs.get("title") or attrs.get("aria-label") or None
+        out.append(MediaRef(kind, url=src or None, description=words))
+    return out
 
 
 def _legacy_display(view: QuestionView) -> Display:

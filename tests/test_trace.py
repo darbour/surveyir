@@ -327,3 +327,29 @@ def test_transcript_is_ordered_and_neutral():
         "  [1] Yes\n  [2] No\nAnswer (QID2): [1] Yes\n\n--- End of survey ---"
     )
     assert "QID" not in transcript(run.trace, include_ids=False)
+
+
+def test_videos_recordings_and_embeds_are_displayed_media():
+    html = (
+        '<p>Watch the clip.</p>'
+        '<iframe src="https://www.youtube.com/embed/abc" title="The new ad"></iframe>'
+        '<video controls><source src="https://cdn.example.com/ad.mp4"></video>'
+        '<audio src="https://cdn.example.com/jingle.mp3" aria-label="The jingle"></audio>'
+        '<iframe src="https://forms.example.com/widget"></iframe>'
+        '<img src="https://cdn.example.com/shoe.png" alt="a red shoe">'
+    )
+    survey = load_qsf(minimal_qsf([mc(QuestionText=html)]))
+    run = Simulator(survey, seed=1).respondent(RandomAnswerer(seed=1))
+    shown = of(run, Display)[0]
+    kinds = [(m.kind, m.url, m.description) for m in shown.media]
+    assert kinds == [
+        ("image", "https://cdn.example.com/shoe.png", "a red shoe"),
+        ("video", "https://www.youtube.com/embed/abc", "The new ad"),
+        ("video", "https://cdn.example.com/ad.mp4", None),
+        ("audio", "https://cdn.example.com/jingle.mp3", "The jingle"),
+        ("embed", "https://forms.example.com/widget", None),
+    ]
+    text = transcript((shown,))
+    assert text.count("[image: a red shoe]") == 1  # inline once, not again as a line
+    for line in ("[video: The new ad]", "[video]", "[audio: The jingle]", "[embed]"):
+        assert line in text

@@ -39,6 +39,10 @@ class ChoiceShown:
 
 @dataclass(frozen=True)
 class MediaRef:
+    """A picture, video, recording or embed a display shows: ``kind`` is ``"image"``,
+    ``"video"``, ``"audio"`` or ``"embed"`` (an iframe that is not a known video
+    player)."""
+
     kind: str
     url: str | None = None
     id: str | None = None
@@ -248,7 +252,12 @@ def _option(c: ChoiceShown, include_ids: bool) -> str:
 def _display_lines(d: Display, include_ids: bool) -> list[str]:
     head = f"({d.qid}) {d.text}" if include_ids else d.text
     lines = [head]
-    lines += [f"  [image: {m.description}]" for m in d.media if m.description]
+    for m in d.media:
+        if not m.description and m.kind == "image":
+            continue  # an undescribed picture: nothing a reader of the text would get
+        label = f"[{m.kind}: {m.description}]" if m.description else f"[{m.kind}]"
+        if label not in d.text:  # an inline picture's alt text is already in the text
+            lines.append(f"  {label}")
     lines += ["  " + _option(c, include_ids) for c in d.choices]
     if d.columns:
         lines.append("  Scale: " + "; ".join(_option(c, include_ids) for c in d.columns))
